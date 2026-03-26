@@ -1,0 +1,12 @@
+<h2>🔄 fract() — 重复的魔法</h2>
+<p><code>fract(x) = x - floor(x)</code>，只保留小数。</p>
+<p>x 从 0→3 时，fract(x) 在 0~1 间循环 3 次。</p>
+<div class="info-box">
+  <strong>核心：</strong><code>fract(uv * N)</code> 把空间分 N×N 格，每格坐标 0~1。
+</div>
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 改 <code>3.0</code> → 5.0, 8.0（更多格子）</p>
+  <p>2. 改半径 <code>0.3</code></p>
+  <p>3. 只水平重复: <code>uv.x = fract(uv.x * 5.0);</code></p>
+</div>

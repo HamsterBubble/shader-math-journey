@@ -1,0 +1,21 @@
+<h2>🌀 域扭曲 (Domain Warping)</h2>
+<p>域扭曲是终极噪声技巧：用噪声扭曲噪声的输入坐标。</p>
+<p style="text-align:center;color:var(--accent);">
+  f(p + fbm(p + fbm(p)))
+</p>
+<p>产生<strong>大理石、云层、液态金属</strong>般的有机流动纹理。</p>
+<h3>层次</h3>
+<ul>
+  <li>1 层: <code>fbm(p)</code> → 普通噪声</li>
+  <li>2 层: <code>fbm(p + fbm(p))</code> → 开始扭曲</li>
+  <li>3 层: <code>fbm(p + fbm(p + fbm(p)))</code> → 超级有机</li>
+</ul>
+<div class="info-box tip">
+  <strong>💡 Inigo Quilez 的名言</strong>: "Domain warping is one of the most useful techniques in procedural graphics. It can make simple patterns look incredibly organic."
+</div>
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 改扭曲强度 (乘数 4.0)</p>
+  <p>2. 去掉第二层/第三层对比效果</p>
+  <p>3. 改颜色映射创造不同材质</p>
+</div>

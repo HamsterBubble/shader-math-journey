@@ -1,0 +1,21 @@
+<h2>🏆 挑战：用 SDF 画一个图标</h2>
+<p>运用所学的 SDF 基础形状和组合运算，画一个简单图标。</p>
+<div class="goal-preview">
+  <div class="goal-label"><span class="dot"></span>目标效果（实时）</div>
+  <canvas class="goal-canvas"></canvas>
+</div>
+<h3>💡 提示</h3>
+<ul>
+  <li>圆：<code>length(p) - r</code></li>
+  <li>矩形：<code>max(abs(p) - size, 0)</code></li>
+  <li>环：<code>abs(圆的SDF) - 厚度</code></li>
+  <li>并集 = <code>min()</code>，差集 = <code>max(a, -b)</code></li>
+  <li>平移：在 SDF 函数中传 <code>p - offset</code></li>
+</ul>
+<div class="task-box">
+  <h4>🎯 你的任务</h4>
+  <p>画一个简单图标（笑脸、月亮、对号等）</p>
+  <p>· 至少组合 3 个基础形状</p>
+  <p>· 加分：加一些颜色变化</p>
+  <p>· 加分：让某些部分动起来</p>
+</div>

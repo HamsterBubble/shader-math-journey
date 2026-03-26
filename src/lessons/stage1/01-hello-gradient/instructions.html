@@ -1,0 +1,21 @@
+<h2>🎨 你好，渐变！</h2>
+<h3>Shader 是什么？</h3>
+<p>Shader（着色器）是运行在 GPU 上的小程序。</p>
+<p>它的工作很简单：<strong>对屏幕上的每一个像素，计算一个颜色。</strong></p>
+<div class="info-box">
+  <strong>输入：</strong>像素坐标 <code>gl_FragCoord.xy</code><br>
+  <strong>输出：</strong>颜色 <code>gl_FragColor = vec4(r, g, b, a)</code>
+</div>
+<h3>UV 坐标</h3>
+<p>我们把像素坐标<strong>归一化</strong>到 0~1，这样代码和分辨率无关：</p>
+<p><code>vec2 uv = gl_FragCoord.xy / u_resolution.xy;</code></p>
+<ul>
+  <li><code>uv.x = 0</code> 最左 → <code>uv.x = 1</code> 最右</li>
+  <li><code>uv.y = 0</code> 最下 → <code>uv.y = 1</code> 最上</li>
+</ul>
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 把 <code>uv.x</code> 改成 <code>uv.y</code> → 竖向渐变</p>
+  <p>2. 第三个分量改成 <code>1.0</code> → 加蓝色</p>
+  <p>3. 试试 <code>vec3(uv.x, uv.y, 0.5)</code></p>
+</div>

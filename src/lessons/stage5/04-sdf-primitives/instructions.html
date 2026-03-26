@@ -1,0 +1,19 @@
+<h2>🔶 更多 SDF 原语</h2>
+<p>除了圆和矩形，这些 SDF 也很常用：</p>
+<h3>等边三角形</h3>
+<p><code>max(abs(p.x)*0.866+p.y*0.5, -p.y) - r*0.5</code></p>
+<h3>正六边形</h3>
+<p>用 abs + 旋转实现六重对称</p>
+<h3>星形</h3>
+<p>将极坐标的角度做 mod 然后配合距离函数</p>
+<h3>环形 (Annular SDF)</h3>
+<p><code>abs(baseSDF) - thickness</code> — 把任何实心形状变成空心环</p>
+<div class="info-box tip">
+  <strong>💡 通用技巧</strong>: <code>abs(sdf) - thickness</code> 是把<strong>任意形状</strong>变成等宽轮廓的万能方法。
+</div>
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 改 thickness 看环的粗细</p>
+  <p>2. 改星的角数 (points 变量)</p>
+  <p>3. 组合多个原语做复杂图标</p>
+</div>

@@ -1,0 +1,14 @@
+<h2>✦ 放射条纹</h2>
+<p>极坐标中把角度 θ 传给 <code>sin()</code> 或 <code>fract()</code>，就能画出<strong>放射状条纹</strong>。</p>
+<p>关键思路：</p>
+<ul>
+  <li><code>angle / (2π) * N</code> → 均匀分成 N 份</li>
+  <li><code>fract()</code> → 重复图案</li>
+  <li><code>step(0.5, ...)</code> → 黑白条纹</li>
+</ul>
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 改 <code>segments</code>（条纹数）</p>
+  <p>2. 把 <code>step</code> 换成 <code>smoothstep</code> → 模糊边缘</p>
+  <p>3. 叠加第二层：<code>fract(r * 5.0)</code> → 同心环</p>
+</div>

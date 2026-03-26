@@ -1,0 +1,25 @@
+<h2>✨ 抗锯齿 (Anti-Aliasing)</h2>
+<p>锯齿是 Shader 最常见的视觉瑕疵。理解抗锯齿需要<strong>微积分直觉</strong>：</p>
+<h3>为什么有锯齿？</h3>
+<ul>
+  <li>像素有<strong>有限大小</strong>，但数学边界是<strong>无限锐利</strong>的</li>
+  <li><code>step(0.0, d)</code> → 一个像素内从 0 跳到 1 → 锯齿</li>
+</ul>
+<h3>解决方案</h3>
+<ul>
+  <li>用 <code>smoothstep(-w, w, d)</code> 代替 <code>step</code></li>
+  <li>w 应该等于<strong>一个像素的宽度</strong>在当前空间中的大小</li>
+  <li><code>fwidth(d)</code> 自动告诉你这个值！</li>
+</ul>
+<p style="text-align:center;color:var(--accent);">
+  完美 AA = smoothstep(-fwidth(d), fwidth(d), -d)
+</p>
+<div class="info-box tip">
+  <strong>💡 经验法则</strong>: 每当你写 <code>step()</code> 画形状边缘时，问自己"可以换成带 fwidth 的 smoothstep 吗？"
+</div>
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 对比有无 AA 的多条斜线</p>
+  <p>2. 在细密网格上看 AA 的重要性</p>
+  <p>3. 用 fwidth 画完美抗锯齿文字/形状</p>
+</div>

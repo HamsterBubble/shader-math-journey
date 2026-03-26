@@ -1,0 +1,28 @@
+<h2>🎨 RGB 颜色的数学本质</h2>
+<p>颜色在 Shader 中就是 <code>vec3</code>，所有向量运算都适用：</p>
+<h3>加法混色 (光的叠加)</h3>
+<ul>
+  <li><code>红 + 绿 = 黄</code>，<code>红 + 蓝 = 品红</code>，<code>全加 = 白</code></li>
+  <li>加法适合<strong>发光效果</strong>：多个灯光叠加</li>
+</ul>
+<h3>乘法混色 (滤镜效果)</h3>
+<ul>
+  <li><code>color * vec3(1,0,0)</code> → 红色滤镜，只保留红通道</li>
+  <li><code>color * 0.5</code> → 变暗</li>
+  <li>乘法适合<strong>材质着色</strong>：光照 × 材质颜色</li>
+</ul>
+<h3>Cosine 调色板 (高级技巧)</h3>
+<p>一行代码生成无限渐变色：</p>
+<p style="text-align:center;color:var(--accent);">
+  color = a + b × cos(2π × (c × t + d))
+</p>
+<p>其中 a,b,c,d 都是 vec3，调整参数获得不同色系。</p>
+<div class="info-box">
+  <strong>⚡ IQ调色板</strong> 是 Shadertoy 大神 Inigo Quilez 发明的技巧，被无数 Shader 使用。改变 4 个 vec3 参数就能生成任意渐变。
+</div>
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 修改调色板参数 a, b, c, d 创造不同色系</p>
+  <p>2. 用 <code>color * filter</code> 做滤镜效果</p>
+  <p>3. 试试减法混色：<code>1.0 - color</code> (互补色)</p>
+</div>

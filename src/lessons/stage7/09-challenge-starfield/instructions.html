@@ -1,0 +1,19 @@
+<h2>🏆 挑战：星空隧道</h2>
+<p>用伪随机和极坐标创建<strong>向前飞行穿越星空</strong>的效果。</p>
+<div class="goal-preview">
+  <div class="goal-label"><span class="dot"></span>目标效果（实时）</div>
+  <canvas class="goal-canvas"></canvas>
+</div>
+<h3>💡 提示</h3>
+<ul>
+  <li>把屏幕分成多层，每层有不同的速度（视差）</li>
+  <li>每层用 <code>fract()</code> 创建网格，用 <code>hash()</code> 决定星星位置</li>
+  <li>星星的亮度随距离中心衰减</li>
+  <li>速度 = <code>fract(layer * 0.618) * speed</code></li>
+</ul>
+<div class="task-box">
+  <h4>🎯 你的任务</h4>
+  <p>1. 实现多层星空</p>
+  <p>2. 每层不同速度产生视差</p>
+  <p>3. 加分：加大小和亮度变化</p>
+</div>

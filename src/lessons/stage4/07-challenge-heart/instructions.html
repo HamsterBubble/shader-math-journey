@@ -1,0 +1,19 @@
+<h2>🏆 挑战：跳动的心形</h2>
+<p>用 SDF 和矩阵缩放画一个<strong>跳动的心形</strong>。</p>
+<div class="goal-preview">
+  <div class="goal-label"><span class="dot"></span>目标效果（实时）</div>
+  <canvas class="goal-canvas"></canvas>
+</div>
+<h3>💡 提示</h3>
+<ul>
+  <li>心形 SDF 可用数学公式：<code>x² + (y - √|x|)² < r²</code></li>
+  <li>或者用两个圆 + 一个旋转45°的正方形组合</li>
+  <li>跳动效果：用 <code>sin(u_time)</code> 控制 <code>scale2d</code></li>
+  <li>缩放矩阵：<code>mat2(s, 0, 0, s)</code></li>
+</ul>
+<div class="task-box">
+  <h4>🎯 你的任务</h4>
+  <p>1. 画出心形形状</p>
+  <p>2. 让心脏有节奏地跳动</p>
+  <p>3. 加分：加呼吸光晕</p>
+</div>

@@ -1,0 +1,16 @@
+<h2>📐 SDF 形状集</h2>
+<p>除了圆，常用 SDF 还有：</p>
+<ul>
+  <li><strong>矩形</strong>：<code>max(abs(p)-size, 0)</code></li>
+  <li><strong>线段</strong>：投影 + 距离</li>
+  <li><strong>圆角矩形</strong>：矩形 SDF - 圆角半径</li>
+</ul>
+<div class="info-box">
+  SDF 的巧妙之处：<strong>负值=内部，正值=外部</strong>。所有 smoothstep/边缘处理都基于这个性质。
+</div>
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 改矩形 <code>size</code>（ vec2(宽, 高) ）</p>
+  <p>2. 改圆角 <code>r</code> 值</p>
+  <p>3. 加旋转：在 SDF 之前 <code>uv = rotate(angle) * uv</code></p>
+</div>

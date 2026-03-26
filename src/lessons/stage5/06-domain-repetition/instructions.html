@@ -1,0 +1,21 @@
+<h2>♾️ 域重复：一个形状 → 无限复制</h2>
+<p>域重复 (Domain Repetition) 是 SDF 最强大的技巧之一：</p>
+<p style="text-align:center;color:var(--accent);">
+  repeated_uv = mod(uv + period/2, period) - period/2
+</p>
+<ul>
+  <li>只定义<strong>一个</strong>形状的 SDF，自动获得<strong>无限重复</strong></li>
+  <li>比 for 循环高效无数倍</li>
+  <li>配合 floor() 获取每个副本的 ID（给不同颜色/旋转）</li>
+</ul>
+<h3>限制域重复</h3>
+<p><code>clamp(id, -N, N)</code> → 只在指定范围内重复</p>
+<div class="info-box">
+  <strong>⚡ Ray Marching 中的域重复</strong>可以用一个球的 SDF 创造出无限的3D空间——这是很多 Shadertoy 作品的核心技术。
+</div>
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 改 period 值看密度变化</p>
+  <p>2. 用 id 给每个副本不同旋转</p>
+  <p>3. 限制重复范围: <code>clamp(id, -2.0, 2.0)</code></p>
+</div>

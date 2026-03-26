@@ -1,0 +1,15 @@
+<h2>🌈 mix() — 线性插值</h2>
+<h3>公式</h3>
+<p><code>mix(a, b, t) = a × (1-t) + b × t</code></p>
+<ul>
+  <li><code>t = 0.0</code> → 返回 a</li>
+  <li><code>t = 0.5</code> → 返回两者中间值</li>
+  <li><code>t = 1.0</code> → 返回 b</li>
+</ul>
+<p>用 <code>uv.x</code> 作为 t，颜色从左到右平滑过渡。</p>
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 修改 <code>colorA / colorB</code> 换颜色</p>
+  <p>2. 用 <code>uv.y</code> 做垂直渐变</p>
+  <p>3. 用 <code>sin(u_time)*0.5+0.5</code> 替代 uv.x → 自动动画</p>
+</div>

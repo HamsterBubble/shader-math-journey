@@ -1,0 +1,22 @@
+<h2>⚡ dFdx / dFdy / fwidth — GPU 的导数</h2>
+<p>GPU 可以自动计算屏幕空间导数：</p>
+<ul>
+  <li><code>dFdx(v)</code>: v 在水平方向（右边像素 - 当前像素）的变化率</li>
+  <li><code>dFdy(v)</code>: v 在垂直方向的变化率</li>
+  <li><code>fwidth(v) = abs(dFdx(v)) + abs(dFdy(v))</code></li>
+</ul>
+<h3>为什么重要？</h3>
+<ul>
+  <li><strong>抗锯齿</strong>: <code>smoothstep(-fw, fw, d)</code></li>
+  <li><strong>等宽线条</strong>: 线条粗细在任何缩放级别保持一致</li>
+  <li><strong>Mipmap 选择</strong>: 纹理采样依赖导数</li>
+</ul>
+<div class="info-box">
+  <strong>⚠ 限制</strong>: dFdx/dFdy 在 if 分支、循环内使用时可能不正确。这是因为 GPU 是以 2×2 像素块为单位计算导数的。
+</div>
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 注释掉 fwidth 抗锯齿，看锯齿出现</p>
+  <p>2. 放大/缩小观察等宽线条的效果</p>
+  <p>3. 用 dFdx/dFdy 可视化 UV 的变化速率</p>
+</div>

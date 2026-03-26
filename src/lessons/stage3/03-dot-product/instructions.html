@@ -1,0 +1,20 @@
+<h2>💡 dot() — 点积</h2>
+<h3>几何含义</h3>
+<p><code>dot(a,b) = |a|·|b|·cos(θ)</code></p>
+<p>对于<strong>单位向量</strong>：<code>dot = cos(夹角)</code></p>
+<ul>
+  <li>dot = 1 → 同方向</li>
+  <li>dot = 0 → 垂直</li>
+  <li>dot = -1 → 反方向</li>
+</ul>
+<div class="info-box">
+  <strong>Shader 最重要的公式：</strong><br>
+  <code>float light = max(dot(normal, lightDir), 0.0);</code><br>
+  面朝光源的面亮，背对光源的面暗。
+</div>
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 改 <code>lightDir</code> 方向（试各种 vec2）</p>
+  <p>2. 用鼠标控制光源方向（提示：uniform u_mouse）</p>
+  <p>3. 把 <code>max(..., 0.0)</code> 去掉，看负值区域</p>
+</div>

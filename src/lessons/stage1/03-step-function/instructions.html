@@ -1,0 +1,16 @@
+<h2>🔲 step() — 阶跃函数</h2>
+<p><code>step(edge, x)</code>：</p>
+<ul>
+  <li><code>x &lt; edge</code> → <strong>0.0</strong></li>
+  <li><code>x >= edge</code> → <strong>1.0</strong></li>
+</ul>
+<p>像一个<strong>开关</strong>。Shader 中用它代替 if/else。</p>
+<div class="info-box">
+  GPU 上所有核心走相同代码路径，<code>step()</code>用纯数学实现分支，效率更高！
+</div>
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 修改 <code>0.5</code> 阈值</p>
+  <p>2. 试 <code>step(0.5, uv.y)</code> → 水平分割</p>
+  <p>3. 两个 step 相乘: <code>step(0.3, uv.x) * step(0.3, uv.y)</code></p>
+</div>

@@ -1,0 +1,22 @@
+<h2>🏆 综合挑战：脉动环阵列</h2>
+<p>用本阶段所学创建一个<strong>网格化脉动环</strong>图案。</p>
+<div class="goal-preview">
+  <div class="goal-label"><span class="dot"></span>目标效果（实时）</div>
+  <canvas class="goal-canvas"></canvas>
+</div>
+<h3>💡 提示</h3>
+<ul>
+  <li><code>fract(uv * N)</code> 创建 N×N 网格</li>
+  <li><code>floor(uv * N)</code> 获得每个格子的 ID</li>
+  <li>用 cellID 计算不同的动画相位</li>
+  <li>环 = <code>abs(距离 - 半径) < 厚度</code></li>
+  <li>中心加一个小圆点增加层次感</li>
+</ul>
+<div class="task-box">
+  <h4>🎯 你的任务</h4>
+  <p>实现上方预览中的效果：</p>
+  <p>1. 用 <code>fract/floor</code> 创建网格</p>
+  <p>2. 每格画一个脉动环（半径随 sin 变化）</p>
+  <p>3. 每格画一个中心点</p>
+  <p>4. 不同格子用不同颜色</p>
+</div>

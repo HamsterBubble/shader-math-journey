@@ -1,0 +1,16 @@
+<h2>⭕ sin + cos = 圆形运动</h2>
+<h3>单位圆</h3>
+<p><code>cos(t)</code> 和 <code>sin(t)</code> 本质是单位圆上点的 x, y 坐标。</p>
+<p>所以 <code>vec2(cos(t), sin(t))</code> 就是一个<strong>圆形轨迹</strong>！</p>
+<div class="info-box tip">
+  <strong>💡 黄金公式：</strong><br>
+  <code>x = r * cos(angle)</code><br>
+  <code>y = r * sin(angle)</code><br>
+  这个公式在 Shader 中无处不在！
+</div>
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 改 <code>orbitRadius</code>（0.1 ~ 0.8）</p>
+  <p>2. 改 <code>u_time</code> 的乘数来加/减速</p>
+  <p>3. 加第二个球：用不同半径和不同速度</p>
+</div>

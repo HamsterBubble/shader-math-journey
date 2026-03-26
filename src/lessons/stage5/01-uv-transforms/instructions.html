@@ -1,0 +1,14 @@
+<h2>🗺️ UV 坐标变换</h2>
+<p>Shader 中最常见的坐标操作：</p>
+<ul>
+  <li><strong>归一化</strong>：<code>uv = fragCoord / resolution</code> → [0,1]</li>
+  <li><strong>居中</strong>：<code>uv = uv * 2.0 - 1.0</code> → [-1,1]</li>
+  <li><strong>宽高比</strong>：<code>uv.x *= aspect</code></li>
+</ul>
+<p>这三步几乎在每个 Shader 开头都会用到。</p>
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 注释掉宽高比修正，看圆变椭圆</p>
+  <p>2. 注释掉居中步骤，看圆跑到角落</p>
+  <p>3. 加缩放：<code>uv *= 2.0;</code>（在居中之后）</p>
+</div>

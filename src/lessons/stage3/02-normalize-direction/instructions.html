@@ -1,0 +1,12 @@
+<h2>🧭 normalize — 归一化</h2>
+<p><code>normalize(v) = v / length(v)</code></p>
+<p>结果是一个<strong>长度为 1</strong> 的单位向量，只保留<strong>方向</strong>信息。</p>
+<div class="info-box tip">
+  <strong>💡</strong> 把每个像素到中心的方向可视化：<code>normalize(uv)</code> 的 x,y 分量直接映射到颜色的 r,g 通道。
+</div>
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 观察颜色如何表示方向（右=红，上=绿）</p>
+  <p>2. 把 <code>* 0.5 + 0.5</code> 去掉，看原始 -1~1 范围</p>
+  <p>3. 试试只用 <code>dir.x</code> 做灰度图</p>
+</div>

@@ -1,0 +1,14 @@
+<h2>🔀 Swizzle — 分量魔法</h2>
+<p>GLSL 的独特特性：用 <code>.xyzw</code> 或 <code>.rgba</code> 任意组合向量分量。</p>
+<ul>
+  <li><code>v.xy</code> → 取前两个分量</li>
+  <li><code>v.yx</code> → 交换 x,y</li>
+  <li><code>v.xxx</code> → 三个分量都用 x</li>
+  <li><code>color.rgb = color.bgr</code> → 交换红蓝</li>
+</ul>
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 把 <code>.rgb</code> 改成 <code>.brg</code> 或 <code>.gbr</code></p>
+  <p>2. 试 <code>color.rrr</code> → 只取红色通道（灰度）</p>
+  <p>3. 加一行 <code>color *= vec3(1.2, 0.9, 0.8);</code> → 色温调整</p>
+</div>

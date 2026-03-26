@@ -1,0 +1,18 @@
+<h2>🏆 挑战：融球 (Metaballs)</h2>
+<p>Metaballs 是经典 demo 效果：多个能量场叠加产生<strong>有机融合</strong>效果。</p>
+<div class="goal-preview">
+  <div class="goal-label"><span class="dot"></span>目标效果（实时）</div>
+  <canvas class="goal-canvas"></canvas>
+</div>
+<h3>💡 提示</h3>
+<ul>
+  <li>能量场 = <code>radius / distance</code></li>
+  <li>叠加多个点的能量场，总能量 > 阈值的区域就是"融球"</li>
+  <li>让球心沿圆形轨道运动：<code>vec2(cos(t), sin(t))</code></li>
+</ul>
+<div class="task-box">
+  <h4>🎯 你的任务</h4>
+  <p>1. 实现 3-4 个运动的能量场</p>
+  <p>2. 用阈值提取形状</p>
+  <p>3. 加分：用能量值做彩色映射</p>
+</div>

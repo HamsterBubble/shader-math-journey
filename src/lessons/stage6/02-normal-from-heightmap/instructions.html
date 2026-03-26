@@ -1,0 +1,13 @@
+<h2>⛰️ 从高度图算法线</h2>
+<p>导数的终极应用：把高度图转换成<strong>法线贴图</strong>，实现凹凸光照。</p>
+<p>原理：在 x 和 y 方向分别求导数，得到表面倾斜方向。</p>
+<div class="info-box">
+  <code>vec3 normal = normalize(vec3(dFdx, dFdy, strength));</code><br>
+  strength 越大 → 法线越"平"（凹凸感弱）
+</div>
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 改 <code>strength</code>（试 0.5, 0.01）→ 凹凸强度</p>
+  <p>2. 改高度函数（试 <code>sin(x*10)*sin(y*10)</code>）</p>
+  <p>3. 改光源方向</p>
+</div>

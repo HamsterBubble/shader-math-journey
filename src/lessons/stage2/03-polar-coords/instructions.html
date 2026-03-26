@@ -1,0 +1,16 @@
+<h2>🎯 极坐标系</h2>
+<h3>从 (x,y) 到 (r,θ)</h3>
+<p>极坐标用<strong>距离 r</strong> 和<strong>角度 θ</strong> 描述一个点的位置：</p>
+<ul>
+  <li><code>r = length(uv)</code> — 到中心的距离</li>
+  <li><code>θ = atan(uv.y, uv.x)</code> — 角度 (-π ~ π)</li>
+</ul>
+<div class="info-box">
+  极坐标能让你画出<strong>放射状、旋转对称</strong>的图案，这在直角坐标下很难做到。
+</div>
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 改 <code>6.0</code>（花瓣数量）→ 3.0, 5.0, 8.0</p>
+  <p>2. 让花瓣旋转：把 <code>angle</code> 改成 <code>angle + u_time</code></p>
+  <p>3. 改 <code>0.3</code>（振幅）看形状变化</p>
+</div>

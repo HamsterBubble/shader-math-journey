@@ -1,0 +1,24 @@
+<h2>📏 abs() 绝对值 与 mod() 取模</h2>
+<p>这两个函数在 Shader 中无处不在：</p>
+<h3>abs(x) — 绝对值</h3>
+<ul>
+  <li>把负值"折叠"成正值：<code>abs(-3.0) = 3.0</code></li>
+  <li><strong>几何含义</strong>：沿轴做镜像！<code>abs(uv.x)</code> 让左右对称</li>
+  <li>常用于 SDF：<code>abs(distance) - thickness</code> 画环</li>
+</ul>
+<h3>mod(x, y) — 取模</h3>
+<ul>
+  <li><code>mod(5.0, 3.0) = 2.0</code>（除以 3 的余数）</li>
+  <li>等价于 <code>x - y * floor(x/y)</code></li>
+  <li>和 <code>fract()</code> 的关系：<code>fract(x) = mod(x, 1.0)</code></li>
+  <li>用于创建<strong>重复条纹</strong>或<strong>交替网格</strong></li>
+</ul>
+<div class="info-box">
+  <strong>关键洞察：</strong> <code>mod(x, 2.0) < 1.0</code> 可以判断奇偶条纹——这是棋盘格的基础。
+</div>
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 注释掉 <code>abs()</code>，看对称性消失</p>
+  <p>2. 改 mod 的模数（2.0 → 3.0）看条纹密度变化</p>
+  <p>3. 用 <code>mod(cellID.x + cellID.y, 2.0)</code> 做棋盘格</p>
+</div>

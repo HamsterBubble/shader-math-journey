@@ -1,0 +1,23 @@
+<h2>📦 clamp() 限制范围 与值域重映射</h2>
+<p>Shader 中最重要的技能之一：<strong>把一个范围的数映射到另一个范围</strong>。</p>
+<h3>clamp(x, min, max)</h3>
+<ul>
+  <li>把 x 限制在 [min, max] 范围内</li>
+  <li><code>clamp(1.5, 0.0, 1.0) = 1.0</code></li>
+  <li><code>clamp(-0.3, 0.0, 1.0) = 0.0</code></li>
+  <li>相当于 <code>min(max(x, minVal), maxVal)</code></li>
+</ul>
+<h3>值域映射公式</h3>
+<p style="text-align:center;color:var(--accent);">
+  mapped = (x - inMin) / (inMax - inMin) × (outMax - outMin) + outMin
+</p>
+<p>这个公式把 [inMin, inMax] 线性映射到 [outMax, outMin]。</p>
+<div class="info-box tip">
+  <strong>💡</strong> <code>smoothstep(edge0, edge1, x)</code> 本质上就是带平滑的值域映射：把 [edge0, edge1] 映射到 [0, 1] 并加 Hermite 曲线。
+</div>
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 改 clamp 的范围看效果截断</p>
+  <p>2. 把温度映射改成不同的色阶</p>
+  <p>3. 用 smoothstep 替代线性映射，比较过渡差异</p>
+</div>

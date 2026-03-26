@@ -1,0 +1,19 @@
+<h2>🏆 挑战：带高光的球体</h2>
+<p>用向量数学画一个有<strong>漫反射 + 高光</strong>的 2D 球体。</p>
+<div class="goal-preview">
+  <div class="goal-label"><span class="dot"></span>目标效果（实时）</div>
+  <canvas class="goal-canvas"></canvas>
+</div>
+<h3>💡 提示</h3>
+<ul>
+  <li>漫反射 = <code>max(dot(N, L), 0.0)</code></li>
+  <li>高光 = <code>pow(max(dot(R, V), 0.0), shininess)</code></li>
+  <li>反射向量 = <code>reflect(-L, N)</code></li>
+  <li>3D法线：<code>vec3(uv, sqrt(r²-x²-y²))</code></li>
+</ul>
+<div class="task-box">
+  <h4>🎯 你的任务</h4>
+  <p>1. 计算漫反射</p>
+  <p>2. 计算高光（用 <code>pow</code>）</p>
+  <p>3. 加分：菲涅尔边缘光</p>
+</div>

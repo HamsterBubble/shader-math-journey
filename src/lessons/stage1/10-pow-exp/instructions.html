@@ -1,0 +1,25 @@
+<h2>📈 pow() 幂函数与 exp() 指数衰减</h2>
+<p>这两个函数控制<strong>非线性变化的速率</strong>，是 Shader 的核心武器。</p>
+<h3>pow(x, n) — 幂函数</h3>
+<ul>
+  <li><code>pow(x, 2.0)</code> — 二次曲线，加速增长</li>
+  <li><code>pow(x, 0.5)</code> — 平方根，减速增长（= sqrt）</li>
+  <li><code>pow(x, 0.4545)</code> — Gamma 校正！物理亮度 → 屏幕亮度</li>
+  <li>高光强度：<code>pow(dot(R,V), 32.0)</code> 指数越大高光越锐利</li>
+</ul>
+<h3>exp(x) — 自然指数</h3>
+<ul>
+  <li><code>exp(-x)</code> — 衰减！距离越远越弱。<strong>光晕、雾</strong>的基础</li>
+  <li><code>exp(-x*x)</code> — 高斯曲线（钟形）。<strong>模糊</strong>的数学基础</li>
+  <li><code>1.0 - exp(-x*k)</code> — 渐近线趋近 1，k 控制速度</li>
+</ul>
+<div class="info-box">
+  <strong>Gamma 校正</strong>：显示器不是线性的。物理亮度 0.5 在屏幕上看起来是 0.73。<br>
+  所以我们用 <code>pow(color, vec3(1.0/2.2))</code> 做伽马校正。
+</div>
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 改 pow 的指数 (0.1 ~ 5.0) 看曲线弯曲</p>
+  <p>2. 改 exp 的衰减系数看光晕大小</p>
+  <p>3. 对最终颜色做 Gamma 校正：<code>pow(color, vec3(1.0/2.2))</code></p>
+</div>

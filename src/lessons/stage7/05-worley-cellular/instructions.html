@@ -1,0 +1,24 @@
+<h2>🔬 Worley (Cellular) 噪声</h2>
+<p>Worley 噪声计算每个点到最近随机特征点的距离，产生<strong>细胞/泡沫/石头</strong>纹理。</p>
+<h3>算法</h3>
+<ol>
+  <li>把空间分成网格</li>
+  <li>每个格子中放一个随机点 (特征点)</li>
+  <li>对当前像素，遍历周围 3×3 格子</li>
+  <li>找到最近的特征点，记录距离</li>
+</ol>
+<h3>变体</h3>
+<ul>
+  <li><strong>F1</strong>: 最近距离 → 细胞图案</li>
+  <li><strong>F2</strong>: 第二近距离 → 更复杂</li>
+  <li><strong>F2-F1</strong>: 细胞边缘网络</li>
+</ul>
+<div class="info-box">
+  Worley 噪声也叫 <strong>Voronoi 噪声</strong>，因为它自然产生 Voronoi 图。在自然界中，肥皂泡、龟壳、干裂地面都是 Voronoi 图案。
+</div>
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 切换 F1/F2/F2-F1 模式</p>
+  <p>2. 改缩放看密度变化</p>
+  <p>3. 让特征点随时间微动</p>
+</div>

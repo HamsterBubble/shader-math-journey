@@ -1,0 +1,13 @@
+<h2>🎲 伪随机函数</h2>
+<p>GPU 没有 <code>random()</code>，用数学伪造：</p>
+<p><code>fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453)</code></p>
+<p>这个"魔法数字"公式几乎所有 Shader 都在用。</p>
+<div class="info-box">
+  纯随机太"吵"。实用噪声需要<strong>平滑</strong>：对网格点取随机值，中间做插值。这就是 Value Noise。
+</div>
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 改 <code>uv * 8.0</code> 的缩放因子 → 噪声粗细</p>
+  <p>2. 把 <code>mix</code> 换成 <code>smoothstep</code> 插值看差异</p>
+  <p>3. 用噪声值控制颜色而非灰度</p>
+</div>

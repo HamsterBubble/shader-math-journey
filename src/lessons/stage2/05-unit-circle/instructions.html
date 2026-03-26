@@ -1,0 +1,22 @@
+<h2>⭕ 单位圆：sin/cos 的几何起源</h2>
+<p>忘掉公式，回到本质：<strong>sin 和 cos 是圆上点的 y 和 x 坐标</strong>。</p>
+<ul>
+  <li>半径为 1 的圆，角度 θ 处的点 = <code>(cos θ, sin θ)</code></li>
+  <li><code>sin</code> = 竖直分量 (y)，<code>cos</code> = 水平分量 (x)</li>
+  <li>所以 <code>sin²θ + cos²θ = 1</code> 就是勾股定理！</li>
+</ul>
+<h3>在 Shader 中的用途</h3>
+<ul>
+  <li><strong>圆周运动</strong>：<code>vec2(cos(t), sin(t)) * radius</code></li>
+  <li><strong>旋转</strong>：把点投影到新的 cos/sin 轴上</li>
+  <li><strong>波动</strong>：sin(x) 就是圆的 y 坐标随角度变化的"展开"</li>
+</ul>
+<div class="info-box">
+  理解单位圆后，<code>atan(y, x)</code> 也清楚了——它就是从坐标 (x,y) 反推角度 θ。
+</div>
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 改半径看圆的大小变化</p>
+  <p>2. 乘以不同速度: <code>u_time * 0.5</code> vs <code>u_time * 3.0</code></p>
+  <p>3. 用 <code>vec2(cos(t*2.0), sin(t*3.0))</code> 看利萨如图形</p>
+</div>

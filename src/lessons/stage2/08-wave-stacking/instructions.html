@@ -1,0 +1,27 @@
+<h2>🌊 波的叠加原理</h2>
+<p>自然界的复杂波形都是<strong>简单 sin 波的叠加</strong>（傅里叶分析的核心思想）。</p>
+<h3>建设性干涉</h3>
+<ul>
+  <li>两个同频率、同相位的波叠加 → <strong>振幅翻倍</strong></li>
+  <li><code>sin(x) + sin(x) = 2·sin(x)</code></li>
+</ul>
+<h3>破坏性干涉</h3>
+<ul>
+  <li>两个同频率、反相位的波叠加 → <strong>相互抵消</strong></li>
+  <li><code>sin(x) + sin(x + π) = 0</code></li>
+</ul>
+<h3>差频拍 (Beat)</h3>
+<ul>
+  <li>两个<strong>频率略不同</strong>的波叠加 → 产生"呼吸"效果</li>
+  <li><code>sin(10x) + sin(11x)</code> → 能看到包络线</li>
+</ul>
+<div class="info-box">
+  <strong>方波近似：</strong>叠加奇次谐波！<br>
+  <code>sin(x) + sin(3x)/3 + sin(5x)/5 + sin(7x)/7 + ...</code> → 趋近方波
+</div>
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 改第二个波的频率, 接近第一个时看"拍频"</p>
+  <p>2. 增加更多谐波观察趋向方波的过程</p>
+  <p>3. 用叠加波做高度图着色</p>
+</div>

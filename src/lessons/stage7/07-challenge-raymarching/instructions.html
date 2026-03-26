@@ -1,0 +1,28 @@
+<h2>🏆 终极挑战：3D Ray Marching</h2>
+<p>Ray Marching 是用 SDF 渲染 3D 场景的技术。</p>
+<div class="goal-preview">
+  <div class="goal-label"><span class="dot"></span>目标效果（实时）</div>
+  <canvas class="goal-canvas"></canvas>
+</div>
+<h3>💡 核心思路</h3>
+<ul>
+  <li>对每个像素，从相机发出一条<strong>射线</strong></li>
+  <li>沿射线<strong>步进</strong>，每步前进 = 当前点的 SDF 值</li>
+  <li>SDF 足够小 → <strong>命中表面</strong></li>
+  <li>在命中点用数值导数算<strong>法线</strong></li>
+  <li>用法线做<strong>光照</strong></li>
+</ul>
+<div class="info-box">
+  <strong>⚡ 关键函数：</strong><br>
+  · <code>sceneSDF(p)</code> — 返回点 p 到最近表面的距离<br>
+  · <code>ro + rd * t</code> — 射线上 t 处的点 (ro=起点, rd=方向)<br>
+  · 法线 = sceneSDF 的梯度
+</div>
+<div class="task-box">
+  <h4>🎯 你的任务</h4>
+  <p>补全下面的 Ray Marching 框架：</p>
+  <p>1. 实现 <code>sceneSDF</code>（试试球+地面）</p>
+  <p>2. 实现步进循环</p>
+  <p>3. 加法线和光照</p>
+  <p>· 加分：加第二个物体（用 <code>min</code> 并集）</p>
+</div>

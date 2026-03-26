@@ -1,0 +1,18 @@
+<h2>📈 导数 — 变化率</h2>
+<p>导数 = 函数在某点的<strong>瞬间变化率</strong> = 曲线的<strong>斜率</strong>。</p>
+<ul>
+  <li>斜率为正 → 函数在上升</li>
+  <li>斜率为零 → 极值点</li>
+  <li>斜率为负 → 函数在下降</li>
+</ul>
+<div class="info-box">
+  <strong>Shader 中的数值导数：</strong><br>
+  <code>dFdx(value)</code> = value 在 x 方向的变化率<br>
+  或手动：<code>(f(x+ε) - f(x)) / ε</code>
+</div>
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 改 <code>epsilon</code> 大小，观察精度变化</p>
+  <p>2. 换一个函数（如 <code>pow(x,3.0)</code>）</p>
+  <p>3. 绿色线在红色线斜率=0处穿过零点，验证这一点</p>
+</div>

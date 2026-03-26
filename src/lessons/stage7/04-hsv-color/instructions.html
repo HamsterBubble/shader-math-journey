@@ -1,0 +1,17 @@
+<h2>🎨 HSV 颜色空间</h2>
+<p>RGB 直觉很差（调"更暖的红"很困难）。HSV 更直观：</p>
+<ul>
+  <li><strong>H</strong> (Hue) = 色相 (0~1, 彩虹色环)</li>
+  <li><strong>S</strong> (Saturation) = 饱和度 (0=灰, 1=纯色)</li>
+  <li><strong>V</strong> (Value) = 亮度</li>
+</ul>
+<div class="info-box tip">
+  <strong>💡 快速 HSV→RGB：</strong>用 <code>cos()</code> 近似：<br>
+  <code>vec3 c = 0.5 + 0.5 * cos(6.283 * (h + vec3(0, 0.333, 0.667)))</code>
+</div>
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 改 <code>hueOffset</code> 值</p>
+  <p>2. 固定 H 改 S → 观察饱和度</p>
+  <p>3. 用 <code>u_time</code> 旋转色相</p>
+</div>

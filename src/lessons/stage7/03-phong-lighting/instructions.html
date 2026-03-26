@@ -1,0 +1,17 @@
+<h2>💡 Phong 光照</h2>
+<p>完整的 Phong 光照 = 三种分量相加：</p>
+<ul>
+  <li><strong>环境光</strong> (Ambient)：常数，防止全黑</li>
+  <li><strong>漫反射</strong> (Diffuse)：<code>max(dot(N, L), 0)</code></li>
+  <li><strong>高光</strong> (Specular)：<code>pow(max(dot(R, V), 0), shininess)</code></li>
+</ul>
+<div class="info-box">
+  <strong>R = reflect(-L, N)</strong> 是光的反射方向。<br>
+  V = 视线方向（通常 = vec3(0,0,1)）。
+</div>
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 改 <code>shininess</code>（4 = 模糊高光，128 = 锐利高光）</p>
+  <p>2. 改 <code>ambient</code> 值</p>
+  <p>3. 改球的颜色</p>
+</div>

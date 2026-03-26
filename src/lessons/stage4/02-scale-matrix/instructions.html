@@ -1,0 +1,17 @@
+<h2>📐 缩放 + 旋转组合</h2>
+<p>缩放矩阵：</p>
+<p style="text-align:center;color:var(--accent);">
+  | sx &nbsp; 0 |<br>
+  | 0 &nbsp; sy |
+</p>
+<p><strong>关键：变换顺序很重要！</strong></p>
+<ul>
+  <li>先缩放再旋转 ≠ 先旋转再缩放</li>
+  <li>矩阵从<strong>右到左</strong>应用</li>
+</ul>
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 交换旋转和缩放的顺序，看差异</p>
+  <p>2. 让缩放随 sin(u_time) 脉动</p>
+  <p>3. 用 mat2 做剪切变换：<code>mat2(1,0, skew,1)</code></p>
+</div>

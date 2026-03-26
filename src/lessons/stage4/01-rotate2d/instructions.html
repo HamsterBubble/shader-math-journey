@@ -1,0 +1,15 @@
+<h2>🔄 2D 旋转矩阵</h2>
+<p><code>mat2</code> 将一个 vec2 变换到新位置。旋转矩阵公式：</p>
+<p style="text-align:center;color:var(--accent);">
+  | cos θ &nbsp; -sin θ |<br>
+  | sin θ &nbsp;&nbsp; cos θ |
+</p>
+<div class="info-box">
+  GLSL 中 <code>mat2(a,b,c,d)</code> 是<strong>按列</strong>填充的：第一列(a,b)，第二列(c,d)。
+</div>
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 改旋转速度（<code>u_time</code> 的乘数）</p>
+  <p>2. 先旋转再 fract vs 先 fract 再旋转，效果不同！</p>
+  <p>3. 把方块改成其他形状</p>
+</div>

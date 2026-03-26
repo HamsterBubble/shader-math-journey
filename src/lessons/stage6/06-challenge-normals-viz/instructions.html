@@ -1,0 +1,19 @@
+<h2>🏆 挑战：SDF 法线可视化</h2>
+<p>对一个复杂形状计算法线并可视化为<strong>彩色方向图</strong>。</p>
+<div class="goal-preview">
+  <div class="goal-label"><span class="dot"></span>目标效果（实时）</div>
+  <canvas class="goal-canvas"></canvas>
+</div>
+<h3>💡 提示</h3>
+<ul>
+  <li>法线 = SDF 的梯度的 <code>normalize</code></li>
+  <li>梯度：<code>vec2(f(x+e)-f(x-e), f(y+e)-f(y-e))</code></li>
+  <li>把法线 xy 映射到颜色的 rg 通道</li>
+  <li>形状可用 min/max 组合多个 SDF</li>
+</ul>
+<div class="task-box">
+  <h4>🎯 你的任务</h4>
+  <p>1. 组合 2-3 个 SDF 形状</p>
+  <p>2. 用数值微分计算法线</p>
+  <p>3. 将法线方向可视化为颜色</p>
+</div>

@@ -1,0 +1,18 @@
+<h2>📽 向量投影</h2>
+<p>把向量 A 投影到向量 B 的方向上：</p>
+<p style="text-align:center;color:var(--accent);">
+  proj_B(A) = dot(A, B̂) × B̂
+</p>
+<p>其中 B̂ = normalize(B)。投影的<strong>标量分量</strong> = dot(A, B̂)，即 A 在 B 方向上的"长度"。</p>
+<h3>应用场景</h3>
+<ul>
+  <li><strong>光照</strong>: dot(N, L) 就是光方向向量投影到法线上</li>
+  <li><strong>SDF 线段</strong>: 点到线段的距离 = 投影后求垂直分量</li>
+  <li><strong>UI</strong>: 拖拽时只沿某方向移动</li>
+</ul>
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 改投影轴的角度</p>
+  <p>2. 可视化投影的垂直分量（拒绝向量）</p>
+  <p>3. 用投影实现一条发光线段</p>
+</div>

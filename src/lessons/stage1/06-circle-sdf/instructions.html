@@ -1,0 +1,15 @@
+<h2>⭕ 画圆 — SDF 入门</h2>
+<h3>SDF = 有符号距离函数</h3>
+<ul>
+  <li>距离 &lt; 0 → 图形<strong>内部</strong></li>
+  <li>距离 &gt; 0 → 图形<strong>外部</strong></li>
+  <li>距离 = 0 → <strong>边界</strong></li>
+</ul>
+<p>圆的 SDF: <code>length(p) - radius</code></p>
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 修改 <code>radius</code></p>
+  <p>2. 加动画: <code>float radius = 0.4 + 0.1*sin(u_time);</code></p>
+  <p>3. 移圆心: <code>length(uv - vec2(0.2, 0.1))</code></p>
+  <p>4. 画环: 用 <code>abs(d) - 0.02</code></p>
+</div>

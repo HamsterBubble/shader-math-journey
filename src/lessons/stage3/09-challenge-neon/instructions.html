@@ -1,0 +1,19 @@
+<h2>🏆 挑战：霓虹文字/线条</h2>
+<p>用向量距离场和 <code>exp()</code> 衰减做<strong>赛博朋克风格霓虹发光</strong>。</p>
+<div class="goal-preview">
+  <div class="goal-label"><span class="dot"></span>目标效果（实时）</div>
+  <canvas class="goal-canvas"></canvas>
+</div>
+<h3>💡 提示</h3>
+<ul>
+  <li>霓虹光晕 = <code>exp(-distance * intensity)</code></li>
+  <li>线段 SDF：点到线段的距离</li>
+  <li>多条线叠加不同颜色</li>
+  <li>加微弱闪烁：<code>sin(u_time * speed) * 0.1 + 0.9</code></li>
+</ul>
+<div class="task-box">
+  <h4>🎯 你的任务</h4>
+  <p>1. 画 2-3 条发光线条/圆环</p>
+  <p>2. 用 exp 做辉光衰减</p>
+  <p>3. 不同线条不同霓虹颜色</p>
+</div>

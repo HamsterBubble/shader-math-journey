@@ -1,0 +1,19 @@
+<h2>🏆 挑战：万花筒效果</h2>
+<p>用矩阵旋转 + 取绝对值实现<strong>万花筒对称</strong>。</p>
+<div class="goal-preview">
+  <div class="goal-label"><span class="dot"></span>目标效果（实时）</div>
+  <canvas class="goal-canvas"></canvas>
+</div>
+<h3>💡 提示</h3>
+<ul>
+  <li>万花筒的核心：<code>旋转 → abs() → 旋转 → abs()</code> 重复多次</li>
+  <li>每次 <code>abs(uv)</code> 相当于沿轴做镜像折叠</li>
+  <li>旋转角度 = <code>π / N</code>，N 是对称轴数量</li>
+  <li>折叠后的坐标空间很小，在里面画简单图案会被对称展开</li>
+</ul>
+<div class="task-box">
+  <h4>🎯 你的任务</h4>
+  <p>用旋转+abs 折叠实现 6 重或 8 重对称万花筒</p>
+  <p>· 在折叠后的空间里画线条或圆</p>
+  <p>· 加分：让它随时间缓慢旋转</p>
+</div>

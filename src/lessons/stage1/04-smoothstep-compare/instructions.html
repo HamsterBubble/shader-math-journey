@@ -1,0 +1,16 @@
+<h2>〰️ smoothstep() — S 曲线过渡</h2>
+<p><code>smoothstep(a, b, x)</code>：在 a~b 之间平滑过渡（S 曲线）。</p>
+<ul>
+  <li><code>x &lt; a</code> → 0</li>
+  <li><code>x &gt; b</code> → 1</li>
+  <li>a~b 之间 → 平滑插值</li>
+</ul>
+<div class="info-box tip">
+  <strong>💡</strong> a, b 越接近 → 越尖锐（像 step）；差距越大 → 越柔和。
+</div>
+<p>下面代码上半显示 smoothstep，下半显示 step 做对比。</p>
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 把 <code>0.4, 0.6</code> 改成 <code>0.2, 0.8</code></p>
+  <p>2. 改成 <code>0.49, 0.51</code> → 接近 step</p>
+</div>

@@ -1,0 +1,16 @@
+<h2>🔗 SDF 组合运算</h2>
+<p>两个 SDF 可以用简单的 <code>min/max</code> 组合：</p>
+<ul>
+  <li><strong>并集</strong>：<code>min(d1, d2)</code> — 两个都画</li>
+  <li><strong>交集</strong>：<code>max(d1, d2)</code> — 重叠部分</li>
+  <li><strong>差集</strong>：<code>max(d1, -d2)</code> — 挖洞</li>
+</ul>
+<div class="info-box tip">
+  <strong>💡 平滑并集</strong>：<code>smin(d1, d2, k)</code> 可以让两个形状融合过渡，k 控制融合范围。
+</div>
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 切换 <code>min</code>/<code>max</code>/<code>max(d1,-d2)</code></p>
+  <p>2. 改圆和矩形的大小/位置</p>
+  <p>3. 加第三个形状做更复杂的组合</p>
+</div>

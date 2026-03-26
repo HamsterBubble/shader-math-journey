@@ -1,0 +1,24 @@
+<h2>📏 不同的"距离"定义</h2>
+<p>不同距离度量产生完全不同的圆/形状：</p>
+<h3>欧几里得距离 (圆)</h3>
+<p><code>length(p) = sqrt(p.x² + p.y²)</code></p>
+<h3>曼哈顿距离 (菱形)</h3>
+<p><code>abs(p.x) + abs(p.y)</code> — "城市街区"距离</p>
+<h3>切比雪夫距离 (正方形)</h3>
+<p><code>max(abs(p.x), abs(p.y))</code> — "国王走棋"距离</p>
+<h3>Minkowski 距离 (过渡)</h3>
+<p><code>pow(pow(abs(x),n) + pow(abs(y),n), 1/n)</code></p>
+<ul>
+  <li>n=1: 曼哈顿 (菱形)</li>
+  <li>n=2: 欧几里得 (圆)</li>
+  <li>n→∞: 切比雪夫 (方形)</li>
+</ul>
+<div class="info-box">
+  不同距离 = 不同基础形状。切换距离函数是 shader 图案设计的核心技巧。
+</div>
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 注释/取消注释不同距离公式</p>
+  <p>2. 改 Minkowski 的 n 值 (1.0 ~ 8.0)</p>
+  <p>3. 在网格中用不同距离画不同形状</p>
+</div>

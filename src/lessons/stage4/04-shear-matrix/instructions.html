@@ -1,0 +1,21 @@
+<h2>✂️ 剪切 (Shear) 变换</h2>
+<p>剪切让形状"倾斜"而不改变面积：</p>
+<p style="text-align:center;color:var(--accent);">
+  | 1 &nbsp; shx |<br>
+  | shy &nbsp; 1 |
+</p>
+<ul>
+  <li><code>shx</code>: x 方向的剪切（y 坐标影响 x 偏移）</li>
+  <li><code>shy</code>: y 方向的剪切</li>
+  <li>倾斜文字、伪 3D 透视、波浪扭曲都靠它</li>
+</ul>
+<div class="info-box">
+  <strong>变换组合技</strong>: 旋转 = 剪切 × 缩放 × 剪切！<br>
+  这就是为什么位图旋转可以用三次剪切实现（无需浮点误差）。
+</div>
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 改 shx/shy 值看剪切方向</p>
+  <p>2. 让剪切量随 sin(u_time) 变化</p>
+  <p>3. 组合: 先旋转再剪切 vs 先剪切再旋转</p>
+</div>

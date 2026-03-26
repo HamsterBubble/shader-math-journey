@@ -1,0 +1,16 @@
+<h2>⏱️ u_time — 让一切动起来</h2>
+<p><code>u_time</code> 是不断增长的秒数。配合 sin() 做动画：</p>
+<ul>
+  <li><code>sin(u_time)</code> → -1~1 往复</li>
+  <li><code>sin(u_time)*0.5+0.5</code> → 映射到 0~1</li>
+  <li><code>sin(u_time * 2.0)</code> → 2 倍速</li>
+</ul>
+<div class="info-box tip">
+  <strong>💡</strong> <code>sin(x)*0.5+0.5</code> 是 Shader 中最常用的映射技巧！
+</div>
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 改 sin 里的速度乘数</p>
+  <p>2. 方向改为 <code>uv.x + uv.y</code> → 斜向</p>
+  <p>3. 扭曲: <code>uv.x + sin(uv.y*10.0+u_time)*0.05</code></p>
+</div>
