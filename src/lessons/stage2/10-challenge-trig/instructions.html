@@ -1,19 +1,45 @@
 <h2>🏆 挑战：阿基米德螺旋</h2>
-<p>用极坐标画一条<strong>螺旋线</strong>。</p>
+
+<p>用极坐标的知识画一条旋转的<strong>螺旋线</strong>——将角度和距离联系起来的优雅曲线。</p>
+
 <div class="goal-preview">
   <div class="goal-label"><span class="dot"></span>目标效果（实时）</div>
   <canvas class="goal-canvas"></canvas>
 </div>
-<h3>💡 提示</h3>
+
+<h3>螺旋的数学本质</h3>
+<p>在极坐标中，圆是 <code>r = 常数</code>（距离不变）。如果让 r 随角度 θ 线性增长呢？</p>
+<div class="formula-block">
+  r = a + b × θ
+</div>
+<p>这就是<strong>阿基米德螺旋</strong>：每转一圈，半径增加相同的量。螺旋臂之间的间距恒定。</p>
+
+<h3>分步攻略</h3>
+<p><strong>第一步</strong>：获取极坐标</p>
 <ul>
-  <li>阿基米德螺旋：<code>r = a + b * θ</code></li>
-  <li>用 <code>fract()</code> 处理多圈重复</li>
-  <li>螺旋线 = <code>abs(实际r - 理论r)</code> 很小的地方</li>
-  <li>让螺旋旋转：给 angle 加 <code>u_time</code></li>
+  <li><code>float r = length(uv);</code></li>
+  <li><code>float angle = atan(uv.y, uv.x);</code></li>
 </ul>
+<p><strong>第二步</strong>：计算"理论半径"</p>
+<ul>
+  <li>在角度 θ 处，螺旋的半径应该是 <code>a + b * θ</code></li>
+  <li>但螺旋是多圈的——需要考虑每一圈的角度偏移</li>
+</ul>
+<p><strong>第三步</strong>：用 fract 处理多圈</p>
+<ul>
+  <li>螺旋线 = 实际距离 r 和理论距离的差值很小的地方</li>
+  <li><code>abs(fract(r/spacing - angle/(2π)) - 0.5)</code> → 距离螺旋线的距离</li>
+</ul>
+
+<div class="info-box tip">
+  <strong>💡 旋转动画</strong><br>
+  让螺旋旋转：只需给 angle 加上 <code>u_time</code>。极坐标下，加法 = 旋转！
+</div>
+
 <div class="task-box">
   <h4>🎯 你的任务</h4>
   <p>实现上方预览中的螺旋效果</p>
-  <p>· 核心：用 angle 和 r 的关系</p>
-  <p>· 加分：多条不同颜色的螺旋臂</p>
+  <p>● 核心：用 angle 和 r 的关系画出螺旋线</p>
+  <p>● 用 smoothstep 柔化螺旋的边缘</p>
+  <p>● 加分：多条不同颜色的螺旋臂（用相位偏移）</p>
 </div>

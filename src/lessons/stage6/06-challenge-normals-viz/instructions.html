@@ -1,19 +1,43 @@
-<h2>🏆 挑战：SDF 法线可视化</h2>
-<p>对一个复杂形状计算法线并可视化为<strong>彩色方向图</strong>。</p>
+<h2>🏆 挑战：法线可视化</h2>
+
+<p>对复杂 SDF 场景计算法线并<strong>可视化为颜色 + 光照</strong>，创造一个从平面图变成立体感的"神奇一刻"。</p>
+
 <div class="goal-preview">
   <div class="goal-label"><span class="dot"></span>目标效果（实时）</div>
   <canvas class="goal-canvas"></canvas>
 </div>
-<h3>💡 提示</h3>
+
+<h3>分步攻略</h3>
+<p><strong>第一步：创建 SDF 场景</strong></p>
 <ul>
-  <li>法线 = SDF 的梯度的 <code>normalize</code></li>
-  <li>梯度：<code>vec2(f(x+e)-f(x-e), f(y+e)-f(y-e))</code></li>
-  <li>把法线 xy 映射到颜色的 rg 通道</li>
-  <li>形状可用 min/max 组合多个 SDF</li>
+  <li>组合多个 SDF 图元（圆、矩形、线段等）</li>
+  <li>用 smin/max 做布尔运算</li>
 </ul>
+
+<p><strong>第二步：计算 2D 法线</strong></p>
+<div class="formula-block">
+  nx = sdf(p + vec2(ε,0)) - sdf(p - vec2(ε,0))<br>
+  ny = sdf(p + vec2(0,ε)) - sdf(p - vec2(0,ε))<br>
+  normal = normalize(vec2(nx, ny))
+</div>
+
+<p><strong>第三步：光照</strong></p>
+<ul>
+  <li>把 2D 法线扩展为 3D：<code>vec3(normal, 1.0)</code> 并归一化</li>
+  <li>对光照方向做 dot 产生漫反射</li>
+  <li>加 ambient + specular 丰富层次</li>
+</ul>
+
+<div class="info-box tip">
+  <strong>💡 法线颜色编码</strong><br>
+  法线分量范围是 [-1, 1]。映射到颜色 [0, 1]：<code>color = normal * 0.5 + 0.5</code><br>
+  结果是经典的蓝紫色法线贴图颜色。
+</div>
+
 <div class="task-box">
   <h4>🎯 你的任务</h4>
-  <p>1. 组合 2-3 个 SDF 形状</p>
-  <p>2. 用数值微分计算法线</p>
-  <p>3. 将法线方向可视化为颜色</p>
+  <p>1. 创建 SDF 场景（至少 3 个图元）</p>
+  <p>2. 计算法线并可视化为颜色</p>
+  <p>3. 加 Lambert 光照让形状看起来"立体"</p>
+  <p>4. 加分：旋转光源 + Phong 高光</p>
 </div>

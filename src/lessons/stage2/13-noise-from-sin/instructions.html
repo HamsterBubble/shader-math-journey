@@ -1,0 +1,38 @@
+<h2>🌊 用 sin 构造伪噪声</h2>
+
+<h3>不用哈希的"噪声"</h3>
+<p>Perlin 和 Value Noise 需要哈希函数和插值（Stage 7 会学到）。但有一个快速的近似方法：<strong>叠加多个不同频率的 sin 波</strong>，就能产生看起来"随机"的图案。</p>
+
+<h3>为什么多个 sin 叠加就像噪声？</h3>
+<ul>
+  <li>单个 sin 波是规则的、可预测的</li>
+  <li>当多个<strong>无理频率比</strong>的 sin 叠加，周期变得极长</li>
+  <li>人眼在有限画面上看不出周期 → 看起来像随机</li>
+</ul>
+
+<div class="formula-block">
+  noise ≈ sin(1.0·x + 1.7·y) × 0.5<br>
+  　　　+ sin(2.3·x - 1.3·y) × 0.25<br>
+  　　　+ sin(4.1·x + 3.7·y) × 0.125<br>
+  　　　+ ...
+</div>
+
+<div class="info-box">
+  <strong>与 FBM 的关系</strong><br>
+  这种"每层频率翻倍、振幅减半"的思路和 FBM（分形布朗运动）完全一致。<br>
+  差别在于 FBM 用真正的噪声函数，而这里用 sin 做近似。成本低但质量也低。
+</div>
+
+<div class="warning-box">
+  <strong>⚠️ 局限性</strong><br>
+  sin 噪声有方向性——你能看到隐约的条纹方向。真正的噪声（Value/Perlin）没有方向偏好。<br>
+  适合快速原型和艺术效果，不适合需要"均匀随机"的场景。
+</div>
+
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 只保留第一层 sin → 观察明显的波纹</p>
+  <p>2. 逐层添加 → 观察"随机"感如何增强</p>
+  <p>3. 用噪声值做 smoothstep → 云层边界</p>
+  <p>4. 让噪声随 u_time 流动 → 水面效果</p>
+</div>

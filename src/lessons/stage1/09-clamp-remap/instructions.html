@@ -1,23 +1,49 @@
 <h2>📦 clamp() 限制范围 与值域重映射</h2>
-<p>Shader 中最重要的技能之一：<strong>把一个范围的数映射到另一个范围</strong>。</p>
+
+<h3>为什么需要"收束"值？</h3>
+<p>在 Shader 中，数学运算的结果经常会跑出我们期望的范围——颜色值超过 1.0 会过曝，UV 坐标变成负数会产生穿帮。<code>clamp()</code> 就是你的"安全网"。</p>
+
 <h3>clamp(x, min, max)</h3>
-<ul>
-  <li>把 x 限制在 [min, max] 范围内</li>
-  <li><code>clamp(1.5, 0.0, 1.0) = 1.0</code></li>
-  <li><code>clamp(-0.3, 0.0, 1.0) = 0.0</code></li>
-  <li>相当于 <code>min(max(x, minVal), maxVal)</code></li>
-</ul>
-<h3>值域映射公式</h3>
-<p style="text-align:center;color:var(--accent);">
-  mapped = (x - inMin) / (inMax - inMin) × (outMax - outMin) + outMin
-</p>
-<p>这个公式把 [inMin, inMax] 线性映射到 [outMax, outMin]。</p>
-<div class="info-box tip">
-  <strong>💡</strong> <code>smoothstep(edge0, edge1, x)</code> 本质上就是带平滑的值域映射：把 [edge0, edge1] 映射到 [0, 1] 并加 Hermite 曲线。
+<div class="formula-block">
+  clamp(x, min, max) = min(max(x, min), max)
 </div>
+<p>把 x 限制在 [min, max] 范围内：</p>
+<ul>
+  <li><code>clamp(1.5, 0.0, 1.0) = 1.0</code> — 超出上限，截断到上限</li>
+  <li><code>clamp(-0.3, 0.0, 1.0) = 0.0</code> — 超出下限，截断到下限</li>
+  <li><code>clamp(0.7, 0.0, 1.0) = 0.7</code> — 在范围内，原值不变</li>
+</ul>
+
+<div class="info-box tip">
+  <strong>💡 saturate(x)</strong><br>
+  在某些 Shader 语言中（如 HLSL），有个快捷函数 <code>saturate(x) = clamp(x, 0.0, 1.0)</code>。GLSL 中没有这个函数，但你可以自己定义：<br>
+  <code>#define saturate(x) clamp(x, 0.0, 1.0)</code>
+</div>
+
+<h3>值域重映射 — Shader 的核心技能</h3>
+<p>更多时候，你需要的不是简单截断，而是<strong>将一个范围的数线性映射到另一个范围</strong>。比如：把鼠标位置（0~800 像素）映射到颜色（0~1）。</p>
+<div class="formula-block">
+  mapped = (x - inMin) / (inMax - inMin) × (outMax - outMin) + outMin
+</div>
+<p>这个公式分三步理解：</p>
+<ul>
+  <li><strong>第一步</strong>：<code>(x - inMin) / (inMax - inMin)</code> → 先归一化到 0~1</li>
+  <li><strong>第二步</strong>：乘以 <code>(outMax - outMin)</code> → 缩放到目标范围宽度</li>
+  <li><strong>第三步</strong>：加上 <code>outMin</code> → 偏移到目标起点</li>
+</ul>
+
+<div class="info-box">
+  <strong>重映射在 Shader 中无处不在：</strong><br>
+  ● sin() 输出 -1~1 → 映射到 0~1 做颜色<br>
+  ● 距离值 0~1 → 映射到温度色阶（蓝→红）<br>
+  ● 不同 SDF 形状的值域 → 统一到相同范围做混合<br>
+  <code>smoothstep(a, b, x)</code> 本质上就是带平滑曲线的重映射：把 [a, b] 映射到 [0, 1]。
+</div>
+
 <div class="task-box">
   <h4>🎯 动手试试</h4>
   <p>1. 改 clamp 的范围看效果截断</p>
   <p>2. 把温度映射改成不同的色阶</p>
   <p>3. 用 smoothstep 替代线性映射，比较过渡差异</p>
+  <p>4. 自己写一个 remap 函数：<code>float remap(float x, float a, float b, float c, float d)</code></p>
 </div>

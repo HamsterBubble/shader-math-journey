@@ -1,19 +1,42 @@
-<h2>🔶 更多 SDF 原语</h2>
-<p>除了圆和矩形，这些 SDF 也很常用：</p>
-<h3>等边三角形</h3>
-<p><code>max(abs(p.x)*0.866+p.y*0.5, -p.y) - r*0.5</code></p>
-<h3>正六边形</h3>
-<p>用 abs + 旋转实现六重对称</p>
-<h3>星形</h3>
-<p>将极坐标的角度做 mod 然后配合距离函数</p>
-<h3>环形 (Annular SDF)</h3>
-<p><code>abs(baseSDF) - thickness</code> — 把任何实心形状变成空心环</p>
-<div class="info-box tip">
-  <strong>💡 通用技巧</strong>: <code>abs(sdf) - thickness</code> 是把<strong>任意形状</strong>变成等宽轮廓的万能方法。
+<h2>🏗️ SDF 基础图元库</h2>
+
+<h3>像乐高一样搭建形状</h3>
+<p>这节课建立一套<strong>可复用的 SDF 图元函数</strong>，就像准备乐高积木——每个图元一个函数，后续自由组合。</p>
+
+<h3>常用 2D SDF 图元</h3>
+<ul>
+  <li><strong>sdCircle(p, r)</strong>：<code>length(p) - r</code></li>
+  <li><strong>sdBox(p, b)</strong>：<code>length(max(abs(p)-b, 0.0)) + min(max(abs(p.x)-b.x, abs(p.y)-b.y), 0.0)</code></li>
+  <li><strong>sdSegment(p, a, b)</strong>：点到线段 AB 的距离（用投影+clamp）</li>
+  <li><strong>sdRoundedBox(p, b, r)</strong>：<code>sdBox(p, b-r) - r</code>（圆角！）</li>
+  <li><strong>sdEquilateralTriangle(p)</strong>：用向量旋转 + abs 折叠</li>
+</ul>
+
+<h3>修饰操作（不改变基本形状）</h3>
+<ul>
+  <li><strong>圆角</strong>：<code>sdf(p) - radius</code> → 所有边角变圆</li>
+  <li><strong>空心</strong>：<code>abs(sdf(p)) - thickness</code> → 外壳化</li>
+  <li><strong>偏移</strong>：<code>sdf(p - offset)</code> → 移动形状</li>
+  <li><strong>旋转</strong>：<code>sdf(rotate(p, angle))</code> → 旋转形状</li>
+</ul>
+
+<div class="info-box">
+  <strong>为什么要封装成函数？</strong><br>
+  把每个图元写成独立函数后：<br>
+  ● 主代码可读性大幅提升：<code>min(sdCircle(p, 0.3), sdBox(p, vec2(0.2)))</code><br>
+  ● 便于在不同项目中复用<br>
+  ● 容易替换和实验不同的组合方式
 </div>
+
+<div class="info-box tip">
+  <strong>💡 圆角是免费的！</strong><br>
+  <code>sdf(p) - r</code> 这一步让任何 SDF 的棱角变成圆角，且 r 可以动态控制。这是 SDF 相比光栅化的巨大优势——CSS 的 <code>border-radius</code> 做不到任意形状圆角化。
+</div>
+
 <div class="task-box">
   <h4>🎯 动手试试</h4>
-  <p>1. 改 thickness 看环的粗细</p>
-  <p>2. 改星的角数 (points 变量)</p>
-  <p>3. 组合多个原语做复杂图标</p>
+  <p>1. 实现 sdCircle、sdBox、sdSegment 三个图元</p>
+  <p>2. 用 <code>sdf - 0.05</code> 给所有形状加圆角</p>
+  <p>3. 用 <code>abs(sdf) - 0.02</code> 把实心变空心</p>
+  <p>4. 用图元函数组合出一个简单 Logo</p>
 </div>

@@ -1,0 +1,40 @@
+<h2>🎬 缓动函数与动画曲线</h2>
+
+<h3>匀速运动不自然</h3>
+<p>现实中几乎没有东西匀速运动——球会加速落下、弹跳减速。<strong>缓动函数（Easing Functions）</strong>就是用数学函数把线性的 t∈[0,1] 映射为非线性的值，让动画更自然。</p>
+
+<h3>经典缓动类型</h3>
+<ul>
+  <li><strong>easeIn</strong>：慢启动快结束 → <code>t²</code></li>
+  <li><strong>easeOut</strong>：快启动慢结束 → <code>t(2-t)</code></li>
+  <li><strong>easeInOut</strong>：两端慢中间快 → 分段函数</li>
+  <li><strong>bounce</strong>：弹跳效果 → 分段抛物线</li>
+</ul>
+
+<div class="formula-block">
+  easeInQuad(t) = t²<br>
+  easeOutQuad(t) = t × (2 - t) = 1 - (1-t)²<br>
+  easeInOut(t) = 分段组合 easeIn 和 easeOut
+</div>
+
+<h3>smoothstep 也是缓动！</h3>
+<div class="info-box">
+  <strong>你已经见过了：</strong><br>
+  <code>smoothstep(0,1,t) = 3t² - 2t³</code> 就是 Hermite 缓动函数。<br>
+  所以 smoothstep 在 Shader 中不仅用于抗锯齿，也是最常用的缓动工具。
+</div>
+
+<div class="info-box tip">
+  <strong>💡 easeOut 的推导技巧</strong><br>
+  任何 easeIn 函数 f(t) 都可以"翻转"为 easeOut：<br>
+  <code>easeOut(t) = 1 - f(1 - t)</code><br>
+  原理：把时间和值都反转。
+</div>
+
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 对比匀速和 easeIn 的圆点运动</p>
+  <p>2. 用 pow(t, 3.0) 做更强烈的加速</p>
+  <p>3. 用 smoothstep 替代手写缓动</p>
+  <p>4. 让颜色渐变也使用缓动（非匀速渐变）</p>
+</div>

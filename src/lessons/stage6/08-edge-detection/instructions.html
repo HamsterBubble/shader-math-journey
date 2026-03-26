@@ -1,0 +1,21 @@
+<h2>🔍 边缘检测 (Sobel)</h2>
+<h3>梯度大 = 边缘</h3>
+<p>图像中颜色变化剧烈的地方就是<strong>边缘</strong>。Sobel 算子用 3×3 采样窗口计算水平和垂直梯度，然后取长度。</p>
+<div class="formula-block">
+  Gx = [-1 0 +1; -2 0 +2; -1 0 +1] * image<br>
+  Gy = [-1 -2 -1; 0 0 0; +1 +2 +1] * image<br>
+  edge = √(Gx² + Gy²)
+</div>
+<h3>Sobel vs 简单差分</h3>
+<ul>
+  <li><strong>简单差分</strong>：只采样 2 个点，噪声敏感</li>
+  <li><strong>Sobel</strong>：3×3 窗口带加权，平滑+求导同时进行</li>
+  <li>中心像素权重 2，角落权重 1 → 十字方向敏感度更高</li>
+</ul>
+<div class="info-box tip">
+  <strong>💡 边缘方向</strong><br>
+  <code>atan(Gy, Gx)</code> 给出边缘的<strong>法线方向</strong>。结合角度和强度可以做风格化描边。
+</div>
+<div class="task-box"><h4>🎯 动手试试</h4>
+  <p>1. 对 sin 波场做 Sobel 边缘检测</p><p>2. 试不同的 epsilon 值</p><p>3. 用 Gx/Gy 分量上色 → 边缘方向可视化</p><p>4. 反转：1.0 - edge → 漫画描边效果</p>
+</div>

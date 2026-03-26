@@ -1,0 +1,38 @@
+<h2>💎 菲涅尔边缘光</h2>
+
+<h3>"边缘发光"的物理原理</h3>
+<p>观察水面、玻璃球、气泡——<strong>边缘总是比中心更亮</strong>。这就是菲涅尔效应：光线以掠射角（接近平行）入射时，反射率急剧增加。</p>
+
+<div class="formula-block">
+  fresnel = (1 - dot(N, V))^n<br>
+  N = 表面法线, V = 视线方向, n = 锐度（通常 2-5）
+</div>
+
+<h3>直觉理解</h3>
+<ul>
+  <li><strong>中心</strong>：法线朝向你 → dot(N,V) ≈ 1 → fresnel ≈ 0（不发光）</li>
+  <li><strong>边缘</strong>：法线垂直于视线 → dot(N,V) ≈ 0 → fresnel ≈ 1（强烈发光）</li>
+  <li><strong>指数 n</strong>：n 越大，发光区域越集中在边缘</li>
+</ul>
+
+<h3>2D 中模拟菲涅尔</h3>
+<div class="info-box">
+  <strong>简化方法：</strong><br>
+  对于一个 2D 圆，"法线"就是 <code>normalize(uv)</code>。"视线"近似为 <code>-normalize(uv)</code>。<br>
+  所以 <code>dot(N, V) = 1 - length(uv)/R</code>，在圆心=1，边缘=0。<br>
+  直接用 <code>pow(1.0 - NdotV, n)</code> 就是菲涅尔。
+</div>
+
+<div class="info-box tip">
+  <strong>💡 Schlick 近似</strong><br>
+  真实物理的菲涅尔公式很复杂。Schlick 近似 <code>F₀ + (1-F₀)(1-cosθ)⁵</code> 是游戏行业标准。<br>
+  F₀ = 0.04（电介质）或 0.7-1.0（金属）。
+</div>
+
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 改变指数 n (1-5) 观察光的宽度</p>
+  <p>2. 换不同的 rimColor → 科幻护盾效果</p>
+  <p>3. 多个重叠圆 → 气泡</p>
+  <p>4. 加上 u_time 让边缘光脉动</p>
+</div>

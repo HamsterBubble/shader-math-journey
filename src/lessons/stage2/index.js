@@ -48,6 +48,28 @@ import lesson11Instructions from './11-challenge-water/instructions.html?raw';
 import lesson11Code from './11-challenge-water/code.glsl?raw';
 import lesson11Goal from './11-challenge-water/goal.glsl?raw';
 
+import { meta as lesson12Meta } from './12-lissajous/meta.js';
+import lesson12Instructions from './12-lissajous/instructions.html?raw';
+import lesson12Code from './12-lissajous/code.glsl?raw';
+
+import { meta as lesson13Meta } from './13-noise-from-sin/meta.js';
+import lesson13Instructions from './13-noise-from-sin/instructions.html?raw';
+import lesson13Code from './13-noise-from-sin/code.glsl?raw';
+
+import { meta as lesson14Meta } from './14-easing-functions/meta.js';
+import lesson14Instructions from './14-easing-functions/instructions.html?raw';
+import lesson14Code from './14-easing-functions/code.glsl?raw';
+
+import { meta as lesson15Meta } from './15-challenge-oscilloscope/meta.js';
+import lesson15Instructions from './15-challenge-oscilloscope/instructions.html?raw';
+import lesson15Code from './15-challenge-oscilloscope/code.glsl?raw';
+import lesson15Goal from './15-challenge-oscilloscope/goal.glsl?raw';
+
+import { meta as lesson16Meta } from './16-challenge-flower/meta.js';
+import lesson16Instructions from './16-challenge-flower/instructions.html?raw';
+import lesson16Code from './16-challenge-flower/code.glsl?raw';
+import lesson16Goal from './16-challenge-flower/goal.glsl?raw';
+
 export const stage2 = [
   { ...lesson01Meta, instructions: lesson01Instructions, code: lesson01Code },
   { ...lesson02Meta, instructions: lesson02Instructions, code: lesson02Code },
@@ -60,4 +82,9 @@ export const stage2 = [
   { ...lesson09Meta, instructions: lesson09Instructions, code: lesson09Code },
   { ...lesson10Meta, instructions: lesson10Instructions, code: lesson10Code, goalCode: lesson10Goal },
   { ...lesson11Meta, instructions: lesson11Instructions, code: lesson11Code, goalCode: lesson11Goal },
+  { ...lesson12Meta, instructions: lesson12Instructions, code: lesson12Code },
+  { ...lesson13Meta, instructions: lesson13Instructions, code: lesson13Code },
+  { ...lesson14Meta, instructions: lesson14Instructions, code: lesson14Code },
+  { ...lesson15Meta, instructions: lesson15Instructions, code: lesson15Code, goalCode: lesson15Goal },
+  { ...lesson16Meta, instructions: lesson16Instructions, code: lesson16Code, goalCode: lesson16Goal },
 ];

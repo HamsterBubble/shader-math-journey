@@ -1,21 +1,48 @@
 <h2>🎨 你好，渐变！</h2>
+
 <h3>Shader 是什么？</h3>
-<p>Shader（着色器）是运行在 GPU 上的小程序。</p>
-<p>它的工作很简单：<strong>对屏幕上的每一个像素，计算一个颜色。</strong></p>
+<p>想象一下：你站在一面巨大的像素墙前，墙上有几百万个小灯泡。你需要<strong>同时</strong>告诉每一个灯泡该亮什么颜色。这就是 Shader（着色器）—— 一段运行在 GPU 上的小程序，它为屏幕上的<strong>每一个像素</strong>并行计算颜色。</p>
+<p>关键词是"并行"：CPU 是一个聪明的工人，一次做一件事；GPU 是几千个简单的工人，同时做同一件事。Shader 就是写给这几千个工人的"工作手册"。</p>
+
 <div class="info-box">
-  <strong>输入：</strong>像素坐标 <code>gl_FragCoord.xy</code><br>
-  <strong>输出：</strong>颜色 <code>gl_FragColor = vec4(r, g, b, a)</code>
+  <strong>Shader 的输入输出非常简单：</strong><br>
+  <strong>输入：</strong>当前像素的坐标 <code>gl_FragCoord.xy</code>（单位：像素）<br>
+  <strong>输出：</strong>这个像素的颜色 <code>gl_FragColor = vec4(r, g, b, a)</code><br>
+  每个分量范围 0.0~1.0，其中 a 是透明度（通常设为 1.0 = 不透明）。
 </div>
-<h3>UV 坐标</h3>
-<p>我们把像素坐标<strong>归一化</strong>到 0~1，这样代码和分辨率无关：</p>
-<p><code>vec2 uv = gl_FragCoord.xy / u_resolution.xy;</code></p>
+
+<h3>UV 坐标 —— 归一化的像素地址</h3>
+<p>直接用像素坐标有个问题：在 1920×1080 屏幕上写的代码，换到 800×600 就全变了。</p>
+<p>解决方案：<strong>归一化</strong>。把像素坐标除以屏幕尺寸，映射到 0~1：</p>
+<div class="formula-block">
+  vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+</div>
+<p>归一化之后：</p>
 <ul>
-  <li><code>uv.x = 0</code> 最左 → <code>uv.x = 1</code> 最右</li>
-  <li><code>uv.y = 0</code> 最下 → <code>uv.y = 1</code> 最上</li>
+  <li><code>uv.x = 0.0</code> → 屏幕最左边</li>
+  <li><code>uv.x = 1.0</code> → 屏幕最右边</li>
+  <li><code>uv.y = 0.0</code> → 屏幕最下面（注意！和网页相反）</li>
+  <li><code>uv.y = 1.0</code> → 屏幕最上面</li>
 </ul>
+<p>这样代码就和分辨率无关了——一份代码在任何屏幕上效果一样。</p>
+
+<h3>第一个 Shader：坐标变颜色</h3>
+<p>这节课的骨架代码做了最简单的事：把 <code>uv.x</code>（水平位置）直接当作红色强度。</p>
+<ul>
+  <li>最左边 <code>uv.x = 0</code> → <code>vec3(0,0,0)</code> = 纯黑</li>
+  <li>最右边 <code>uv.x = 1</code> → <code>vec3(1,0,0)</code> = 纯红</li>
+  <li>中间 → 从黑到红平滑过渡（渐变）</li>
+</ul>
+<p>这就是你的第一个"渐变"，它的本质并不是什么特殊效果——只是<strong>坐标的值恰好可以当作颜色用</strong>。</p>
+
+<div class="info-box tip">
+  <strong>💡 核心洞察：</strong>Shader 编程的本质就是"<strong>用数学函数把坐标映射成颜色</strong>"。接下来的所有课程，都是在学不同的映射函数。
+</div>
+
 <div class="task-box">
   <h4>🎯 动手试试</h4>
-  <p>1. 把 <code>uv.x</code> 改成 <code>uv.y</code> → 竖向渐变</p>
-  <p>2. 第三个分量改成 <code>1.0</code> → 加蓝色</p>
-  <p>3. 试试 <code>vec3(uv.x, uv.y, 0.5)</code></p>
+  <p>1. 把 <code>uv.x</code> 改成 <code>uv.y</code> → 从黑到红变成竖向渐变</p>
+  <p>2. 第三个分量改成 <code>1.0</code>：<code>vec3(uv.x, 0.0, 1.0)</code> → 加入蓝色</p>
+  <p>3. 试试 <code>vec3(uv.x, uv.y, 0.5)</code> → 同时用两个坐标控制两个颜色通道</p>
+  <p>4. 试试 <code>vec3(uv.y, uv.x, 1.0-uv.x)</code> → 更复杂的颜色组合</p>
 </div>

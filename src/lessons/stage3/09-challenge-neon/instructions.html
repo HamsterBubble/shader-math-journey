@@ -1,19 +1,59 @@
-<h2>🏆 挑战：霓虹文字/线条</h2>
-<p>用向量距离场和 <code>exp()</code> 衰减做<strong>赛博朋克风格霓虹发光</strong>。</p>
+<h2>🏆 挑战：霓虹发光线条</h2>
+
+<p>用向量距离场和 <code>exp()</code> 衰减创造<strong>赛博朋克风格的霓虹发光效果</strong>。</p>
+
 <div class="goal-preview">
   <div class="goal-label"><span class="dot"></span>目标效果（实时）</div>
   <canvas class="goal-canvas"></canvas>
 </div>
-<h3>💡 提示</h3>
+
+<h3>霓虹光的数学原理</h3>
+<p>霓虹灯的特征是：<strong>线条本身非常亮，周围有柔和的光晕逐渐衰减</strong>。这正好是 <code>exp(-distance)</code> 的行为！</p>
+<div class="formula-block">
+  glow = intensity / distance<br>
+  或 glow = exp(-distance × sharpness)
+</div>
+
+<h3>分步攻略</h3>
+<p><strong>第一步：画基础形状的 SDF</strong></p>
 <ul>
-  <li>霓虹光晕 = <code>exp(-distance * intensity)</code></li>
-  <li>线段 SDF：点到线段的距离</li>
-  <li>多条线叠加不同颜色</li>
-  <li>加微弱闪烁：<code>sin(u_time * speed) * 0.1 + 0.9</code></li>
+  <li>线段 SDF：用向量投影算点到线段的距离</li>
+  <li>圆环 SDF：<code>abs(length(p) - radius)</code></li>
+  <li>可以组合多个基础形状</li>
 </ul>
+
+<p><strong>第二步：转换为发光效果</strong></p>
+<ul>
+  <li>不用 step/smoothstep 画硬边，而是用衰减函数</li>
+  <li><code>glow = 0.01 / dist</code> → 简单的 1/x 衰减，中心极亮</li>
+  <li><code>glow = exp(-dist * 20.0)</code> → 可控的指数衰减</li>
+</ul>
+
+<p><strong>第三步：上色</strong></p>
+<ul>
+  <li><code>color += glowIntensity * neonColor</code></li>
+  <li>不同形状用不同颜色（粉色、青色、紫色常见于赛博朋克）</li>
+  <li>颜色<strong>相加</strong>（不是 mix）→ 重叠区域更亮</li>
+</ul>
+
+<p><strong>第四步：闪烁动感</strong></p>
+<ul>
+  <li>微弱闪烁：<code>glow *= 0.9 + 0.1 * sin(u_time * speed)</code></li>
+  <li>不同线条用不同闪烁频率 → 更有生命力</li>
+</ul>
+
+<div class="info-box">
+  <strong>配色建议：</strong><br>
+  ● 粉色：<code>vec3(1.0, 0.2, 0.6)</code><br>
+  ● 青蓝：<code>vec3(0.2, 0.8, 1.0)</code><br>
+  ● 电紫：<code>vec3(0.6, 0.2, 1.0)</code><br>
+  ● 背景用深暖色 <code>vec3(0.02, 0.01, 0.03)</code> 增强对比
+</div>
+
 <div class="task-box">
   <h4>🎯 你的任务</h4>
-  <p>1. 画 2-3 条发光线条/圆环</p>
-  <p>2. 用 exp 做辉光衰减</p>
-  <p>3. 不同线条不同霓虹颜色</p>
+  <p>1. 画 2-3 条发光线条或圆环</p>
+  <p>2. 用 exp 或 1/x 做辉光衰减</p>
+  <p>3. 不同线条使用不同霓虹颜色</p>
+  <p>4. 加分：让线条缓慢移动或脉动</p>
 </div>

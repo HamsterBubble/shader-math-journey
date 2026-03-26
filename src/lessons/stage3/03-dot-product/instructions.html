@@ -1,20 +1,50 @@
 <h2>💡 dot() — 点积</h2>
-<h3>几何含义</h3>
-<p><code>dot(a,b) = |a|·|b|·cos(θ)</code></p>
-<p>对于<strong>单位向量</strong>：<code>dot = cos(夹角)</code></p>
-<ul>
-  <li>dot = 1 → 同方向</li>
-  <li>dot = 0 → 垂直</li>
-  <li>dot = -1 → 反方向</li>
-</ul>
-<div class="info-box">
-  <strong>Shader 最重要的公式：</strong><br>
-  <code>float light = max(dot(normal, lightDir), 0.0);</code><br>
-  面朝光源的面亮，背对光源的面暗。
+
+<h3>Shader 中最重要的运算</h3>
+<p>如果只能学一个向量运算，那一定是<strong>点积</strong>。它是光照、阴影、反射、投影……几乎所有 3D 效果的数学基础。</p>
+
+<h3>代数定义</h3>
+<div class="formula-block">
+  dot(a, b) = a.x × b.x + a.y × b.y（+ a.z × b.z ）
 </div>
+<p>就是对应分量相乘再相加。结果是一个<strong>标量</strong>（数字，不是向量）。</p>
+
+<h3>几何含义：测量"相似度"</h3>
+<div class="formula-block">
+  dot(a, b) = |a| × |b| × cos(θ)
+</div>
+<p>当 a 和 b 都是<strong>单位向量</strong>（长度=1）时，点积直接等于cos(夹角)：</p>
+<ul>
+  <li><code>dot = 1</code> → 完全同方向（θ = 0°）</li>
+  <li><code>dot = 0</code> → 完全垂直（θ = 90°）</li>
+  <li><code>dot = -1</code> → 完全反方向（θ = 180°）</li>
+  <li><code>dot = 0.5</code> → 夹角 60°</li>
+</ul>
+<p>简而言之：<strong>点积衡量两个方向有多"对齐"</strong>。</p>
+
+<h3>光照：Shader 的灵魂公式</h3>
+<div class="info-box">
+  <strong>Lambert 漫反射：</strong><br>
+  <code>float light = max(dot(normal, lightDir), 0.0);</code><br><br>
+  ● <code>normal</code> = 表面朝向（单位向量）<br>
+  ● <code>lightDir</code> = 光照方向（单位向量）<br>
+  ● 面朝光源（dot ≈ 1）→ 亮<br>
+  ● 侧面（dot ≈ 0）→ 暗<br>
+  ● 背对光源（dot < 0）→ 完全黑，用 max 截断<br><br>
+  这一行代码就实现了 80% 的真实感光照效果。
+</div>
+
+<div class="info-box tip">
+  <strong>💡 dot 的其他用途</strong><br>
+  ● 求向量长度的平方：<code>dot(v, v) = |v|²</code>（比 length 快，避免 sqrt）<br>
+  ● 投影：<code>dot(v, axis)</code> = v 在 axis 方向上的分量长度<br>
+  ● 角度判断：dot > 0 = 前方，dot < 0 = 后方
+</div>
+
 <div class="task-box">
   <h4>🎯 动手试试</h4>
-  <p>1. 改 <code>lightDir</code> 方向（试各种 vec2）</p>
-  <p>2. 用鼠标控制光源方向（提示：uniform u_mouse）</p>
-  <p>3. 把 <code>max(..., 0.0)</code> 去掉，看负值区域</p>
+  <p>1. 改 <code>lightDir</code> 方向（试各种 vec2 值）</p>
+  <p>2. 让光源跟随时间转动：<code>vec2(cos(u_time), sin(u_time))</code></p>
+  <p>3. 把 <code>max(..., 0.0)</code> 去掉，看负值区域的效果</p>
+  <p>4. 试试 <code>dot(v,v)</code> 和 <code>length(v)*length(v)</code> 结果一样，但前者更快</p>
 </div>

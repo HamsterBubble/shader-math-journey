@@ -1,14 +1,42 @@
 <h2>🔀 Swizzle — 分量魔法</h2>
-<p>GLSL 的独特特性：用 <code>.xyzw</code> 或 <code>.rgba</code> 任意组合向量分量。</p>
+
+<h3>GLSL 的独门绝技</h3>
+<p>在大多数编程语言中，访问数组元素用下标：<code>arr[0]</code>。GLSL 发明了一种更优雅的方式——<strong>Swizzle</strong>（分量重排）：用点号加字母直接提取、重组向量的分量。</p>
+
+<h3>四组等价的访问名称</h3>
 <ul>
-  <li><code>v.xy</code> → 取前两个分量</li>
-  <li><code>v.yx</code> → 交换 x,y</li>
-  <li><code>v.xxx</code> → 三个分量都用 x</li>
-  <li><code>color.rgb = color.bgr</code> → 交换红蓝</li>
+  <li><code>.xyzw</code> — 坐标语义（位置、方向）</li>
+  <li><code>.rgba</code> — 颜色语义（红绿蓝透明）</li>
+  <li><code>.stpq</code> — 纹理坐标语义（较少用）</li>
 </ul>
+<p>三组字母完全等价：<code>v.x == v.r == v.s</code>。选哪种只是为了代码可读性。</p>
+
+<h3>Swizzle 的威力</h3>
+<ul>
+  <li><strong>提取</strong>：<code>v.xy</code> → 从 vec4 取前两个分量得 vec2</li>
+  <li><strong>交换</strong>：<code>v.yx</code> → 交换 x 和 y（镜像翻转！）</li>
+  <li><strong>复制</strong>：<code>v.xxx</code> → 三个分量都用 x → 灰度化</li>
+  <li><strong>重排颜色</strong>：<code>color.bgr</code> → 蓝红互换（"胶片负片"感）</li>
+  <li><strong>升维</strong>：<code>vec3(v.xy, 0.0)</code> → 2D 向量扩展为 3D</li>
+</ul>
+
+<div class="info-box">
+  <strong>实际应用场景：</strong><br>
+  ● 灰度化：<code>float gray = dot(color.rgb, vec3(0.299, 0.587, 0.114));</code> 然后 <code>vec3(gray)</code><br>
+  ● 通道分离：<code>color.r</code> 单独控制某个效果的强度<br>
+  ● 色温调整：<code>color *= vec3(1.2, 1.0, 0.8)</code> → 暖色调<br>
+  ● 坐标翻转：<code>uv.yx</code> → 90 度旋转
+</div>
+
+<div class="info-box tip">
+  <strong>💡 Swizzle 是零成本的！</strong><br>
+  GPU 硬件层面原生支持 Swizzle——它不是"拷贝"操作，而是"重新路由"。所以 <code>v.yzx</code> 和 <code>v.xyz</code> 性能完全一样。
+</div>
+
 <div class="task-box">
   <h4>🎯 动手试试</h4>
-  <p>1. 把 <code>.rgb</code> 改成 <code>.brg</code> 或 <code>.gbr</code></p>
+  <p>1. 把 <code>.rgb</code> 改成 <code>.brg</code> 或 <code>.gbr</code> → 色彩变换</p>
   <p>2. 试 <code>color.rrr</code> → 只取红色通道（灰度）</p>
-  <p>3. 加一行 <code>color *= vec3(1.2, 0.9, 0.8);</code> → 色温调整</p>
+  <p>3. 加一行 <code>color *= vec3(1.2, 0.9, 0.8);</code> → 暖色温调整</p>
+  <p>4. 用 <code>uv.yx</code> 替代 <code>uv</code> → 整个画面旋转 90°</p>
 </div>

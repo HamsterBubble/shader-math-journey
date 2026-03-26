@@ -1,0 +1,21 @@
+<h2>🔮 高级 Voronoi 纹理</h2>
+<h3>超越 F1 距离</h3>
+<p>基础 Worley 噪声用"最近点距离 F1"。但 Voronoi 系统还提供 F2（第二近），而 <strong>F2 - F1</strong> 揭示了细胞的边界。</p>
+<h3>F1 和 F2 的艺术</h3>
+<ul>
+  <li><strong>F1</strong>：基础细胞噪声 → 生物纹理</li>
+  <li><strong>F2 - F1</strong>：细胞边线（裂纹、龟裂、蜻蜓翅膀）</li>
+  <li><strong>F2</strong>：反转的细胞 → 圆角方块图案</li>
+  <li><strong>F1 × F2</strong>：有趣的复合纹理</li>
+</ul>
+<div class="info-box">
+  <strong>最近中心 ID = 颜色</strong><br>
+  保存最近点的坐标或 cell ID，用它做 hash → 每个细胞不同的随机颜色。这就是彩色 Voronoi 图。
+</div>
+<div class="info-box tip">
+  <strong>💡 带动画的 Voronoi</strong><br>
+  让种子点位置加上 <code>sin(u_time + hash)</code> → 细胞缓慢蠕动。非常适合有机/生物效果。
+</div>
+<div class="task-box"><h4>🎯 动手试试</h4>
+  <p>1. 实现 F2-F1 裂纹图案</p><p>2. 给每个细胞随机着色</p><p>3. 让种子点运动</p><p>4. 叠多层 Voronoi 做岩石纹理</p>
+</div>

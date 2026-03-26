@@ -1,28 +1,54 @@
 <h2>🎨 RGB 颜色的数学本质</h2>
-<p>颜色在 Shader 中就是 <code>vec3</code>，所有向量运算都适用：</p>
-<h3>加法混色 (光的叠加)</h3>
+
+<h3>颜色就是 vec3</h3>
+<p>在 Shader 中，颜色没有什么"特殊身份"——它就是一个三分量向量 <code>vec3(r, g, b)</code>，每个分量 0~1。这意味着你对向量做的一切数学运算，都可以用来操作颜色。</p>
+
+<h3>加法混色 — 光的叠加</h3>
+<p>现实中的光是"越加越亮"的（加色混合）：</p>
 <ul>
-  <li><code>红 + 绿 = 黄</code>，<code>红 + 蓝 = 品红</code>，<code>全加 = 白</code></li>
-  <li>加法适合<strong>发光效果</strong>：多个灯光叠加</li>
+  <li>🔴 + 🟢 = 🟡 黄色</li>
+  <li>🔴 + 🔵 = 🟣 品红</li>
+  <li>🟢 + 🔵 = 🔵 青色</li>
+  <li>🔴 + 🟢 + 🔵 = ⚪ 白色</li>
 </ul>
-<h3>乘法混色 (滤镜效果)</h3>
+<p>加法适合表现<strong>发光效果</strong>：多个灯光叠加、火焰、霓虹灯。</p>
+
+<h3>乘法混色 — 滤镜效果</h3>
+<p>乘法像"透过有色玻璃看世界"——只保留被允许通过的颜色分量：</p>
 <ul>
-  <li><code>color * vec3(1,0,0)</code> → 红色滤镜，只保留红通道</li>
-  <li><code>color * 0.5</code> → 变暗</li>
-  <li>乘法适合<strong>材质着色</strong>：光照 × 材质颜色</li>
+  <li><code>color * vec3(1,0,0)</code> → 红色滤镜，只让红光通过</li>
+  <li><code>color * 0.5</code> → 整体变暗（亮度减半）</li>
+  <li><code>color * lightColor</code> → 彩色光照射物体的效果</li>
 </ul>
-<h3>Cosine 调色板 (高级技巧)</h3>
-<p>一行代码生成无限渐变色：</p>
-<p style="text-align:center;color:var(--accent);">
+<p>乘法适合表现<strong>材质着色</strong>：光照计算中 <code>光照强度 × 材质颜色</code> 就是乘法。</p>
+
+<h3>Cosine 调色板 — 一行代码的无限渐变</h3>
+<p>最令人惊叹的颜色技巧来自 Shadertoy 大神 <strong>Inigo Quilez (IQ)</strong>：</p>
+<div class="formula-block">
   color = a + b × cos(2π × (c × t + d))
-</p>
-<p>其中 a,b,c,d 都是 vec3，调整参数获得不同色系。</p>
-<div class="info-box">
-  <strong>⚡ IQ调色板</strong> 是 Shadertoy 大神 Inigo Quilez 发明的技巧，被无数 Shader 使用。改变 4 个 vec3 参数就能生成任意渐变。
 </div>
+<p>其中 <code>a, b, c, d</code> 都是 <code>vec3</code> 参数，<code>t</code> 是 0~1 的输入值。</p>
+<ul>
+  <li><strong>a</strong> — 基础色（颜色中点）</li>
+  <li><strong>b</strong> — 振幅（颜色变化范围）</li>
+  <li><strong>c</strong> — 频率（颜色变化次数）</li>
+  <li><strong>d</strong> — 相位（每个通道的偏移，决定色相变化）</li>
+</ul>
+
+<div class="info-box">
+  <strong>IQ 调色板的威力：</strong>仅仅调整 4 个 vec3 参数，就可以生成从火焰到海洋、从日落到极光的任意渐变色。几乎每个 Shadertoy 作品都在用这个技巧。<br><br>
+  推荐网站：<code>iquilezles.org/articles/palettes</code> 有详细解释和交互式工具。
+</div>
+
+<div class="info-box tip">
+  <strong>💡 为什么用 cos 而不是任意函数？</strong><br>
+  因为 cos 的输出永远在 -1~1 之间，确保颜色不会溢出。加上 a 和 b 的控制后，可以精确地把颜色限制在合理范围内。
+</div>
+
 <div class="task-box">
   <h4>🎯 动手试试</h4>
   <p>1. 修改调色板参数 a, b, c, d 创造不同色系</p>
   <p>2. 用 <code>color * filter</code> 做滤镜效果</p>
-  <p>3. 试试减法混色：<code>1.0 - color</code> (互补色)</p>
+  <p>3. 试试 <code>1.0 - color</code> → 互补色（负片效果）</p>
+  <p>4. 把 t 改成 <code>length(uv - 0.5)</code> → 径向渐变调色板</p>
 </div>

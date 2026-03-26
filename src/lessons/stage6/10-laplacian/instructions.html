@@ -1,0 +1,22 @@
+<h2>∇² 拉普拉斯算子</h2>
+<h3>扩散的数学</h3>
+<p>拉普拉斯算子 ∇²f 衡量"这个点的值与周围平均值的差异"。如果 ∇²f > 0，这个点比周围低（热量会流入）；< 0 则相反。</p>
+<div class="formula-block">
+  ∇²f = (f(x-h) + f(x+h) + f(y-h) + f(y+h) - 4·f(x,y)) / h²<br>
+  即"上下左右的平均" 减去 "自己"
+</div>
+<h3>应用</h3>
+<ul>
+  <li><strong>热扩散</strong>：∂T/∂t = k · ∇²T → 热量从高温流向低温</li>
+  <li><strong>图像锐化</strong>：image - α · ∇²(image)</li>
+  <li><strong>边缘检测</strong>：拉普拉斯过零点 = 边缘</li>
+  <li><strong>反应扩散</strong>：生物花纹（斑马/豹纹）的数学模型</li>
+</ul>
+<div class="info-box tip">
+  <strong>💡 与 Sobel 的区别</strong><br>
+  Sobel 是一阶导数 → 边缘在梯度最大处。<br>
+  Laplacian 是二阶导数 → 边缘在过零点处（更精确但更噪声敏感）。
+</div>
+<div class="task-box"><h4>🎯 动手试试</h4>
+  <p>1. 对 SDF 场计算拉普拉斯</p><p>2. 用红蓝可视化正负值</p><p>3. 对比 Sobel 和 Laplacian 的边缘检测</p>
+</div>

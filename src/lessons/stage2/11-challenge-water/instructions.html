@@ -1,19 +1,54 @@
 <h2>🏆 挑战：水波涟漪</h2>
-<p>用 <code>sin()</code> 和 <code>length()</code> 创建<strong>从中心扩散的水波</strong>。</p>
+
+<p>用 <code>sin()</code> 和 <code>length()</code> 创建<strong>从中心扩散的水波</strong>——Shader 动画中最经典的效果之一。</p>
+
 <div class="goal-preview">
   <div class="goal-label"><span class="dot"></span>目标效果（实时）</div>
   <canvas class="goal-canvas"></canvas>
 </div>
-<h3>💡 提示</h3>
+
+<h3>水波的物理直觉</h3>
+<p>扔一块石头到水面上，波纹从落点向外扩散。这个过程有两个关键特征：</p>
 <ul>
-  <li>波纹 = <code>sin(distance * 频率 - u_time * 速度)</code></li>
-  <li>衰减 = <code>1.0 / (1.0 + distance * k)</code> 或 <code>exp(-distance)</code></li>
-  <li>多个波源叠加更自然</li>
-  <li>用波纹扭曲 UV 做折射效果</li>
+  <li><strong>同心圆</strong>：波纹是以落点为中心的圆环 → 用 <code>length(uv - center)</code></li>
+  <li><strong>随距离衰减</strong>：离落点越远，波纹越弱 → 用 <code>exp(-dist)</code> 或 <code>1/(1+dist)</code></li>
 </ul>
+
+<h3>分步攻略</h3>
+<p><strong>第一步</strong>：基础波纹</p>
+<div class="formula-block">
+  wave = sin(distance × frequency - u_time × speed)
+</div>
+<ul>
+  <li><code>distance</code> → 圆环形状</li>
+  <li><code>- u_time * speed</code> → 负号让波向外扩散（正号则向内收缩）</li>
+  <li><code>frequency</code> → 波纹的疏密</li>
+</ul>
+
+<p><strong>第二步</strong>：衰减</p>
+<ul>
+  <li>线性衰减：<code>wave * max(0.0, 1.0 - dist)</code> → 简单但不自然</li>
+  <li>指数衰减：<code>wave * exp(-dist * 3.0)</code> → 柔和自然</li>
+  <li>倒数衰减：<code>wave / (1.0 + dist * 5.0)</code> → 中间区域衰减快、远处慢</li>
+</ul>
+
+<p><strong>第三步</strong>：多波源叠加</p>
+<ul>
+  <li>一个波源太规则。叠加 2-3 个不同位置的波源，互相干涉，效果更自然</li>
+  <li>可以用 sin(u_time) 让波源缓慢移动</li>
+</ul>
+
+<div class="info-box">
+  <strong>进阶：折射效果</strong><br>
+  用波纹值去<strong>偏移 UV 坐标</strong>，再用偏移后的坐标去采样图案：<br>
+  <code>vec2 distortedUV = uv + wave * 0.02;</code><br>
+  这就是"透过水面看物体"的折射效果的基础！
+</div>
+
 <div class="task-box">
   <h4>🎯 你的任务</h4>
   <p>1. 从中心扩散的同心波纹</p>
   <p>2. 波纹随距离衰减</p>
-  <p>3. 加分：多个波源</p>
+  <p>3. 加分：多个波源叠加干涉</p>
+  <p>4. 加分：用波纹做 UV 折射效果</p>
 </div>

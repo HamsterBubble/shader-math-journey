@@ -1,0 +1,36 @@
+<h2>✕ 2D 叉积与有向面积</h2>
+
+<h3>叉积不该是 3D 的吗？</h3>
+<p>3D 叉积返回一个<strong>垂直向量</strong>。2D 没有"垂直于屏幕"的空间，所以 2D 叉积返回一个<strong>标量</strong>——但这个标量信息量极大。</p>
+
+<div class="formula-block">
+  cross2d(a, b) = a.x × b.y - a.y × b.x
+</div>
+
+<h3>2D 叉积的三大用途</h3>
+<ul>
+  <li><strong>方向判定</strong>：结果 > 0 → b 在 a 的<em>左侧</em>；< 0 → <em>右侧</em>；= 0 → 共线</li>
+  <li><strong>有向面积</strong>：|cross(a,b)| = 两向量张成的平行四边形面积</li>
+  <li><strong>到直线距离</strong>：点 p 到向量 v 所在直线的有符号距离 = cross(normalize(v), p)</li>
+</ul>
+
+<h3>在 Shader 中的重要场景</h3>
+<div class="info-box">
+  <strong>判断"在三角形内部"</strong><br>
+  对三角形 ABC 的三条边分别算叉积 cross(AB, AP), cross(BC, BP), cross(CA, CP)。<br>
+  如果三个结果<strong>同号</strong>→ 点在三角形内。这就是 GPU 光栅化的核心算法！
+</div>
+
+<div class="info-box tip">
+  <strong>💡 GLSL 没有 2D cross</strong><br>
+  GLSL 的 <code>cross()</code> 只接受 vec3。2D 叉积需要自己写：<br>
+  <code>float cross2d(vec2 a, vec2 b) { return a.x*b.y - a.y*b.x; }</code>
+</div>
+
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 用叉积符号给画面分为"左右"两色</p>
+  <p>2. 画两个旋转向量，观察叉积符号变化</p>
+  <p>3. 用叉积计算点到线段的距离</p>
+  <p>4. 用三次叉积判定画一个填充三角形</p>
+</div>

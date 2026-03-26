@@ -1,22 +1,43 @@
 <h2>⭕ 单位圆：sin/cos 的几何起源</h2>
-<p>忘掉公式，回到本质：<strong>sin 和 cos 是圆上点的 y 和 x 坐标</strong>。</p>
+
+<h3>忘掉公式，回到本质</h3>
+<p>很多人把 sin 和 cos 当作"黑盒函数"来用——输入一个数、输出另一个数。但如果你理解了<strong>单位圆</strong>，sin/cos 立刻变得直观无比。</p>
+
+<h3>圆上的坐标</h3>
+<p>画一个半径为 1 的圆（单位圆），从右侧 (1,0) 出发，逆时针走角度 θ：</p>
 <ul>
-  <li>半径为 1 的圆，角度 θ 处的点 = <code>(cos θ, sin θ)</code></li>
-  <li><code>sin</code> = 竖直分量 (y)，<code>cos</code> = 水平分量 (x)</li>
-  <li>所以 <code>sin²θ + cos²θ = 1</code> 就是勾股定理！</li>
+  <li>到达的点的 <strong>x 坐标 = cos θ</strong></li>
+  <li>到达的点的 <strong>y 坐标 = sin θ</strong></li>
 </ul>
-<h3>在 Shader 中的用途</h3>
+<p>就是这么简单。<code>cos</code> 是水平分量，<code>sin</code> 是竖直分量。</p>
+
+<h3>恒等式的几何解释</h3>
+<p><code>sin²θ + cos²θ = 1</code> 看起来像一个需要背的公式，但它其实就是：</p>
+<div class="info-box">
+  <strong>勾股定理！</strong><br>
+  圆上任意点 (cosθ, sinθ) 到圆心的距离 = √(cos²θ + sin²θ) = 1（半径）<br>
+  这不是巧合——这就是圆的定义。
+</div>
+
+<h3>在 Shader 中无处不在</h3>
 <ul>
   <li><strong>圆周运动</strong>：<code>vec2(cos(t), sin(t)) * radius</code></li>
-  <li><strong>旋转</strong>：把点投影到新的 cos/sin 轴上</li>
-  <li><strong>波动</strong>：sin(x) 就是圆的 y 坐标随角度变化的"展开"</li>
+  <li><strong>旋转</strong>：把坐标投影到新的 cos/sin 轴上（下个阶段会详细学）</li>
+  <li><strong>波动</strong>：sin(x) 其实就是圆的 y 坐标随角度变化的"展开版"</li>
+  <li><strong>法线方向</strong>：球面上的法线 = <code>(cosθ·cosφ, sinθ, cosθ·sinφ)</code></li>
 </ul>
-<div class="info-box">
-  理解单位圆后，<code>atan(y, x)</code> 也清楚了——它就是从坐标 (x,y) 反推角度 θ。
+
+<h3>atan 是反操作</h3>
+<p>如果 cos/sin 是"从角度求坐标"，那 <code>atan(y, x)</code> 就是"从坐标反推角度"。这两个操作互为逆运算：</p>
+<div class="formula-block">
+  圆 → 线：angle = atan(y, x)<br>
+  线 → 圆：(x, y) = (cos(angle), sin(angle))
 </div>
+
 <div class="task-box">
   <h4>🎯 动手试试</h4>
-  <p>1. 改半径看圆的大小变化</p>
-  <p>2. 乘以不同速度: <code>u_time * 0.5</code> vs <code>u_time * 3.0</code></p>
+  <p>1. 改轨道半径看圆的大小变化</p>
+  <p>2. 不同速度: <code>u_time * 0.5</code> vs <code>u_time * 3.0</code></p>
   <p>3. 用 <code>vec2(cos(t*2.0), sin(t*3.0))</code> 看利萨如图形</p>
+  <p>4. 画多个等间距的点：循环 i 从 0~5，角度 = i/6 * 2π + u_time</p>
 </div>

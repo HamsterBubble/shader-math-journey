@@ -1,16 +1,44 @@
-<h2>🔗 SDF 组合运算</h2>
-<p>两个 SDF 可以用简单的 <code>min/max</code> 组合：</p>
-<ul>
-  <li><strong>并集</strong>：<code>min(d1, d2)</code> — 两个都画</li>
-  <li><strong>交集</strong>：<code>max(d1, d2)</code> — 重叠部分</li>
-  <li><strong>差集</strong>：<code>max(d1, -d2)</code> — 挖洞</li>
-</ul>
-<div class="info-box tip">
-  <strong>💡 平滑并集</strong>：<code>smin(d1, d2, k)</code> 可以让两个形状融合过渡，k 控制融合范围。
+<h2>🔗 SDF 布尔运算组合</h2>
+
+<h3>从 Stage 1 的 min/max 到真正的 CSG</h3>
+<p>Stage 1 学过 min/max 可以做形状的合并和相交。现在我们深入学习<strong>完整的 SDF 布尔操作体系</strong>。</p>
+
+<h3>三种基本布尔运算</h3>
+<div class="formula-block">
+  Union（并集）= min(d1, d2)<br>
+  Intersection（交集）= max(d1, d2)<br>
+  Subtraction（差集）= max(d1, -d2)
 </div>
+
+<h3>平滑布尔运算 (Smooth CSG)</h3>
+<p>硬 min/max 的问题是接缝处有<strong>锐利的尖角</strong>。在自然界中，物体的融合是圆滑的。平滑版本让形状"融化"在一起：</p>
+
+<p><strong>平滑并集 (smin)：</strong></p>
+<div class="formula-block">
+  smin(a, b, k) — k 控制融合程度
+</div>
+<ul>
+  <li>k = 0 → 硬 min（完全锐利）</li>
+  <li>k = 0.1 → 微微圆滑</li>
+  <li>k = 0.5 → 显著融合（Metaball 效果）</li>
+</ul>
+
+<p>最常用的 smin 实现：</p>
+<pre><code>float smin(float a, float b, float k) {
+  float h = clamp(0.5 + 0.5*(b-a)/k, 0.0, 1.0);
+  return mix(b, a, h) - k*h*(1.0-h);
+}</code></pre>
+
+<div class="info-box">
+  <strong>Metaball（融球）效果：</strong><br>
+  把多个圆的 SDF 用 smin 合并，当两个球靠近时，它们会像水滴一样"粘"在一起。<br>
+  这个效果在 Shader 社区极受欢迎——只需 smin + 几个移动的圆就能创造沸腾的岩浆般的视觉。
+</div>
+
 <div class="task-box">
   <h4>🎯 动手试试</h4>
-  <p>1. 切换 <code>min</code>/<code>max</code>/<code>max(d1,-d2)</code></p>
-  <p>2. 改圆和矩形的大小/位置</p>
-  <p>3. 加第三个形状做更复杂的组合</p>
+  <p>1. 用 min/max 组合三个基本形状</p>
+  <p>2. 把 min 替换为 smin，调整 k 值看融合效果</p>
+  <p>3. 用 max(circle, -smallCircle) 挖一个洞</p>
+  <p>4. 组合 5+ 个形状建造一个小图标</p>
 </div>

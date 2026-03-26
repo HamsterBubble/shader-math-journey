@@ -1,14 +1,50 @@
-<h2>🌊 FBM — 分形布朗运动</h2>
-<p>单层噪声太单调。FBM 叠加多层不同频率的噪声：</p>
+<h2>🏔️ FBM — 分形布朗运动</h2>
+
+<h3>一层噪声不够用</h3>
+<p>单层噪声像连绵的小丘——缺乏自然界中"大起伏叠加小细节"的层次感。山脉有大山脊、中等岩石、小碎石……每个尺度都有细节。<strong>FBM</strong> 就是模拟这种多尺度结构的技巧。</p>
+
+<h3>FBM 公式</h3>
+<div class="formula-block">
+  fbm = noise(p) × 1.0<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;+ noise(p×2) × 0.5<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;+ noise(p×4) × 0.25<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;+ noise(p×8) × 0.125<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;+ ...
+</div>
+<p>每层（叫做<strong>octave</strong>，八度）：</p>
 <ul>
-  <li>每层频率 ×2（更细）</li>
-  <li>每层振幅 ×0.5（更弱）</li>
-  <li>叠加 4-6 层</li>
+  <li><strong>频率翻倍</strong>（lacunarity = 2.0）→ 细节越来越细</li>
+  <li><strong>振幅减半</strong>（gain = 0.5）→ 细节越来越弱</li>
+  <li>通常叠加 4~8 层就足够了</li>
 </ul>
-<p>结果像<strong>云朵、地形、烟雾</strong>。</p>
+
+<h3>参数含义</h3>
+<ul>
+  <li><strong>Octaves</strong>（层数）：越多越精细，但越慢</li>
+  <li><strong>Lacunarity</strong>（频率倍数）：通常 2.0。增大 → 层间差距更大</li>
+  <li><strong>Gain</strong>（振幅衰减）：通常 0.5。增大 → 高频细节更强（更"粗糙"）</li>
+</ul>
+
+<div class="info-box">
+  <strong>FBM 能生成什么？</strong><br>
+  ● 云朵：FBM 做密度，用阈值切割<br>
+  ● 山脉：FBM 做高度图<br>
+  ● 水面：FBM + 时间动画<br>
+  ● 火焰纹理：FBM + 向上运动 + 颜色映射<br>
+  ● 星云：FBM + 彩色调色板
+</div>
+
+<div class="info-box tip">
+  <strong>💡 波的叠加的回归</strong><br>
+  还记得 Stage 2 学的波的叠加吗？FBM 就是同一个原理：<br>
+  <code>sin(x) + sin(2x)/2 + sin(4x)/4 + ...</code><br>
+  只是把 sin 换成了噪声函数。傅里叶分析 → FBM，一脉相承！
+</div>
+
 <div class="task-box">
   <h4>🎯 动手试试</h4>
-  <p>1. 改层数（3 层 vs 8 层）</p>
-  <p>2. 改频率倍数（不一定是 2.0）</p>
-  <p>3. 用 FBM 值做颜色映射（地形色阶）</p>
+  <p>1. 实现 FBM 循环，改层数 1~8 看细节变化</p>
+  <p>2. 改 lacunarity 和 gain 看"山脉"的风格变化</p>
+  <p>3. 加 u_time 让噪声缓慢演变 → 云朵动画</p>
+  <p>4. 用 FBM 值映射到调色板 → 地形着色</p>
 </div>

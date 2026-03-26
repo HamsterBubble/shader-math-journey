@@ -1,15 +1,52 @@
 <h2>⭕ 画圆 — SDF 入门</h2>
-<h3>SDF = 有符号距离函数</h3>
+
+<h3>什么是 SDF？</h3>
+<p>SDF（Signed Distance Function，有符号距离函数）是 Shader 中画图形的核心方法。它的思路出奇地简单：</p>
+<p><strong>对于空间中的每一个点，计算它到图形边界的距离。</strong></p>
 <ul>
-  <li>距离 &lt; 0 → 图形<strong>内部</strong></li>
-  <li>距离 &gt; 0 → 图形<strong>外部</strong></li>
-  <li>距离 = 0 → <strong>边界</strong></li>
+  <li>距离 <strong>&lt; 0</strong> → 点在图形<strong>内部</strong></li>
+  <li>距离 <strong>= 0</strong> → 点刚好在<strong>边界</strong>上</li>
+  <li>距离 <strong>&gt; 0</strong> → 点在图形<strong>外部</strong></li>
 </ul>
-<p>圆的 SDF: <code>length(p) - radius</code></p>
+<p>"有符号"就是指：内部取负值，外部取正值。一个数字就能告诉你"在哪边、离多远"。</p>
+
+<h3>圆的 SDF</h3>
+<p>圆是最简单的 SDF，因为"到圆心的距离"就是现成的：</p>
+<div class="formula-block">
+  sdf = length(p - center) - radius
+</div>
+<ul>
+  <li><code>length(p - center)</code> = 点到圆心的距离</li>
+  <li>减去 <code>radius</code> → 内部变负、边界为零、外部为正</li>
+</ul>
+
+<h3>从距离到颜色</h3>
+<p>有了 SDF 值，怎么画出图形？最简单的方法：</p>
+<ul>
+  <li><code>step(0.0, -sdf)</code> → 硬边圆（内部白、外部黑）</li>
+  <li><code>smoothstep(0.01, -0.01, sdf)</code> → 柔边圆（抗锯齿）</li>
+  <li>直接用 sdf 值映射颜色 → 看到距离场的"等高线"</li>
+</ul>
+
+<div class="info-box">
+  <strong>为什么 SDF 如此强大？</strong><br>
+  因为它把复杂的几何问题简化为简单的数学运算：<br>
+  ● <strong>并集</strong>（画多个图形）= <code>min(sdf1, sdf2)</code><br>
+  ● <strong>交集</strong>（取重叠区域）= <code>max(sdf1, sdf2)</code><br>
+  ● <strong>描边</strong>（只画轮廓）= <code>abs(sdf) - thickness</code><br>
+  ● <strong>圆角</strong> = <code>sdf - roundness</code><br>
+  后面你会经常用到这些操作！
+</div>
+
+<div class="info-box tip">
+  <strong>💡 SDF 的美学</strong><br>
+  直接可视化 SDF 值（如用颜色梯度映射 sdf）会得到非常漂亮的"等高线"效果，这在 debug 和艺术创作中都极为有用。
+</div>
+
 <div class="task-box">
   <h4>🎯 动手试试</h4>
-  <p>1. 修改 <code>radius</code></p>
-  <p>2. 加动画: <code>float radius = 0.4 + 0.1*sin(u_time);</code></p>
-  <p>3. 移圆心: <code>length(uv - vec2(0.2, 0.1))</code></p>
-  <p>4. 画环: 用 <code>abs(d) - 0.02</code></p>
+  <p>1. 修改 <code>radius</code> → 看圆的大小变化</p>
+  <p>2. 加动画: <code>float radius = 0.4 + 0.1*sin(u_time);</code> → 跳动的圆</p>
+  <p>3. 移圆心: <code>length(uv - vec2(0.2, 0.1))</code> → 偏心的圆</p>
+  <p>4. 画环: 用 <code>abs(d) - 0.02</code> 替换 sdf → 只保留边缘</p>
 </div>

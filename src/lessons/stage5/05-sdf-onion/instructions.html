@@ -1,20 +1,43 @@
-<h2>🧅 SDF 偏移与洋葱皮</h2>
-<p>两个被低估的 SDF 操作：</p>
-<h3>偏移 (Offset/Round)</h3>
-<p><code>sdf - offset</code> → 形状向外扩展 offset 距离</p>
-<ul>
-  <li>矩形 SDF - 0.05 → 圆角矩形</li>
-  <li>三角形 SDF - 0.03 → 圆角三角形</li>
-</ul>
-<h3>洋葱皮 (Onion)</h3>
-<p><code>abs(sdf) - thickness</code> → 空心轮廓</p>
-<p>嵌套多层：<code>abs(abs(sdf) - t1) - t2</code> → 双层轮廓</p>
-<div class="info-box">
-  这两个操作可以从<strong>任意 SDF</strong> 派生出无数变体：圆角化、空心化、多层嵌套。掌握它们就等于把 SDF 原语数量翻倍。
+<h2>🧅 洋葱层 (Onion) SDF</h2>
+
+<h3>一层层剥开——同心壳效果</h3>
+<p>"洋葱化"是 SDF 最优雅的修饰操作之一：把任意实心形状变成<strong>等间距的同心环/壳</strong>。</p>
+
+<h3>洋葱公式</h3>
+<div class="formula-block">
+  onion(d) = abs(d) - thickness
 </div>
+<p>就是<strong>取绝对值再减去厚度</strong>！分两步理解：</p>
+<ul>
+  <li><code>abs(d)</code>：把内部（d<0）翻转为正值——此时任何点到<strong>边界</strong>的距离已知</li>
+  <li><code>-thickness</code>：在边界两侧各向外/向内偏移 thickness — 形成"壳"</li>
+</ul>
+
+<h3>多层嵌套</h3>
+<p>重复多次 onion 操作就能得到多层壳：</p>
+<ul>
+  <li><code>abs(abs(d) - t1) - t2</code> → 两层壳</li>
+  <li><code>abs(abs(abs(d) - t1) - t2) - t3</code> → 三层壳</li>
+  <li>每层的厚度可以不同！</li>
+</ul>
+
+<div class="info-box">
+  <strong>自然界中的洋葱结构：</strong><br>
+  ● 树的年轮 = 圆的洋葱化<br>
+  ● 靶心 = 圆的多层洋葱<br>
+  ● 等高线地图 = 高度场的洋葱化<br>
+  ● 指纹 = 复杂 SDF 的洋葱化
+</div>
+
+<div class="info-box tip">
+  <strong>💡 适用于任意形状！</strong><br>
+  洋葱操作不依赖形状类型——圆、矩形、三角形、甚至用布尔运算组合的复杂形状，都可以洋葱化。这是 SDF 的"通用修饰符"。
+</div>
+
 <div class="task-box">
   <h4>🎯 动手试试</h4>
-  <p>1. 改 offset 值看圆角效果</p>
-  <p>2. 嵌套 abs: <code>abs(abs(d) - 0.1) - 0.03</code></p>
-  <p>3. 对星形/三角形做洋葱皮</p>
+  <p>1. 对圆做洋葱化 → 同心环</p>
+  <p>2. 对矩形做洋葱化 → 嵌套矩形框</p>
+  <p>3. 做 3 层以上的洋葱 → 同心壳</p>
+  <p>4. 让壳的厚度随 u_time 脉动</p>
 </div>

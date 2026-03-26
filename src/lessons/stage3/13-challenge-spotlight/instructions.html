@@ -1,0 +1,18 @@
+<h2>🏆 聚光灯效果</h2>
+<p>用 <code>dot</code> 和 <code>pow</code> 创造一个舞台<strong>聚光灯</strong>。</p>
+<div class="goal-preview">
+  <div class="goal-label"><span class="dot"></span>目标效果（实时）</div>
+  <canvas class="goal-canvas"></canvas>
+</div>
+<h3>聚光灯原理</h3>
+<div class="formula-block">
+  spot = pow(max(dot(toPixel, lightDir), 0), sharpness)<br>
+  sharpness 越大 → 光锥越窄
+</div>
+<div class="task-box">
+  <h4>🎯 你的任务</h4>
+  <p>1. 定义光源位置和方向</p>
+  <p>2. 用 dot 计算聚光锥角</p>
+  <p>3. 用 pow 控制锐利度</p>
+  <p>4. 加分：让光源摇摆 + 距离衰减</p>
+</div>

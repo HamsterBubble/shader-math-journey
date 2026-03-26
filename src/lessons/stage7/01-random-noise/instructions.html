@@ -1,13 +1,44 @@
-<h2>🎲 伪随机函数</h2>
-<p>GPU 没有 <code>random()</code>，用数学伪造：</p>
-<p><code>fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453)</code></p>
-<p>这个"魔法数字"公式几乎所有 Shader 都在用。</p>
-<div class="info-box">
-  纯随机太"吵"。实用噪声需要<strong>平滑</strong>：对网格点取随机值，中间做插值。这就是 Value Noise。
+<h2>🎲 伪随机与哈希噪声</h2>
+
+<h3>GPU 上的"随机"</h3>
+<p>GPU 没有 <code>random()</code> 函数。Shader 在不同帧、不同像素间必须给出<strong>相同的结果</strong>（确定性）。所以我们使用<strong>伪随机</strong>——看起来随机但完全可重现的函数。</p>
+
+<h3>经典哈希函数</h3>
+<div class="formula-block">
+  hash(p) = fract(sin(dot(p, vec2(12.9898, 78.233))) × 43758.5453)
 </div>
+<p>这个"魔法数字"组合是 Shader 社区的经典配方：</p>
+<ul>
+  <li><code>dot(p, vec2(...))</code> → 把 2D 坐标压缩为 1D 值</li>
+  <li><code>sin(...)</code> → 制造混乱（sin 的高频部分看起来很"乱"）</li>
+  <li><code>× 43758.5453</code> → 放大小数部分的差异</li>
+  <li><code>fract(...)</code> → 只取小数部分，确保输出在 [0,1)</li>
+</ul>
+
+<h3>Value Noise — 最简单的连续噪声</h3>
+<p>哈希噪声是"每个点独立随机"，看起来像电视雪花。要得到平滑的噪声，需要<strong>插值</strong>：</p>
+<ol>
+  <li>在整数格点上生成随机值</li>
+  <li>在格点之间用 smoothstep 做双线性插值</li>
+  <li>结果是平滑的、连续的随机起伏——Value Noise</li>
+</ol>
+
+<div class="info-box">
+  <strong>Perlin Noise vs Value Noise：</strong><br>
+  ● Value Noise：在格点上存储<strong>随机值</strong>，插值。简单但有明显的"方格感"。<br>
+  ● Perlin Noise：在格点上存储<strong>随机梯度</strong>，用点积插值。更自然，无方格感。<br>
+  ● Simplex Noise：Ken Perlin 的改进版，更快，更少方向偏好。
+</div>
+
+<div class="info-box tip">
+  <strong>💡 注意浮点精度！</strong><br>
+  这个哈希函数在坐标值很大时会失精度（sin 的输入超过几千就不可靠了）。在大世界场景中，先对坐标做 mod 来限制范围。
+</div>
+
 <div class="task-box">
   <h4>🎯 动手试试</h4>
-  <p>1. 改 <code>uv * 8.0</code> 的缩放因子 → 噪声粗细</p>
-  <p>2. 把 <code>mix</code> 换成 <code>smoothstep</code> 插值看差异</p>
-  <p>3. 用噪声值控制颜色而非灰度</p>
+  <p>1. 实现哈希噪声，可视化为灰度图</p>
+  <p>2. 加整数格点插值 → 看从"雪花"到"平滑"的变化</p>
+  <p>3. 改哈希函数的魔法数字看效果变化</p>
+  <p>4. 用噪声值驱动颜色或位移</p>
 </div>

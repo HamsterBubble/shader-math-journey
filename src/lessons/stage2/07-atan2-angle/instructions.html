@@ -1,23 +1,48 @@
 <h2>📐 atan(y, x) — 从坐标求角度</h2>
-<p><code>atan(y, x)</code> 是 Shader 中极其重要的函数——它将笛卡尔坐标 (x,y) 转为角度。</p>
-<h3>为什么用 atan(y,x) 而不是 atan(y/x)?</h3>
+
+<h3>反三角函数：逆向思维</h3>
+<p>前面我们学了 cos/sin 把角度变成坐标。但如果反过来——已知坐标 (x, y)，怎么求角度？这就是 <code>atan(y, x)</code> 的工作。</p>
+
+<h3>为什么要用 atan(y, x) 而不是 atan(y/x)？</h3>
+<p>GLSL 提供了两种 atan：</p>
 <ul>
-  <li><code>atan(y/x)</code> 只返回 [-π/2, π/2]，分不清象限</li>
-  <li><code>atan(y, x)</code> 返回 [-π, π]，覆盖完整 360°</li>
-  <li>当 x=0 时 y/x 会除零，但 atan(y,x) 正确返回 ±90°</li>
+  <li><code>atan(y/x)</code>（单参数）→ 只返回 [-π/2, π/2]，<strong>无法区分对面象限</strong></li>
+  <li><code>atan(y, x)</code>（双参数）→ 返回 [-π, π]，覆盖<strong>完整 360°</strong></li>
 </ul>
+
+<div class="warning-box">
+  <strong>⚠️ 永远用双参数版本！</strong><br>
+  单参数 <code>atan(y/x)</code> 有两个致命问题：<br>
+  1. 第一三象限、第二四象限的点会混淆（返回相同角度）<br>
+  2. 当 x = 0 时会除零崩溃<br>
+  <code>atan(y, x)</code> 完美解决了这两个问题。
+</div>
+
 <h3>常用套路</h3>
 <ul>
-  <li><code>float angle = atan(uv.y, uv.x)</code> → [-π, π]</li>
-  <li>归一化: <code>angle / 6.283 + 0.5</code> → [0, 1]</li>
-  <li>扇形分割: <code>mod(angle, PI/N)</code></li>
+  <li>获取角度：<code>float angle = atan(uv.y, uv.x);</code> → 范围 [-π, π]</li>
+  <li>归一化到 [0, 1]：<code>angle / (2.0 * 3.14159) + 0.5</code></li>
+  <li>分扇区：<code>floor(angle / (2π) * N)</code> → 得到 0 ~ N-1 的扇区编号</li>
+  <li>扇区内坐标：<code>fract(angle / (2π) * N)</code></li>
 </ul>
-<div class="info-box tip">
-  <strong>💡</strong> <code>atan + length</code> 就是极坐标变换。几乎所有放射状图案（花瓣、齿轮、星形）都基于这个组合。
+
+<div class="info-box">
+  <strong>atan + length = 极坐标变换</strong><br>
+  <code>float r = length(uv);</code> → 距离<br>
+  <code>float θ = atan(uv.y, uv.x);</code> → 角度<br>
+  有了 (r, θ)，你就能画出所有放射状、旋转对称的图案：花瓣、齿轮、星形、万花筒……
 </div>
+
+<div class="info-box tip">
+  <strong>💡 atan 的"接缝"问题</strong><br>
+  atan 在 x 轴负方向（左侧）有一条"接缝"：角度从 +π 突然跳到 -π。<br>
+  画放射条纹时你可能会在左侧看到一条不自然的线。解决方案：用 <code>fract()</code> 包裹角度值。
+</div>
+
 <div class="task-box">
   <h4>🎯 动手试试</h4>
   <p>1. 改扇区数 (segments 变量)</p>
-  <p>2. 让扇区边界随时间旋转</p>
-  <p>3. 在每个扇区内画不同形状</p>
+  <p>2. 让扇区边界随时间旋转：<code>angle + u_time</code></p>
+  <p>3. 在每个扇区内画不同的渐变</p>
+  <p>4. 用 angle 值映射到 IQ 调色板 → 彩虹环</p>
 </div>

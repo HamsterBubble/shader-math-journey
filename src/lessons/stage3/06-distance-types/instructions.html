@@ -1,24 +1,47 @@
 <h2>📏 不同的"距离"定义</h2>
-<p>不同距离度量产生完全不同的圆/形状：</p>
-<h3>欧几里得距离 (圆)</h3>
-<p><code>length(p) = sqrt(p.x² + p.y²)</code></p>
-<h3>曼哈顿距离 (菱形)</h3>
-<p><code>abs(p.x) + abs(p.y)</code> — "城市街区"距离</p>
-<h3>切比雪夫距离 (正方形)</h3>
-<p><code>max(abs(p.x), abs(p.y))</code> — "国王走棋"距离</p>
-<h3>Minkowski 距离 (过渡)</h3>
-<p><code>pow(pow(abs(x),n) + pow(abs(y),n), 1/n)</code></p>
-<ul>
-  <li>n=1: 曼哈顿 (菱形)</li>
-  <li>n=2: 欧几里得 (圆)</li>
-  <li>n→∞: 切比雪夫 (方形)</li>
-</ul>
-<div class="info-box">
-  不同距离 = 不同基础形状。切换距离函数是 shader 图案设计的核心技巧。
+
+<h3>距离不只有一种</h3>
+<p>在日常生活中，"距离"就是两点间的直线长度。但在数学和 Shader 中，"距离"的定义可以有很多种——而不同的定义会产生<strong>完全不同的形状</strong>。</p>
+
+<h3>欧几里得距离 → 圆形</h3>
+<div class="formula-block">
+  d = √(x² + y²) = length(p)
 </div>
+<p>这就是我们熟悉的"直线距离"（勾股定理）。等距线是<strong>圆形</strong>。</p>
+
+<h3>曼哈顿距离 → 菱形</h3>
+<div class="formula-block">
+  d = |x| + |y|
+</div>
+<p>想象在网格状的城市里走路——只能沿东西南北走，不能走对角线。这就是"城市街区距离"。等距线是<strong>45° 旋转的正方形（菱形）</strong>。</p>
+
+<h3>切比雪夫距离 → 正方形</h3>
+<div class="formula-block">
+  d = max(|x|, |y|)
+</div>
+<p>想象国际象棋中国王的走法——每步可以走任意方向一格。走 N 步能到达的范围是一个 N×N 的正方形。等距线是<strong>正方形</strong>。</p>
+
+<h3>Minkowski 距离 → 形状过渡</h3>
+<div class="formula-block">
+  d = (|x|ⁿ + |y|ⁿ)^(1/n)
+</div>
+<ul>
+  <li>n = 1 → 曼哈顿（菱形）</li>
+  <li>n = 2 → 欧几里得（圆形）</li>
+  <li>n → ∞ → 切比雪夫（正方形）</li>
+  <li>n = 0.5 → "超级星形"（向外凸的十字）</li>
+</ul>
+<p>调节 n 值，你可以在菱形、圆形、方形之间<strong>平滑过渡</strong>！</p>
+
+<div class="info-box">
+  <strong>距离类型是 SDF 图案设计的核心技巧：</strong><br>
+  只需切换距离函数，同一套代码就能生成截然不同的图案。圆形网格 → 菱形网格 → 方形网格，只需一行改动。
+</div>
+
 <div class="task-box">
   <h4>🎯 动手试试</h4>
-  <p>1. 注释/取消注释不同距离公式</p>
-  <p>2. 改 Minkowski 的 n 值 (1.0 ~ 8.0)</p>
-  <p>3. 在网格中用不同距离画不同形状</p>
+  <p>1. 切换不同的距离公式，对比圆形/菱形/方形</p>
+  <p>2. 用 Minkowski 距离，改 n 值 (0.5 ~ 8.0) 看形状变化</p>
+  <p>3. 在 fract 网格中用不同距离画不同形状</p>
+  <p>4. 动画：让 n 随 u_time 变化 → 形状呼吸</p>
 </div>

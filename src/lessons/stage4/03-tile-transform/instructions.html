@@ -1,11 +1,37 @@
 <h2>🧩 每个格子独立变换</h2>
-<p>组合 <code>fract()</code>（创建网格）与 <code>rotate2d()</code>（旋转每个格子），创造复杂图案。</p>
-<div class="info-box tip">
-  <strong>💡</strong> 先算 <code>cellID = floor()</code>，再用 cellID 给每个格子不同的旋转角度！
+
+<h3>网格 + 矩阵 = 无限可能</h3>
+<p>前面我们用 <code>fract()</code> 创建了重复网格，用 <code>mat2</code> 做了旋转。现在把它们组合起来——<strong>让每个格子都有自己独立的变换</strong>。</p>
+
+<h3>关键思路</h3>
+<ol>
+  <li><code>vec2 cellID = floor(uv * N);</code> → 获取格子编号</li>
+  <li><code>vec2 cellUV = fract(uv * N) - 0.5;</code> → 每格局部坐标，中心在 (0,0)</li>
+  <li>用 cellID 计算每格独有的变换参数（旋转角度、缩放比例...）</li>
+  <li>对 cellUV 施加变换后画图案</li>
+</ol>
+
+<h3>为什么先减 0.5？</h3>
+<p>旋转和缩放都是围绕<strong>原点</strong>进行的。如果不减 0.5，"格子的原点"在左下角，旋转效果会很奇怪。减去 0.5 把原点移到格子中心，旋转就自然了。</p>
+
+<div class="info-box">
+  <strong>伪随机差异化：</strong><br>
+  用 cellID 生成伪随机值，让每格看起来不同：<br>
+  <code>float rand = fract(sin(dot(cellID, vec2(12.9898, 78.233))) * 43758.5453);</code><br>
+  ● 旋转角度 = <code>rand * 6.28</code><br>
+  ● 缩放比例 = <code>0.5 + rand * 0.5</code><br>
+  ● 颜色 = 基于 rand 的调色板
 </div>
+
+<div class="info-box tip">
+  <strong>💡 交替行为</strong><br>
+  <code>mod(cellID.x + cellID.y, 2.0)</code> 可以让相邻格子交替（棋盘格模式）。用它控制旋转方向：偶数格顺时针，奇数格逆时针 → 齿轮咬合效果！
+</div>
+
 <div class="task-box">
   <h4>🎯 动手试试</h4>
-  <p>1. 改 <code>grid</code> 格子数</p>
-  <p>2. 让每个格子旋转速度不同</p>
+  <p>1. 改 <code>grid</code> 格子数（3, 5, 10）</p>
+  <p>2. 让每个格子旋转速度不同（基于 cellID）</p>
   <p>3. 用 cellID 给每个格子不同颜色</p>
+  <p>4. 交替旋转方向 → 齿轮效果</p>
 </div>

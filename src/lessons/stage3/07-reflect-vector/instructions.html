@@ -1,23 +1,44 @@
 <h2>🪞 反射向量</h2>
-<p>反射是光照计算的核心：</p>
-<p style="text-align:center;color:var(--accent);">
+
+<h3>光的弹跳</h3>
+<p>把一个球扔向墙壁，它会弹回来。光线也一样——碰到表面后沿对称方向反射。<strong>反射向量</strong>就是计算"弹出去的方向"。</p>
+
+<h3>反射公式</h3>
+<div class="formula-block">
   R = I - 2 × dot(I, N) × N
-</p>
+</div>
 <ul>
-  <li><strong>I</strong> = 入射方向（指向表面）</li>
-  <li><strong>N</strong> = 法线（表面朝外）</li>
-  <li><strong>R</strong> = 反射方向（弹出去）</li>
+  <li><strong>I</strong>（Incident）= 入射方向（指向表面的向量）</li>
+  <li><strong>N</strong>（Normal）= 表面法线（表面朝外的单位向量）</li>
+  <li><strong>R</strong>（Reflected）= 反射方向（弹出去的向量）</li>
 </ul>
-<p>GLSL 内置了 <code>reflect(I, N)</code>，但理解数学很重要！</p>
-<h3>应用</h3>
+
+<h3>公式的几何直觉</h3>
+<p><code>dot(I, N)</code> 计算入射向量在法线方向的分量。减去 2 倍这个分量，等于<strong>翻转法线方向的分量，保留切线方向的分量</strong>——这正是反射的定义。</p>
+
+<div class="info-box">
+  <strong>GLSL 内置函数：</strong><code>reflect(I, N)</code><br>
+  GLSL 直接提供了 reflect 函数，不需要手写公式。但理解背后的数学对以下场景至关重要：<br>
+  ● <strong>镜面高光 (Specular)</strong>：反射方向接近视线方向时 → 看到亮点<br>
+  ● <strong>环境映射 (Cubemap)</strong>：用反射方向去查找环境贴图 → 镜面效果<br>
+  ● <strong>光线追踪 (Ray Tracing)</strong>：射线命中表面后反射继续追踪
+</div>
+
+<h3>Phong 高光模型</h3>
+<p>反射向量的最经典应用：</p>
+<div class="formula-block">
+  specular = pow(max(dot(R, V), 0.0), shininess)
+</div>
 <ul>
-  <li><strong>镜面高光</strong>: 反射光接近视线方向 → 亮</li>
-  <li><strong>环境映射</strong>: 用反射方向查找环境贴图</li>
-  <li><strong>光线追踪</strong>: 射线命中后反射继续追踪</li>
+  <li><code>V</code> = 视线方向，<code>R</code> = 反射方向</li>
+  <li>当 R 和 V 方向接近时 → dot 接近 1 → pow 后得到亮点</li>
+  <li><code>shininess</code> 越大 → 亮点越小越锐利（金属感）</li>
 </ul>
+
 <div class="task-box">
   <h4>🎯 动手试试</h4>
-  <p>1. 改圆的数量/位置</p>
-  <p>2. 调整 pow() 的指数 (高光锐度)</p>
-  <p>3. 让光源位置跟鼠标走</p>
+  <p>1. 改变圆球的数量和位置</p>
+  <p>2. 调整 <code>pow()</code> 的指数（shininess：8, 32, 128）看高光变化</p>
+  <p>3. 让光源位置随 u_time 旋转</p>
+  <p>4. 比较 <code>reflect()</code> 函数和手写公式的结果是否一致</p>
 </div>

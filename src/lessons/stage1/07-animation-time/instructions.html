@@ -1,16 +1,42 @@
 <h2>⏱️ u_time — 让一切动起来</h2>
-<p><code>u_time</code> 是不断增长的秒数。配合 sin() 做动画：</p>
+
+<h3>时间：Shader 的第四维</h3>
+<p>到目前为止，我们的画面都是静态的。但 Shader 有一个秘密武器：<code>u_time</code>——一个从程序启动开始不断递增的浮点数（单位：秒），它是一切动画的源泉。</p>
+
+<h3>sin(u_time)：永不停歇的摆钟</h3>
+<p><code>sin()</code> 函数天生就是做动画的——它的输出在 -1 和 1 之间<strong>永远来回振荡</strong>，永远不会停。配合 u_time：</p>
 <ul>
-  <li><code>sin(u_time)</code> → -1~1 往复</li>
-  <li><code>sin(u_time)*0.5+0.5</code> → 映射到 0~1</li>
-  <li><code>sin(u_time * 2.0)</code> → 2 倍速</li>
+  <li><code>sin(u_time)</code> → 输出在 <strong>-1 ~ 1</strong> 之间来回</li>
+  <li><code>sin(u_time) * 0.5 + 0.5</code> → 映射到 <strong>0 ~ 1</strong>（最常用！）</li>
+  <li><code>sin(u_time * 2.0)</code> → <strong>2 倍速</strong>振荡</li>
+  <li><code>sin(u_time * 0.5)</code> → <strong>慢动作</strong>振荡</li>
 </ul>
+
 <div class="info-box tip">
-  <strong>💡</strong> <code>sin(x)*0.5+0.5</code> 是 Shader 中最常用的映射技巧！
+  <strong>💡 万能动画公式</strong><br>
+  <code>sin(u_time) * 0.5 + 0.5</code> 是 Shader 中出现频率最高的代码片段之一。它把 sin 的 -1~1 映射成更实用的 0~1，可以用于：控制颜色、控制大小、控制位置……几乎任何需要"来回变化"的场景。
 </div>
+
+<h3>让空间随时间变化</h3>
+<p>动画的本质是：<strong>把 u_time 混入坐标运算</strong>。几种常用手法：</p>
+<ul>
+  <li><strong>平移</strong>：<code>uv.x + u_time * 0.1</code> → 画面缓缓滚动</li>
+  <li><strong>脉动</strong>：<code>sin(length(uv)*10.0 - u_time*3.0)</code> → 波纹从中心扩散</li>
+  <li><strong>扭曲</strong>：<code>uv.x + sin(uv.y*10.0 + u_time)*0.05</code> → 画面像水面一样摆动</li>
+</ul>
+
+<div class="info-box">
+  <strong>关键理解：</strong>Shader 没有"帧"的概念。每帧执行一次 main()，u_time 的值稍微增加一点。由于 sin 是连续函数，这些微小的变化产生了平滑的动画效果。GPU 不是在"播放动画"，而是在每帧<strong>重新计算整幅画面</strong>。
+</div>
+
+<div class="warning-box">
+  <strong>⚠️ 注意精度：</strong>u_time 会无限增长。当它变得很大（如超过 10000）时，<code>sin(u_time * 100.0)</code> 中的大数乘法可能产生浮点精度问题。实际项目中常用 <code>mod(u_time, 6.28)</code> 限制范围。
+</div>
+
 <div class="task-box">
   <h4>🎯 动手试试</h4>
-  <p>1. 改 sin 里的速度乘数</p>
-  <p>2. 方向改为 <code>uv.x + uv.y</code> → 斜向</p>
-  <p>3. 扭曲: <code>uv.x + sin(uv.y*10.0+u_time)*0.05</code></p>
+  <p>1. 改 sin 里的速度乘数（0.5 = 慢，5.0 = 快）</p>
+  <p>2. 方向改为 <code>uv.x + uv.y</code> → 斜向波纹</p>
+  <p>3. 扭曲效果: <code>uv.x + sin(uv.y*10.0+u_time)*0.05</code></p>
+  <p>4. 试试 <code>abs(sin(u_time))</code> → 只取正值，产生"弹跳"效果</p>
 </div>

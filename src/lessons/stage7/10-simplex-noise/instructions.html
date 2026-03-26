@@ -1,0 +1,24 @@
+<h2>△ Simplex 噪声</h2>
+<h3>Value Noise 的升级版</h3>
+<p>Value Noise 在正方形网格上插值——会产生明显的轴向偏好。Simplex Noise 用<strong>单纯形网格</strong>（2D=三角形，3D=四面体），效果更均匀、计算量更少。</p>
+<h3>Simplex vs Value vs Perlin</h3>
+<ul>
+  <li><strong>Value Noise</strong>：网格顶点存随机<em>值</em>，双线性插值 → 方块感</li>
+  <li><strong>Perlin Noise</strong>：网格顶点存随机<em>梯度</em>，Hermite 插值 → 轴向伪影</li>
+  <li><strong>Simplex Noise</strong>：三角形网格 + 梯度 → 最少伪影，O(N) 复杂度</li>
+</ul>
+<div class="formula-block">
+  核心思路：<br>
+  1. 用倾斜变换将正方形网格→三角形网格<br>
+  2. 找到点所在三角形的 3 个顶点<br>
+  3. 对每个顶点：梯度 · 偏移向量 × 衰减核<br>
+  4. 求和
+</div>
+<div class="info-box">
+  <strong>倾斜常数的由来</strong><br>
+  K1 = (√3 - 1) / 2 ≈ 0.366 → 正方形→三角形的倾斜系数<br>
+  K2 = (3 - √3) / 6 ≈ 0.211 → 反向倾斜系数
+</div>
+<div class="task-box"><h4>🎯 动手试试</h4>
+  <p>1. 对比 Simplex 和 Value Noise 的视觉差异</p><p>2. 用 Simplex 做 FBM</p><p>3. 输出噪声的梯度做法线贴图</p>
+</div>

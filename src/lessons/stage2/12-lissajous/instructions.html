@@ -1,0 +1,37 @@
+<h2>∞ 利萨如图形</h2>
+
+<h3>用三角函数画"美丽曲线"</h3>
+<p>利萨如图形（Lissajous）是两个<strong>不同频率的正弦</strong>在 x 和 y 方向叠加产生的曲线。它们出现在示波器、物理振动和音乐可视化中。</p>
+
+<div class="formula-block">
+  x(t) = A · sin(a · t + δ)<br>
+  y(t) = B · sin(b · t)
+</div>
+
+<h3>参数含义</h3>
+<ul>
+  <li><strong>a:b 频率比</strong> — 决定曲线形状。1:1=椭圆，1:2=∞形，2:3=蝴蝶结</li>
+  <li><strong>δ 相位差</strong> — 让曲线"旋转"。δ=0 是直线，δ=π/2 是圆/椭圆</li>
+  <li><strong>A, B 振幅</strong> — 水平和垂直的拉伸</li>
+</ul>
+
+<h3>Shader 中如何画参数曲线？</h3>
+<div class="info-box">
+  <strong>最小距离法：</strong><br>
+  对每个像素点 uv，遍历参数 t∈[0, 2π]，计算曲线上每个点 p(t) 到 uv 的距离，取最小值。<br>
+  <code>if (minDist < thickness) → 画线</code><br>
+  采样越多曲线越平滑，但越慢。200 个采样点是好的平衡。
+</div>
+
+<div class="info-box tip">
+  <strong>💡 glow 效果</strong><br>
+  除了硬边线条，用 <code>exp(-distance * k)</code> 加一层柔和的光晕，让曲线看起来像霓虹灯管。
+</div>
+
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 改变 a:b 的比例观察不同图形</p>
+  <p>2. 让 δ 随 u_time 变化 → 旋转动画</p>
+  <p>3. 用 t 值给曲线上色 → 彩虹利萨如</p>
+  <p>4. 改 a=3, b=4 看更复杂的图案</p>
+</div>

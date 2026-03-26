@@ -1,14 +1,38 @@
 <h2>✦ 放射条纹</h2>
-<p>极坐标中把角度 θ 传给 <code>sin()</code> 或 <code>fract()</code>，就能画出<strong>放射状条纹</strong>。</p>
-<p>关键思路：</p>
+
+<h3>角度上的"fract"</h3>
+<p>上节课我们用极坐标画了花瓣。这节课换个思路：不是让 r 跟随 θ 变化，而是<strong>只看 θ 本身</strong>——把 360° 切成若干等份，就得到了放射状条纹。</p>
+
+<h3>关键思路</h3>
+<p>角度 θ 范围是 -π ~ π（2π 宽）。要分成 N 份：</p>
+<div class="formula-block">
+  segmentUV = fract(θ / (2π) * N)
+</div>
+<p>这和之前的空间平铺 <code>fract(uv * N)</code> 完全同理——只是把"空间重复"换成了"角度重复"。</p>
+
+<h3>从条纹到图案</h3>
 <ul>
-  <li><code>angle / (2π) * N</code> → 均匀分成 N 份</li>
-  <li><code>fract()</code> → 重复图案</li>
-  <li><code>step(0.5, ...)</code> → 黑白条纹</li>
+  <li><code>step(0.5, segmentUV)</code> → 黑白交替的放射条纹</li>
+  <li><code>smoothstep(0.45, 0.55, segmentUV)</code> → 柔和边缘的条纹</li>
+  <li>条纹 + 同心环 → 靶心、蜘蛛网、仪表盘刻度</li>
 </ul>
+
+<div class="info-box">
+  <strong>组合极坐标的两个维度：</strong><br>
+  ● 只用 r（距离）→ 同心环：<code>fract(r * 5.0)</code><br>
+  ● 只用 θ（角度）→ 放射条纹：<code>fract(θ * N / 2π)</code><br>
+  ● r 和 θ 都用 → 网格、棋盘格、雷达扫描等复杂图案
+</div>
+
+<div class="info-box tip">
+  <strong>💡 旋转动画超简单</strong><br>
+  想让放射图案旋转？只需 <code>θ + u_time</code>。因为极坐标下，角度偏移 = 旋转。不需要矩阵、不需要 sin/cos，一个加法搞定！
+</div>
+
 <div class="task-box">
   <h4>🎯 动手试试</h4>
-  <p>1. 改 <code>segments</code>（条纹数）</p>
+  <p>1. 改 <code>segments</code>（条纹数 → 3, 8, 16, 32）</p>
   <p>2. 把 <code>step</code> 换成 <code>smoothstep</code> → 模糊边缘</p>
-  <p>3. 叠加第二层：<code>fract(r * 5.0)</code> → 同心环</p>
+  <p>3. 叠加同心环：<code>fract(r * 5.0)</code> → 蜘蛛网效果</p>
+  <p>4. 加旋转动画：<code>angle + u_time * 0.5</code></p>
 </div>

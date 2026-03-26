@@ -1,0 +1,24 @@
+<h2>↩️ 逆矩阵与撤销变换</h2>
+<h3>变换可以"撤销"</h3>
+<p>每个可逆矩阵 M 都有逆矩阵 M⁻¹，使得 <code>M⁻¹ × M = I</code>。旋转 45° 的逆 = 旋转 -45°；缩放 2× 的逆 = 缩放 0.5×。</p>
+<div class="formula-block">
+  rot(θ)⁻¹ = rot(-θ)<br>
+  scale(s)⁻¹ = scale(1/s)<br>
+  (A × B)⁻¹ = B⁻¹ × A⁻¹ ← 注意顺序反转！
+</div>
+<h3>为什么需要逆矩阵？</h3>
+<ul>
+  <li><strong>UV 查询</strong>：查"世界点在纹理的位置"需要逆变换</li>
+  <li><strong>法线变换</strong>：法线需要逆转置矩阵，不能直接用模型矩阵</li>
+  <li><strong>光照</strong>：把光线从世界空间变到物体局部空间</li>
+</ul>
+<div class="warning-box">
+  <strong>⚠️ GLSL ES 没有 inverse()</strong><br>
+  对 mat2：手动用行列式公式。对旋转/缩放可直接用数学逆。
+</div>
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 应用变换然后用逆矩阵还原 → 应该看到原形</p>
+  <p>2. 验证 (A×B)⁻¹ = B⁻¹×A⁻¹</p>
+  <p>3. 用逆变换还原被旋转的网格</p>
+</div>

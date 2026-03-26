@@ -1,0 +1,21 @@
+<h2>🏆 银河旋臂</h2>
+<p>用对数螺旋、噪声和粒子系统创造<strong>旋转星系</strong> — 课程终极挑战！</p>
+<div class="goal-preview"><div class="goal-label"><span class="dot"></span>目标效果</div><canvas class="goal-canvas"></canvas></div>
+<h3>星系拆解</h3>
+<div class="formula-block">
+  对数螺旋: spiral = θ - k·log(r)<br>
+  旋臂 = pow(abs(sin(spiral × arms/2)), n)
+</div>
+<ul>
+  <li><strong>旋臂</strong>：对数螺旋 + sin → 亮带</li>
+  <li><strong>核心</strong>：exp(-r × k) 强光</li>
+  <li><strong>星星</strong>：网格hash随机 + step 阈值</li>
+  <li><strong>颜色</strong>：蓝紫核心 → 暖色旋臂 → 白色星点</li>
+</ul>
+<div class="info-box tip">
+  <strong>💡 本课用到了课程几乎所有知识</strong><br>
+  极坐标(S2)、指数函数(S1)、噪声(S7)、hash(S7)、向量长度(S3)、smoothstep(S1)、颜色混合(S1)。
+</div>
+<div class="task-box"><h4>🎯 你的最终任务</h4>
+  <p>1. 画旋臂结构</p><p>2. 画核心发光</p><p>3. 撒星星粒子</p><p>4. 组合并加暗角</p>
+</div>

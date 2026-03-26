@@ -1,25 +1,53 @@
 <h2>📈 pow() 幂函数与 exp() 指数衰减</h2>
-<p>这两个函数控制<strong>非线性变化的速率</strong>，是 Shader 的核心武器。</p>
+
+<h3>控制"弯曲"的程度</h3>
+<p>前面学的 mix 和 smoothstep 都是"按比例过渡"，但有时你需要更精细的控制：让过渡在开始时很慢，然后突然加速——或者反过来。<code>pow()</code> 和 <code>exp()</code> 就是控制这种<strong>非线性变化</strong>的工具。</p>
+
 <h3>pow(x, n) — 幂函数</h3>
+<p>x 的 n 次方。当 x 在 0~1 范围内时，n 的值决定了曲线的"弯曲度"：</p>
 <ul>
-  <li><code>pow(x, 2.0)</code> — 二次曲线，加速增长</li>
-  <li><code>pow(x, 0.5)</code> — 平方根，减速增长（= sqrt）</li>
-  <li><code>pow(x, 0.4545)</code> — Gamma 校正！物理亮度 → 屏幕亮度</li>
-  <li>高光强度：<code>pow(dot(R,V), 32.0)</code> 指数越大高光越锐利</li>
+  <li><code>pow(x, 1.0)</code> — 直线（线性，就是 x 本身）</li>
+  <li><code>pow(x, 2.0)</code> — 抛物线（开始慢、后面快 = "ease-in"）</li>
+  <li><code>pow(x, 0.5)</code> — 平方根（开始快、后面慢 = "ease-out"）</li>
+  <li><code>pow(x, 5.0)</code> — 极端加速，只有靠近 1 时才亮</li>
 </ul>
-<h3>exp(x) — 自然指数</h3>
+
+<h3>pow 在光照中的角色</h3>
+<p>Phong 高光模型的核心公式：<code>pow(dot(R, V), shininess)</code></p>
 <ul>
-  <li><code>exp(-x)</code> — 衰减！距离越远越弱。<strong>光晕、雾</strong>的基础</li>
-  <li><code>exp(-x*x)</code> — 高斯曲线（钟形）。<strong>模糊</strong>的数学基础</li>
-  <li><code>1.0 - exp(-x*k)</code> — 渐近线趋近 1，k 控制速度</li>
+  <li>shininess = 8 → 蜡质柔和光</li>
+  <li>shininess = 64 → 金属锐利光</li>
+  <li>shininess = 256 → 镜面反射</li>
 </ul>
+<p>指数越高，只有"正对"反射方向的很小区域才有亮点。</p>
+
+<h3>exp(x) — 自然指数衰减</h3>
+<p><code>exp(-x)</code> 是大自然最喜欢的衰减方式——光的散射、声音的消减、热量的传导都遵循指数衰减。</p>
+<ul>
+  <li><code>exp(-x)</code> — 距离越远越弱。<strong>光晕、雾效</strong>的基础</li>
+  <li><code>exp(-x*x)</code> — <strong>高斯曲线</strong>（钟形）。模糊算法的数学基础</li>
+  <li><code>1.0 - exp(-x*k)</code> — 渐近趋近 1.0，k 控制速度。常用于"充能"效果</li>
+</ul>
+
 <div class="info-box">
-  <strong>Gamma 校正</strong>：显示器不是线性的。物理亮度 0.5 在屏幕上看起来是 0.73。<br>
-  所以我们用 <code>pow(color, vec3(1.0/2.2))</code> 做伽马校正。
+  <strong>Gamma 校正 — pow 的最重要应用</strong><br>
+  显示器不是线性显示亮度的：物理上 0.5 的亮度在屏幕上看起来约等于 0.73。<br>
+  为了补偿这个非线性，我们对最终颜色做 Gamma 校正：<br>
+  <code>finalColor = pow(color, vec3(1.0/2.2))</code><br>
+  这一行代码会让你的 Shader 看起来专业度提升 50%。
 </div>
+
+<div class="info-box tip">
+  <strong>💡 快速记忆</strong><br>
+  ● <code>pow</code> → 控制曲线"弯不弯"，n>1 加速，n<1 减速<br>
+  ● <code>exp(-x)</code> → 自然衰减，越远越弱<br>
+  ● <code>exp(-x*x)</code> → 钟形曲线，离中心越远越弱
+</div>
+
 <div class="task-box">
   <h4>🎯 动手试试</h4>
-  <p>1. 改 pow 的指数 (0.1 ~ 5.0) 看曲线弯曲</p>
-  <p>2. 改 exp 的衰减系数看光晕大小</p>
+  <p>1. 改 pow 的指数 (0.1 ~ 5.0) 看曲线弯曲程度</p>
+  <p>2. 改 exp 的衰减系数看光晕大小变化</p>
   <p>3. 对最终颜色做 Gamma 校正：<code>pow(color, vec3(1.0/2.2))</code></p>
+  <p>4. 对比 <code>pow(x, 2.0)</code> 和 <code>x*x</code>，它们完全等价！</p>
 </div>

@@ -1,19 +1,41 @@
 <h2>🏆 挑战：万花筒效果</h2>
-<p>用矩阵旋转 + 取绝对值实现<strong>万花筒对称</strong>。</p>
+
+<p>用矩阵旋转 + abs 折叠实现令人惊艳的<strong>万花筒对称</strong>——这是 Shadertoy 中最受欢迎的技巧之一。</p>
+
 <div class="goal-preview">
   <div class="goal-label"><span class="dot"></span>目标效果（实时）</div>
   <canvas class="goal-canvas"></canvas>
 </div>
-<h3>💡 提示</h3>
-<ul>
-  <li>万花筒的核心：<code>旋转 → abs() → 旋转 → abs()</code> 重复多次</li>
-  <li>每次 <code>abs(uv)</code> 相当于沿轴做镜像折叠</li>
-  <li>旋转角度 = <code>π / N</code>，N 是对称轴数量</li>
-  <li>折叠后的坐标空间很小，在里面画简单图案会被对称展开</li>
-</ul>
+
+<h3>万花筒的数学原理</h3>
+<p>真实的万花筒用镜子反射来创造对称。在 Shader 中，<code>abs()</code> 就是"镜子"——它把负半边翻转到正半边。</p>
+
+<h3>分步攻略</h3>
+<p><strong>核心循环：旋转 → 折叠 → 旋转 → 折叠</strong></p>
+<ol>
+  <li>旋转坐标 π/N（N 是对称数）</li>
+  <li><code>uv = abs(uv)</code> — 沿 x 和 y 轴做镜像</li>
+  <li>重复 2-4 次</li>
+</ol>
+<p>每次 abs 折叠都会把空间"对折"一次。折叠 N 次后，空间被分成 2^N 个对称区域。在最终的"折叠空间"里画一个简单图案，它会被展开成复杂的对称花纹。</p>
+
+<div class="info-box">
+  <strong>对称数与旋转角度的关系：</strong><br>
+  ● 6 重对称 → 旋转 π/3（60°）→ 雪花、六角形<br>
+  ● 8 重对称 → 旋转 π/4（45°）→ 八角星<br>
+  ● 旋转角度 = π / (对称数 / 2)<br>
+  在 Shadertoy 搜索 "kaleidoscope" 会找到上千个作品。
+</div>
+
+<div class="info-box tip">
+  <strong>💡 颜色也可以被折叠！</strong><br>
+  万花筒不只限于形状。你可以先画一幅彩色图案，然后对 UV 做折叠，"对称"会自动应用到颜色上，产生宝石般的迷幻效果。
+</div>
+
 <div class="task-box">
   <h4>🎯 你的任务</h4>
-  <p>用旋转+abs 折叠实现 6 重或 8 重对称万花筒</p>
-  <p>· 在折叠后的空间里画线条或圆</p>
-  <p>· 加分：让它随时间缓慢旋转</p>
+  <p>用旋转 + abs 折叠实现 6 重或 8 重对称万花筒</p>
+  <p>● 在折叠后的空间里画线条或圆</p>
+  <p>● 加分：让它随时间缓慢旋转</p>
+  <p>● 加分：加入 IQ 调色板上色</p>
 </div>

@@ -1,27 +1,52 @@
 <h2>🔷 min() 和 max() 的几何含义</h2>
-<p>这两个看似简单的函数是 SDF 几何造型的<strong>灵魂</strong>。</p>
+
+<h3>不只是"取较小/较大值"</h3>
+<p>在普通编程中，min/max 只是比较两个数。但当这两个数是 <strong>SDF 距离值</strong>时，min 和 max 就变成了强大的<strong>几何布尔运算器</strong>——它们能合并、切割、雕刻形状。</p>
+
 <h3>max(a, b) — 交集</h3>
+<p>取较大值 = "必须同时满足两个条件的区域"：</p>
 <ul>
-  <li>几何意义："两个条件都满足的区域"</li>
-  <li><code>max(abs(uv.x) - 0.3, abs(uv.y) - 0.2)</code> → 矩形</li>
-  <li>矩形本质就是 "x 在范围内 AND y 在范围内"</li>
+  <li>只有当两个 SDF 都 ≤ 0（都在内部）时，max 结果才 ≤ 0</li>
+  <li>几何含义：<strong>两个形状重叠的部分</strong></li>
+  <li>经典应用：<code>max(abs(uv.x) - 0.3, abs(uv.y) - 0.2)</code> → 矩形</li>
+  <li>矩形的本质就是"x 在范围内 <strong>AND</strong> y 在范围内"</li>
 </ul>
+
 <h3>min(a, b) — 并集</h3>
+<p>取较小值 = "只要满足任一条件的区域"：</p>
 <ul>
-  <li>几何意义："取靠近的那个形状"</li>
-  <li><code>min(circle, box)</code> → 画出两个形状</li>
+  <li>只要任一 SDF ≤ 0，min 结果就 ≤ 0</li>
+  <li>几何含义：<strong>把两个形状都画出来</strong></li>
+  <li>例如：<code>min(circleSDF, boxSDF)</code> → 圆和方块同时出现</li>
 </ul>
-<h3>max(a, -b) — 差集</h3>
+
+<h3>max(a, -b) — 差集（挖洞）</h3>
+<p>这个稍微不直观：取反某个 SDF 意味着"接翻内外"，然后和另一个取交集 = <strong>从一个形状中挖掉另一个</strong>。</p>
 <ul>
-  <li>从形状 a 中挖掉形状 b</li>
-  <li><code>max(bigCircle, -smallCircle)</code> → 环形</li>
+  <li><code>max(bigCircle, -smallCircle)</code> → 大圆减去小圆 = 环形（甜甜圈）</li>
+  <li><code>max(box, -circle)</code> → 方块上挖一个圆孔</li>
 </ul>
-<div class="info-box tip">
-  <strong>💡</strong> 理解了 min/max 的几何含义，就掌握了 CSG (构造实体几何) 的核心。所有复杂形状都是简单形状的 min/max 组合。
+
+<div class="info-box">
+  <strong>这就是 CSG（构造实体几何）！</strong><br>
+  3D 建模软件中的"布尔运算"（合并、相交、相减）在 SDF 中只需 min/max 就能实现。<br>
+  ● <strong>Union</strong>（并集） = min(a, b)<br>
+  ● <strong>Intersection</strong>（交集） = max(a, b)<br>
+  ● <strong>Subtraction</strong>（差集） = max(a, -b)<br>
+  所有复杂形状都可以分解为简单形状的 min/max 组合。
 </div>
+
+<div class="info-box tip">
+  <strong>💡 平滑布尔运算</strong><br>
+  直接 min/max 会产生锐利的接缝。在实际项目中，常用"平滑最小值"：<br>
+  <code>smin(a, b, k)</code> 让两个形状的交界处柔和过渡（像果冻粘在一起）。<br>
+  这是 Metaball（融球）效果的数学基础，Stage 5 会详细学习。
+</div>
+
 <div class="task-box">
   <h4>🎯 动手试试</h4>
-  <p>1. 把 <code>max</code> 改成 <code>min</code> 看形状变化</p>
-  <p>2. 试试 <code>max(box, -circle)</code> 在矩形上挖圆孔</p>
-  <p>3. 组合更多形状做一个图标</p>
+  <p>1. 把 <code>max</code> 改成 <code>min</code> 看形状从交集变成并集</p>
+  <p>2. 试试 <code>max(box, -circle)</code> → 在矩形上挖一个圆孔</p>
+  <p>3. 组合三四个基本形状做一个简单图标（如机器人脸）</p>
+  <p>4. 观察交界线处的锐利边缘——后面会学怎么平滑它</p>
 </div>

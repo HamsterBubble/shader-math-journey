@@ -1,0 +1,29 @@
+<h2>🏆 极坐标花朵</h2>
+<p>用极坐标和 <code>cos(θ×N)</code> 创造一朵<strong>旋转的花</strong>。</p>
+
+<div class="goal-preview">
+  <div class="goal-label"><span class="dot"></span>目标效果（实时）</div>
+  <canvas class="goal-canvas"></canvas>
+</div>
+
+<h3>花瓣公式</h3>
+<div class="formula-block">
+  r(θ) = R + A · cos(N · θ)<br>
+  N = 花瓣数量
+</div>
+
+<h3>💡 提示</h3>
+<ul>
+  <li>极坐标：<code>r = length(uv), θ = atan(uv.y, uv.x)</code></li>
+  <li>奇数 N → N 个花瓣，偶数 N → 2N 个花瓣</li>
+  <li>花心：小半径圆，用暖色（黄色）</li>
+  <li>加分：让 θ 加上 u_time 让花旋转</li>
+</ul>
+
+<div class="task-box">
+  <h4>🎯 你的任务</h4>
+  <p>1. 画极坐标花瓣</p>
+  <p>2. 画花心</p>
+  <p>3. 用角度 θ 给花瓣上色</p>
+  <p>4. 加分：旋转动画 + 光晕</p>
+</div>

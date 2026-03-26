@@ -1,22 +1,36 @@
-<h2>⚡ dFdx / dFdy / fwidth — GPU 的导数</h2>
-<p>GPU 可以自动计算屏幕空间导数：</p>
-<ul>
-  <li><code>dFdx(v)</code>: v 在水平方向（右边像素 - 当前像素）的变化率</li>
-  <li><code>dFdy(v)</code>: v 在垂直方向的变化率</li>
-  <li><code>fwidth(v) = abs(dFdx(v)) + abs(dFdy(v))</code></li>
-</ul>
-<h3>为什么重要？</h3>
-<ul>
-  <li><strong>抗锯齿</strong>: <code>smoothstep(-fw, fw, d)</code></li>
-  <li><strong>等宽线条</strong>: 线条粗细在任何缩放级别保持一致</li>
-  <li><strong>Mipmap 选择</strong>: 纹理采样依赖导数</li>
-</ul>
-<div class="info-box">
-  <strong>⚠ 限制</strong>: dFdx/dFdy 在 if 分支、循环内使用时可能不正确。这是因为 GPU 是以 2×2 像素块为单位计算导数的。
+<h2>⚡ dFdx / dFdy — GPU 硬件导数</h2>
+
+<h3>免费的导数</h3>
+<p>前面我们用"采样两个点再做差"来近似导数（两次纹理/函数采样）。GPU 提供了一种<strong>零额外开销</strong>的导数计算方法：<code>dFdx()</code> 和 <code>dFdy()</code>。</p>
+
+<h3>工作原理</h3>
+<p>GPU 不是逐像素执行 Shader 的——它以 <strong>2×2 像素为一组（Quad）</strong>并行执行。同一 Quad 中的四个像素共享寄存器，所以 GPU 可以直接比较相邻像素的值：</p>
+<div class="formula-block">
+  dFdx(v) = v[右邻像素] - v[当前像素]<br>
+  dFdy(v) = v[下邻像素] - v[当前像素]
 </div>
+<p>不需要额外的函数调用或纹理采样——数据已经在 Quad 的寄存器里了！</p>
+
+<h3>fwidth = abs(dFdx) + abs(dFdy)</h3>
+<p><code>fwidth(v)</code> 返回 v 在 x 和 y 方向的变化量之和。它衡量的是"这个值在屏幕上变化的速率"——这对抗锯齿至关重要。</p>
+
+<div class="info-box">
+  <strong>实际应用：</strong><br>
+  ● <code>smoothstep(-fw, fw, d)</code> → 自适应抗锯齿（fw = fwidth(d)）<br>
+  ● 法线计算（替代手动差分）<br>
+  ● LOD 选择（远处细节变化慢 → 自动简化）<br>
+  ● Mipmap 级别选择
+</div>
+
+<div class="warning-box">
+  <strong>⚠️ 限制：精度只有 1 像素</strong><br>
+  dFdx/dFdy 的精度是<strong>像素级</strong>的——如果函数在亚像素级别有剧烈变化，它捕捉不到。对于需要更精细导数的场景（如 Ray Marching 中的法线），仍然需要手动差分。
+</div>
+
 <div class="task-box">
   <h4>🎯 动手试试</h4>
-  <p>1. 注释掉 fwidth 抗锯齿，看锯齿出现</p>
-  <p>2. 放大/缩小观察等宽线条的效果</p>
-  <p>3. 用 dFdx/dFdy 可视化 UV 的变化速率</p>
+  <p>1. 用 dFdx/dFdy 计算 UV 坐标的变化率 → 可视化为颜色</p>
+  <p>2. 对比 <code>dFdx(sin(x*100.0))</code> 和手动差分的精度</p>
+  <p>3. 用 fwidth 做自适应线宽：<code>smoothstep(-fwidth(d), fwidth(d), d)</code></p>
+  <p>4. 放大/缩小窗口看 fwidth 值如何自动变化</p>
 </div>

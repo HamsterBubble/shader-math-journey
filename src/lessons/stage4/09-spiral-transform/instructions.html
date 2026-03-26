@@ -1,0 +1,22 @@
+<h2>🌀 螺旋变换</h2>
+<h3>旋转角随半径变化 = 螺旋</h3>
+<p>当旋转角度是半径的函数时，直线变成螺旋。每圈的旋转量由 twist 系数控制。</p>
+<div class="formula-block">
+  angle(r) = r × twist + time
+</div>
+<h3>两种实现</h3>
+<ul>
+  <li><strong>极坐标法</strong>：<code>spiral = θ + r × k</code>，用 sin(spiral) 画图案</li>
+  <li><strong>矩阵法</strong>：每个像素用 <code>rot(r * k) * uv</code></li>
+</ul>
+<div class="info-box tip">
+  <strong>💡 催眠效果</strong><br>
+  两个反向旋转的螺旋叠加加上缓慢的时间偏移 → 经典的催眠动画。
+</div>
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 调整 twist 系数</p>
+  <p>2. 加颜色渐变和径向衰减</p>
+  <p>3. 两个反向螺旋叠加</p>
+  <p>4. 配合 SDF 做螺旋形边框</p>
+</div>

@@ -1,19 +1,52 @@
 <h2>🏆 挑战：带高光的球体</h2>
-<p>用向量数学画一个有<strong>漫反射 + 高光</strong>的 2D 球体。</p>
+
+<p>用本阶段的向量数学知识画一个有<strong>漫反射 + 高光</strong>的 2D 球体——这是 3D 图形学的"Hello World"。</p>
+
 <div class="goal-preview">
   <div class="goal-label"><span class="dot"></span>目标效果（实时）</div>
   <canvas class="goal-canvas"></canvas>
 </div>
-<h3>💡 提示</h3>
+
+<h3>分步攻略</h3>
+
+<p><strong>第一步：构建 3D 法线</strong></p>
+<p>我们在 2D 平面上模拟 3D 球体。球体表面的法线可以从 UV 坐标推算：</p>
 <ul>
-  <li>漫反射 = <code>max(dot(N, L), 0.0)</code></li>
-  <li>高光 = <code>pow(max(dot(R, V), 0.0), shininess)</code></li>
-  <li>反射向量 = <code>reflect(-L, N)</code></li>
-  <li>3D法线：<code>vec3(uv, sqrt(r²-x²-y²))</code></li>
+  <li>球面上的点：<code>vec3(p.x, p.y, sqrt(r² - p.x² - p.y²))</code></li>
+  <li>归一化后就是法线 N（表面朝向）</li>
+  <li>当 <code>x² + y² > r²</code> 时，像素在球外 → 丢弃</li>
 </ul>
+
+<p><strong>第二步：漫反射（Lambert）</strong></p>
+<div class="formula-block">
+  diffuse = max(dot(N, L), 0.0)
+</div>
+<p>N = 法线，L = 光照方向。越面对光源越亮。</p>
+
+<p><strong>第三步：高光（Phong）</strong></p>
+<div class="formula-block">
+  R = reflect(-L, N)<br>
+  specular = pow(max(dot(R, V), 0.0), shininess)
+</div>
+<p>V 通常取 <code>vec3(0, 0, 1)</code>（垂直屏幕向外），代表观察者的视线方向。</p>
+
+<p><strong>第四步：合成</strong></p>
+<ul>
+  <li><code>color = ambient + diffuse * materialColor + specular * lightColor</code></li>
+  <li>ambient = 环境光（避免完全黑），通常 0.1 ~ 0.2</li>
+</ul>
+
+<div class="info-box tip">
+  <strong>💡 菲涅尔效应（加分项）</strong><br>
+  真实物体的边缘比正面更亮（因为反射率随角度增加）。简单近似：<br>
+  <code>float fresnel = pow(1.0 - dot(N, V), 3.0);</code><br>
+  把 fresnel 加到边缘，球体立刻有了"通透"感。
+</div>
+
 <div class="task-box">
   <h4>🎯 你的任务</h4>
-  <p>1. 计算漫反射</p>
-  <p>2. 计算高光（用 <code>pow</code>）</p>
-  <p>3. 加分：菲涅尔边缘光</p>
+  <p>1. 实现漫反射光照</p>
+  <p>2. 添加 Phong 高光（调整 shininess）</p>
+  <p>3. 加分：添加菲涅尔边缘光</p>
+  <p>4. 加分：让光源缓慢旋转</p>
 </div>

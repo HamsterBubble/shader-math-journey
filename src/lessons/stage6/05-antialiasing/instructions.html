@@ -1,25 +1,40 @@
 <h2>✨ 抗锯齿 (Anti-Aliasing)</h2>
-<p>锯齿是 Shader 最常见的视觉瑕疵。理解抗锯齿需要<strong>微积分直觉</strong>：</p>
+
 <h3>为什么有锯齿？</h3>
-<ul>
-  <li>像素有<strong>有限大小</strong>，但数学边界是<strong>无限锐利</strong>的</li>
-  <li><code>step(0.0, d)</code> → 一个像素内从 0 跳到 1 → 锯齿</li>
-</ul>
-<h3>解决方案</h3>
-<ul>
-  <li>用 <code>smoothstep(-w, w, d)</code> 代替 <code>step</code></li>
-  <li>w 应该等于<strong>一个像素的宽度</strong>在当前空间中的大小</li>
-  <li><code>fwidth(d)</code> 自动告诉你这个值！</li>
-</ul>
-<p style="text-align:center;color:var(--accent);">
-  完美 AA = smoothstep(-fwidth(d), fwidth(d), -d)
-</p>
-<div class="info-box tip">
-  <strong>💡 经验法则</strong>: 每当你写 <code>step()</code> 画形状边缘时，问自己"可以换成带 fwidth 的 smoothstep 吗？"
+<p>像素是方形的，但边缘可能是斜的或弯的。当一条斜线穿过像素网格时，每个像素只能选择"画"或"不画"——这种硬切割产生了阶梯状的<strong>锯齿</strong>（aliasing）。</p>
+
+<h3>Shader 抗锯齿的核心思想</h3>
+<p>别做硬决定（非黑即白），而是了解"这条边在这个像素中覆盖了多大面积"，按比例混合颜色。</p>
+
+<h3>fwidth 自适应抗锯齿</h3>
+<p>这是 Shader 中最实用的抗锯齿技巧：</p>
+<div class="formula-block">
+  float fw = fwidth(d);<br>
+  float edge = smoothstep(-fw, fw, d);
 </div>
+<p><code>fwidth(d)</code> 告诉我们 d 在一个像素中变化了多少。把这个值作为 smoothstep 的过渡宽度——恰好模糊一个像素的范围。</p>
+
+<h3>为什么"恰好一个像素"是正确的？</h3>
+<ul>
+  <li>模糊太多 → 边缘变软，丢失锐利感</li>
+  <li>模糊太少 → 仍有锯齿</li>
+  <li>fwidth 自动适应缩放：放大时模糊范围变小（像素覆盖的空间更小），缩小时变大</li>
+</ul>
+
+<div class="info-box">
+  <strong>SDF + fwidth = 完美组合</strong><br>
+  SDF 天生就有精确的"到边界的距离"信息。配合 fwidth，一行代码就能得到像素级完美的抗锯齿边缘——这是 SDF 渲染文字的优势所在（距离场字体）。
+</div>
+
+<div class="info-box tip">
+  <strong>💡 对比测试</strong><br>
+  最好的验证方式：半屏用 <code>step(0.0, d)</code>（有锯齿），半屏用 <code>smoothstep(-fw, fw, d)</code>（抗锯齿），放大对比效果。
+</div>
+
 <div class="task-box">
   <h4>🎯 动手试试</h4>
-  <p>1. 对比有无 AA 的多条斜线</p>
-  <p>2. 在细密网格上看 AA 的重要性</p>
-  <p>3. 用 fwidth 画完美抗锯齿文字/形状</p>
+  <p>1. 对比 step 和 smoothstep+fwidth 的边缘质量</p>
+  <p>2. 把 fw 乘以 2.0 或 0.5 看"过度模糊"和"不够模糊"</p>
+  <p>3. 在高频图案（密集条纹）上测试抗锯齿效果</p>
+  <p>4. 画一条倾斜的线，对比有/无抗锯齿的差异</p>
 </div>

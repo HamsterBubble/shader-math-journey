@@ -1,18 +1,49 @@
 <h2>🌊 sin() — 波浪函数</h2>
+
+<h3>大自然的振荡器</h3>
+<p>水波、声波、光波、心跳、四季更替……自然界充满了<strong>周期性振荡</strong>。而 <code>sin()</code> 函数，就是描述这种"来回摆动"的数学语言。</p>
+
 <h3>sin 的核心性质</h3>
-<p><code>sin(x)</code> 输出在 <strong>-1 ~ 1</strong> 之间来回振荡，周期为 <strong>2π (≈6.28)</strong>。</p>
+<p><code>sin(x)</code> 的输出在 <strong>-1 ~ 1</strong> 之间永远来回振荡，一个完整周期的长度是 <strong>2π（≈ 6.28）</strong>。</p>
 <ul>
-  <li><strong>振幅</strong>控制高度：<code>A * sin(x)</code></li>
-  <li><strong>频率</strong>控制密度：<code>sin(F * x)</code></li>
-  <li><strong>相位</strong>控制偏移：<code>sin(x + P)</code></li>
+  <li><code>sin(0) = 0</code> → 起始点</li>
+  <li><code>sin(π/2) = 1</code> → 最高点</li>
+  <li><code>sin(π) = 0</code> → 回到零</li>
+  <li><code>sin(3π/2) = -1</code> → 最低点</li>
+  <li><code>sin(2π) = 0</code> → 一个完整周期结束，重新开始</li>
 </ul>
-<div class="info-box">
-  <strong>通用公式：</strong><code>y = A * sin(F * x + P)</code><br>
-  Shader 中几乎所有动画都基于这个公式。
+
+<h3>三大控制参数</h3>
+<p>通用波动公式：</p>
+<div class="formula-block">
+  y = A × sin(F × x + P)
 </div>
+<ul>
+  <li><strong>振幅 A</strong>（Amplitude）：控制波的高度。<code>A * sin(x)</code> → 波高变为 A</li>
+  <li><strong>频率 F</strong>（Frequency）：控制波的密度。<code>sin(F * x)</code> → F 越大波越密</li>
+  <li><strong>相位 P</strong>（Phase）：控制波的偏移。<code>sin(x + P)</code> → P 改变起始位置</li>
+</ul>
+
+<div class="info-box">
+  <strong>Shader 中几乎所有动画的最终形式都是这个公式。</strong><br>
+  水波纹？用空间距离做 x。<br>
+  脉动效果？用 u_time 做 x。<br>
+  变形扭曲？用 sin 的输出去偏移 UV 坐标。<br>
+  掌握了 <code>A * sin(F * x + P)</code>，你就掌握了 Shader 动画的核心。
+</div>
+
+<h3>在 2D 空间中使用 sin</h3>
+<p>把 x 替换为 <code>uv.x</code>（水平位置），sin 就变成了横向的波浪条纹。把 sin 的结果当作灰度值，就能看到明暗交替的波纹。</p>
+
+<div class="info-box tip">
+  <strong>💡 sin 和 cos 的唯一区别</strong><br>
+  <code>cos(x) = sin(x + π/2)</code> —— cos 只是 sin 向左平移了四分之一周期。它们形状完全一样，只是起始相位不同。所以"需要 cos 还是 sin"只是"从峰值开始还是从零值开始"的区别。
+</div>
+
 <div class="task-box">
   <h4>🎯 动手试试</h4>
-  <p>1. 改 <code>frequency</code> 值（试 5.0, 20.0）</p>
-  <p>2. 改 <code>amplitude</code>（试 0.1, 0.5）</p>
-  <p>3. 把 <code>sin</code> 换成 <code>cos</code>，观察差异</p>
+  <p>1. 改 <code>frequency</code> 值（试 5.0, 20.0）→ 波纹密度变化</p>
+  <p>2. 改 <code>amplitude</code>（试 0.1, 0.5）→ 波纹对比度变化</p>
+  <p>3. 把 <code>sin</code> 换成 <code>cos</code>，观察波纹相位移动了 1/4 周期</p>
+  <p>4. 用 <code>sin(uv.x * 10.0 + uv.y * 5.0)</code> → 斜向波纹</p>
 </div>

@@ -1,24 +1,40 @@
-<h2>🔬 Worley (Cellular) 噪声</h2>
-<p>Worley 噪声计算每个点到最近随机特征点的距离，产生<strong>细胞/泡沫/石头</strong>纹理。</p>
-<h3>算法</h3>
+<h2>🔬 Worley / Voronoi 噪声</h2>
+
+<h3>自然界的"细胞"纹理</h3>
+<p>长颈鹿的斑纹、龟裂的泥地、蜂巢、皂泡……这些纹理有一个共同特征：<strong>不规则的多边形区域</strong>。Worley 噪声（也叫 Cellular Noise 或 Voronoi 噪声）就能生成这类图案。</p>
+
+<h3>算法原理</h3>
 <ol>
   <li>把空间分成网格</li>
-  <li>每个格子中放一个随机点 (特征点)</li>
-  <li>对当前像素，遍历周围 3×3 格子</li>
-  <li>找到最近的特征点，记录距离</li>
+  <li>每个格子内随机放一个"特征点"</li>
+  <li>对每个像素，找到<strong>最近的特征点</strong>，返回到它的距离</li>
+  <li>（可选）返回第二近的距离 → 边缘效果</li>
 </ol>
-<h3>变体</h3>
+
+<h3>距离类型决定图案风格</h3>
 <ul>
-  <li><strong>F1</strong>: 最近距离 → 细胞图案</li>
-  <li><strong>F2</strong>: 第二近距离 → 更复杂</li>
-  <li><strong>F2-F1</strong>: 细胞边缘网络</li>
+  <li><strong>F1</strong>（最近距离）→ 凸起的细胞（鹅卵石）</li>
+  <li><strong>F2</strong>（次近距离）→ 不同的分布</li>
+  <li><strong>F2 - F1</strong> → <strong>细胞边缘</strong>（蜂巢线条！）</li>
+  <li><strong>F1 × F2</strong> → 有趣的混合效果</li>
 </ul>
+
 <div class="info-box">
-  Worley 噪声也叫 <strong>Voronoi 噪声</strong>，因为它自然产生 Voronoi 图。在自然界中，肥皂泡、龟壳、干裂地面都是 Voronoi 图案。
+  <strong>为什么只查 3×3 邻域？</strong><br>
+  理论上要检查所有特征点，但因为格子是均匀分布的，最近的特征点一定在当前格子或相邻 8 格中。所以只需检查 3×3 = 9 个候选点，不需要搜索整个空间。这是 Worley 噪声高效的关键。
 </div>
+
+<div class="info-box tip">
+  <strong>💡 组合 FBM 和 Worley</strong><br>
+  ● <code>fbm(worley(p))</code> → 细胞内部有云纹细节<br>
+  ● <code>worley(p + fbm(p))</code> → 扭曲的细胞（有机感）<br>
+  ● 用 Worley 的 F1 做权重混合不同颜色 → 彩色水晶
+</div>
+
 <div class="task-box">
   <h4>🎯 动手试试</h4>
-  <p>1. 切换 F1/F2/F2-F1 模式</p>
-  <p>2. 改缩放看密度变化</p>
-  <p>3. 让特征点随时间微动</p>
+  <p>1. 实现基本 Worley 噪声（F1 距离）</p>
+  <p>2. 用 F2 - F1 显示细胞边缘</p>
+  <p>3. 换不同距离度量（曼哈顿 → 菱形细胞）</p>
+  <p>4. 叠加 FBM 扰动特征点位置 → 有机细胞</p>
 </div>

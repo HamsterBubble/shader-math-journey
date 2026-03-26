@@ -1,18 +1,33 @@
-<h2>📈 导数 — 变化率</h2>
-<p>导数 = 函数在某点的<strong>瞬间变化率</strong> = 曲线的<strong>斜率</strong>。</p>
-<ul>
-  <li>斜率为正 → 函数在上升</li>
-  <li>斜率为零 → 极值点</li>
-  <li>斜率为负 → 函数在下降</li>
-</ul>
-<div class="info-box">
-  <strong>Shader 中的数值导数：</strong><br>
-  <code>dFdx(value)</code> = value 在 x 方向的变化率<br>
-  或手动：<code>(f(x+ε) - f(x)) / ε</code>
+<h2>📈 导数：变化率的度量</h2>
+
+<h3>什么是导数？</h3>
+<p>导数回答一个简单的问题：<strong>"这个值变化有多快？"</strong></p>
+<p>想象你开车：速度表显示 60 km/h——这就是"位移对时间的导数"。在 Shader 中，我们关心的是："颜色/值在空间中变化有多快？"</p>
+
+<h3>在 Shader 中，导数 = 斜率 = 梯度</h3>
+<p>对一个函数 f(x)，导数 f'(x) 描述的是：x 往右移动一小步，f 变化了多少。</p>
+<div class="formula-block">
+  f'(x) ≈ (f(x + ε) - f(x)) / ε
 </div>
+<p>ε 是一个很小的数（如 0.001）。这就是<strong>数值微分</strong>——在 GPU 上最常用的方法。</p>
+
+<h3>为什么关心导数？</h3>
+<ul>
+  <li><strong>法线计算</strong>：高度图的导数 = 表面法线方向</li>
+  <li><strong>边缘检测</strong>：图像中导数大的地方 = 颜色变化剧烈 = 边缘</li>
+  <li><strong>抗锯齿</strong>：知道值变化的速度，就能精确控制模糊范围</li>
+  <li><strong>曲率</strong>：导数的导数（二阶导）= 弯曲程度</li>
+</ul>
+
+<div class="info-box">
+  <strong>GPU 有硬件加速的导数！</strong><br>
+  GLSL 提供了 <code>dFdx()</code> 和 <code>dFdy()</code> 内置函数——它们利用 GPU 的并行架构，"免费"计算相邻像素的差值。后面的课会详细学习。
+</div>
+
 <div class="task-box">
   <h4>🎯 动手试试</h4>
-  <p>1. 改 <code>epsilon</code> 大小，观察精度变化</p>
-  <p>2. 换一个函数（如 <code>pow(x,3.0)</code>）</p>
-  <p>3. 绿色线在红色线斜率=0处穿过零点，验证这一点</p>
+  <p>1. 对一个 sin 波计算数值导数 → 应该得到 cos 波</p>
+  <p>2. 可视化导数值（正值红色、负值蓝色、零值黑色）</p>
+  <p>3. 改 ε 值看精度变化（太大 = 粗糙，太小 = 噪声）</p>
+  <p>4. 对 SDF 计算导数 → 导数方向指向边界外侧</p>
 </div>

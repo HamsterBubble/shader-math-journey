@@ -1,21 +1,38 @@
-<h2>♾️ 域重复：一个形状 → 无限复制</h2>
-<p>域重复 (Domain Repetition) 是 SDF 最强大的技巧之一：</p>
-<p style="text-align:center;color:var(--accent);">
-  repeated_uv = mod(uv + period/2, period) - period/2
-</p>
-<ul>
-  <li>只定义<strong>一个</strong>形状的 SDF，自动获得<strong>无限重复</strong></li>
-  <li>比 for 循环高效无数倍</li>
-  <li>配合 floor() 获取每个副本的 ID（给不同颜色/旋转）</li>
-</ul>
-<h3>限制域重复</h3>
-<p><code>clamp(id, -N, N)</code> → 只在指定范围内重复</p>
-<div class="info-box">
-  <strong>⚡ Ray Marching 中的域重复</strong>可以用一个球的 SDF 创造出无限的3D空间——这是很多 Shadertoy 作品的核心技术。
+<h2>🔁 域重复 (Domain Repetition)</h2>
+
+<h3>一个形状，无限复制</h3>
+<p>画一个圆很容易。画一百个相同的圆呢？如果用循环……GPU 不喜欢循环。用 <code>fract</code>（或 <code>mod</code>）做<strong>域重复</strong>才是 Shader 的正确姿势。</p>
+
+<h3>域重复的原理</h3>
+<div class="formula-block">
+  p = mod(p + spacing*0.5, spacing) - spacing*0.5
 </div>
+<p>这行代码把整个空间分成 spacing × spacing 的格子，然后把每格的坐标重映射到 [-spacing/2, spacing/2]。效果是：在每个格子里，坐标系看起来都一样——一个 SDF 图案被无限复制了！</p>
+
+<h3>为什么用 mod 而不是 fract？</h3>
+<ul>
+  <li><code>fract(p)</code> 范围是 [0, 1) — 需要手动乘以 spacing</li>
+  <li><code>mod(p, spacing)</code> 范围是 [0, spacing) — 更灵活</li>
+  <li>两者都能用，但 mod 版本更通用，特别是 spacing 不是 1.0 的时候</li>
+</ul>
+
+<h3>无限 vs. 有限重复</h3>
+<div class="info-box">
+  <strong>两种域重复模式：</strong><br>
+  ● <strong>无限重复</strong>：直接 <code>mod</code> → 所有方向无限平铺<br>
+  ● <strong>有限重复</strong>：<code>p = p - spacing * clamp(round(p/spacing), -N, N)</code><br>
+  有限重复只在 [-N, N] 的范围内复制，超出范围是空的。适合做"一排按钮"而不是"无穷地砖"。
+</div>
+
+<div class="warning-box">
+  <strong>⚠️ 域重复的 SDF 精度问题</strong><br>
+  域重复只对当前格子计算 SDF。如果形状大于格子间距，SDF 值在边界处会不准确（因为相邻格子的形状没被考虑）。解决方案：确保 <code>形状半径 < 间距/2</code>，或检查相邻格子。
+</div>
+
 <div class="task-box">
   <h4>🎯 动手试试</h4>
-  <p>1. 改 period 值看密度变化</p>
-  <p>2. 用 id 给每个副本不同旋转</p>
-  <p>3. 限制重复范围: <code>clamp(id, -2.0, 2.0)</code></p>
+  <p>1. 用 mod 把一个圆无限重复 → 圆点阵列</p>
+  <p>2. 改 spacing 值看密度变化</p>
+  <p>3. 用 floor(p/spacing) 获取格子 ID → 每格不同颜色</p>
+  <p>4. 对角交错：偶数行向右偏移半格 → 六角排列</p>
 </div>

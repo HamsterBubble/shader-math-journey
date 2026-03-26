@@ -1,0 +1,40 @@
+<h2>🔀 条件选择：三元替代</h2>
+
+<h3>GPU 不喜欢 if-else</h3>
+<p>在 CPU 上我们习惯用 <code>if (x > 0) { A } else { B }</code>。但在 GPU 上，分支（branching）会<strong>严重影响性能</strong>——因为同一 Warp/Quad 的线程必须走相同的路径。</p>
+
+<h3>无分支选择三件套</h3>
+<ul>
+  <li><strong>step(edge, x)</strong>：x ≥ edge 返回 1.0，否则 0.0 → 作为 "mask"</li>
+  <li><strong>mix(a, b, t)</strong>：用 t 在 a 和 b 之间混合</li>
+  <li><strong>组合</strong>：<code>mix(A, B, step(threshold, value))</code> = 无分支三元运算</li>
+</ul>
+
+<div class="formula-block">
+  // 有分支（避免）<br>
+  if (x > 0.5) color = red; else color = blue;<br><br>
+  // 无分支（推荐）<br>
+  color = mix(blue, red, step(0.5, x));
+</div>
+
+<h3>多条件叠加</h3>
+<p>需要多个区域不同效果？用多个 mask 叠加：</p>
+<ul>
+  <li>每个 step 生成一个 0/1 的 mask</li>
+  <li>用 mix 或乘法叠加：<code>color = mix(color, newColor, mask)</code></li>
+  <li>后面的 mix 覆盖前面的——像 Photoshop 的图层</li>
+</ul>
+
+<div class="warning-box">
+  <strong>⚠️ 何时可以用 if</strong><br>
+  如果条件对整个画面是<strong>统一的</strong>（如 <code>if (u_time > 5.0)</code>），分支没问题——所有像素走同一路。<br>
+  只有当条件<strong>因像素而异</strong>（如 <code>if (uv.x > 0.5)</code>）时，才需要替换为无分支写法。
+</div>
+
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 用 mix + step 实现"左蓝右红"</p>
+  <p>2. 叠加圆形 mask 在中间显示绿色</p>
+  <p>3. 用 step(0.0, sin(u_time)) 做闪烁效果</p>
+  <p>4. 组合 3 个 step 创建三色条纹</p>
+</div>

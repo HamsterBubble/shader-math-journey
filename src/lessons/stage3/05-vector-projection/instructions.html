@@ -1,18 +1,41 @@
 <h2>📽 向量投影</h2>
-<p>把向量 A 投影到向量 B 的方向上：</p>
-<p style="text-align:center;color:var(--accent);">
+
+<h3>投影的直觉</h3>
+<p>站在阳光下，你的影子投在地面上——这就是"投影"。向量投影类似：把一个向量的"影子"投射到另一个向量的方向上。</p>
+
+<h3>数学公式</h3>
+<div class="formula-block">
   proj_B(A) = dot(A, B̂) × B̂
-</p>
-<p>其中 B̂ = normalize(B)。投影的<strong>标量分量</strong> = dot(A, B̂)，即 A 在 B 方向上的"长度"。</p>
-<h3>应用场景</h3>
+</div>
+<p>其中 B̂ = normalize(B)。分两步理解：</p>
 <ul>
-  <li><strong>光照</strong>: dot(N, L) 就是光方向向量投影到法线上</li>
-  <li><strong>SDF 线段</strong>: 点到线段的距离 = 投影后求垂直分量</li>
-  <li><strong>UI</strong>: 拖拽时只沿某方向移动</li>
+  <li><strong>标量投影</strong>：<code>dot(A, B̂)</code> = A 在 B 方向上的"影子长度"（带符号）</li>
+  <li><strong>向量投影</strong>：标量 × B̂ = 把长度还原成向量</li>
 </ul>
+
+<h3>拒绝向量：投影的"副产品"</h3>
+<p>A 减去它在 B 方向的投影，得到<strong>垂直于 B 的分量</strong>：</p>
+<div class="formula-block">
+  reject = A - proj_B(A)
+</div>
+<p>投影 + 拒绝 = 原始向量。这个分解在物理模拟和 SDF 计算中非常有用。</p>
+
+<h3>实际应用</h3>
+<ul>
+  <li><strong>光照</strong>：<code>dot(N, L)</code> 就是光方向在法线方向上的投影 → 越对齐越亮</li>
+  <li><strong>线段 SDF</strong>：点到线段的最短距离 = 先投影到线段方向，再求垂直分量的长度</li>
+  <li><strong>约束运动</strong>：拖拽物体时只允许沿某个方向移动 = 只保留投影分量</li>
+</ul>
+
+<div class="info-box tip">
+  <strong>💡 可视化投影</strong><br>
+  在 Shader 中，你可以把投影分量和拒绝分量分别映射到不同颜色，直观地看到"分解"的效果。这是理解向量分解的最佳方式。
+</div>
+
 <div class="task-box">
   <h4>🎯 动手试试</h4>
-  <p>1. 改投影轴的角度</p>
-  <p>2. 可视化投影的垂直分量（拒绝向量）</p>
+  <p>1. 改投影轴的角度，观察投影方向变化</p>
+  <p>2. 可视化投影的垂直分量（拒绝向量） → 用不同颜色展示</p>
   <p>3. 用投影实现一条发光线段</p>
+  <p>4. 验证：投影 + 拒绝 = 原始向量</p>
 </div>

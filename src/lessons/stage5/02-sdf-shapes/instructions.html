@@ -1,16 +1,44 @@
-<h2>📐 SDF 形状集</h2>
-<p>除了圆，常用 SDF 还有：</p>
+<h2>🔷 SDF 基础形状库</h2>
+
+<h3>SDF 复习与扩展</h3>
+<p>Stage 1 初识了 SDF（有符号距离场）。现在我们来建立一个<strong>完整的 2D SDF 基础形状库</strong>——这些形状是所有复杂图形的积木。</p>
+
+<h3>核心形状公式</h3>
 <ul>
-  <li><strong>矩形</strong>：<code>max(abs(p)-size, 0)</code></li>
-  <li><strong>线段</strong>：投影 + 距离</li>
-  <li><strong>圆角矩形</strong>：矩形 SDF - 圆角半径</li>
+  <li><strong>圆</strong>：<code>length(p) - radius</code></li>
+  <li><strong>矩形</strong>：<code>max(abs(p.x) - w, abs(p.y) - h)</code>——更精确的版本用 <code>length(max(abs(p) - size, 0.0))</code></li>
+  <li><strong>等边三边形</strong>：用 dot 和 abs 组合</li>
+  <li><strong>线段</strong>：用投影和 clamp 求点到线段的距离</li>
+  <li><strong>正多边形</strong>：用 atan + cos 的周期性</li>
 </ul>
+
+<h3>SDF 的符号含义</h3>
 <div class="info-box">
-  SDF 的巧妙之处：<strong>负值=内部，正值=外部</strong>。所有 smoothstep/边缘处理都基于这个性质。
+  <strong>SDF 值的三种状态：</strong><br>
+  ● <code>d < 0</code> → 在形状<strong>内部</strong><br>
+  ● <code>d = 0</code> → 在形状<strong>边界上</strong><br>
+  ● <code>d > 0</code> → 在形状<strong>外部</strong><br><br>
+  符号信息至关重要——它让我们可以区分内外，做布尔运算（合并/相交/挖洞）。
 </div>
+
+<h3>从 SDF 到颜色</h3>
+<p>SDF 只返回一个距离值。要变成画面，需要"着色"：</p>
+<ul>
+  <li>硬边：<code>step(0.0, -d)</code></li>
+  <li>柔边：<code>smoothstep(0.01, -0.01, d)</code></li>
+  <li>轮廓：<code>smoothstep(0.02, 0.0, abs(d))</code></li>
+  <li>光晕：<code>exp(-abs(d) * 20.0)</code></li>
+</ul>
+
+<div class="info-box tip">
+  <strong>💡 IQ 的 SDF 宝库</strong><br>
+  Inigo Quilez 的网站 <code>iquilezles.org/articles/distfunctions2d</code> 有几十种 2D SDF 公式，全部附带推导过程。这是 Shader 开发者的必备参考。
+</div>
+
 <div class="task-box">
   <h4>🎯 动手试试</h4>
-  <p>1. 改矩形 <code>size</code>（ vec2(宽, 高) ）</p>
-  <p>2. 改圆角 <code>r</code> 值</p>
-  <p>3. 加旋转：在 SDF 之前 <code>uv = rotate(angle) * uv</code></p>
+  <p>1. 画一个圆角矩形（用 length+max 版本的矩形 SDF）</p>
+  <p>2. 把 SDF 值直接映射到颜色看距离场的"地形"</p>
+  <p>3. 用 <code>abs(d) - thickness</code> 把实心形状变成轮廓线</p>
+  <p>4. 添加 3 种不同形状展示在画面上</p>
 </div>

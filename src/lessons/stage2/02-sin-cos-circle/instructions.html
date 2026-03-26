@@ -1,16 +1,39 @@
 <h2>⭕ sin + cos = 圆形运动</h2>
-<h3>单位圆</h3>
-<p><code>cos(t)</code> 和 <code>sin(t)</code> 本质是单位圆上点的 x, y 坐标。</p>
-<p>所以 <code>vec2(cos(t), sin(t))</code> 就是一个<strong>圆形轨迹</strong>！</p>
-<div class="info-box tip">
-  <strong>💡 黄金公式：</strong><br>
-  <code>x = r * cos(angle)</code><br>
-  <code>y = r * sin(angle)</code><br>
-  这个公式在 Shader 中无处不在！
+
+<h3>为什么 sin 和 cos 能画圆？</h3>
+<p>想象一个时钟的秒针尖端——它在画圆。如果你分别看它的 x 和 y 坐标随时间的变化：</p>
+<ul>
+  <li>x 坐标 → 左右摆动 = <code>cos(time)</code></li>
+  <li>y 坐标 → 上下摆动 = <code>sin(time)</code></li>
+</ul>
+<p>所以 <code>vec2(cos(t), sin(t))</code> 就是半径为 1 的圆上的点！乘以 radius 就得到任意大小的圆形轨迹。</p>
+
+<div class="formula-block">
+  x = r × cos(angle)<br>
+  y = r × sin(angle)
 </div>
+<p>这个公式叫做<strong>参数方程</strong>，它用角度 angle 来"生成"圆上的每一个点。</p>
+
+<h3>在 Shader 中的应用</h3>
+<ul>
+  <li><strong>圆周运动</strong>：让一个小球绕着中心转 → <code>center + vec2(cos(t), sin(t)) * r</code></li>
+  <li><strong>多点环形排列</strong>：把 N 个点均匀放在圆上 → 角度间隔 2π/N</li>
+  <li><strong>轨道动画</strong>：行星、粒子、UI 元素的旋转效果</li>
+</ul>
+
+<div class="info-box">
+  <strong>数学联系：</strong>这个公式也解释了为什么 <code>sin²θ + cos²θ = 1</code>——圆上任意点到圆心的距离永远等于半径。这就是勾股定理在圆上的表现！
+</div>
+
+<div class="info-box tip">
+  <strong>💡 利萨如图形 (Lissajous)</strong><br>
+  如果 x 和 y 使用<strong>不同频率</strong>的 sin/cos：<code>vec2(cos(t*2.0), sin(t*3.0))</code>，轨迹就不再是圆，而是一个漂亮的"蝴蝶结"或"8字形"。改变频率比可以生成无穷种曲线——这叫利萨如图形，在示波器和屏幕保护程序中常见。
+</div>
+
 <div class="task-box">
   <h4>🎯 动手试试</h4>
-  <p>1. 改 <code>orbitRadius</code>（0.1 ~ 0.8）</p>
-  <p>2. 改 <code>u_time</code> 的乘数来加/减速</p>
-  <p>3. 加第二个球：用不同半径和不同速度</p>
+  <p>1. 改 <code>orbitRadius</code>（0.1 ~ 0.8）看轨道大小</p>
+  <p>2. 改 <code>u_time</code> 的乘数来加速/减速旋转</p>
+  <p>3. 加第二个球：用不同的半径和速度</p>
+  <p>4. 试利萨如：<code>vec2(cos(u_time*2.0), sin(u_time*3.0))</code></p>
 </div>

@@ -1,19 +1,40 @@
-<h2>🏆 挑战：经典等离子体效果</h2>
-<p>90年代 Demo Scene 必备效果：多层 sin 波叠加产生<strong>迷幻流动的色彩</strong>。</p>
+<h2>🏆 挑战：等离子体效果</h2>
+
+<p>用多层三角函数叠加创造<strong>经典等离子体（Plasma）</strong>效果——Demoscene 文化的标志性视觉。</p>
+
 <div class="goal-preview">
   <div class="goal-label"><span class="dot"></span>目标效果（实时）</div>
   <canvas class="goal-canvas"></canvas>
 </div>
-<h3>💡 提示</h3>
+
+<h3>Plasma 的历史</h3>
+<p>Plasma 效果是 1990 年代 Demoscene（演示场景）的经典之作。程序员们用极少的代码在低性能硬件上创造出令人惊叹的视觉效果。其核心就是<strong>多层 sin/cos 的干涉</strong>。</p>
+
+<h3>经典 Plasma 公式</h3>
+<div class="formula-block">
+  v = sin(x × 10.0)<br>
+  + sin(y × 10.0 + t)<br>
+  + sin((x+y) × 10.0 + t)<br>
+  + sin(length(vec2(x,y)) × 10.0 - t)
+</div>
+<p>四种不同方向/频率的 sin 波叠加，产生复杂的干涉图案。加上时间偏移，整个图案流动起来。</p>
+
+<h3>上色技巧</h3>
 <ul>
-  <li>叠加多个不同频率和相位的 <code>sin()</code></li>
-  <li>例: <code>sin(uv.x * 10.0) + sin(uv.y * 8.0 + t) + sin(length(uv) * 5.0)</code></li>
-  <li>用叠加结果做色相映射</li>
-  <li>用 <code>cos(value + vec3(0, 2.09, 4.19))</code> 做彩虹色</li>
+  <li>最简单：<code>vec3(sin(v), sin(v+2.094), sin(v+4.189))</code> → 彩虹</li>
+  <li>更优雅：用 IQ 调色板</li>
+  <li>怀旧感：256 色调色板循环（CRT 风格）</li>
 </ul>
+
+<div class="info-box">
+  <strong>为什么 Plasma 看起来这么"迷幻"？</strong><br>
+  多个不同频率和方向的波叠加产生<strong>摩尔纹（Moiré）</strong>效果——类似于两层细网叠在一起看到的奇异花纹。这种干涉模式本身就是视觉上令人着迷的。
+</div>
+
 <div class="task-box">
   <h4>🎯 你的任务</h4>
-  <p>1. 叠加 3-4 个不同方向的 sin 波</p>
-  <p>2. 用叠加值做彩虹色映射</p>
-  <p>3. 让它随时间流动</p>
+  <p>1. 叠加至少 4 种不同的 sin 波</p>
+  <p>2. 包含直线方向 + 径向方向的波</p>
+  <p>3. 加 u_time 动画 — 让图案流动</p>
+  <p>4. 用 IQ 调色板上色</p>
 </div>

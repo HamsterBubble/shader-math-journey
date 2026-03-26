@@ -1,0 +1,27 @@
+<h2>🏆 挑战：棋盘大师</h2>
+<p>用 <code>floor</code> 和 <code>mod</code> 创造一个漂亮的<strong>棋盘图案</strong>。</p>
+
+<div class="goal-preview">
+  <div class="goal-label"><span class="dot"></span>目标效果（实时）</div>
+  <canvas class="goal-canvas"></canvas>
+</div>
+
+<h3>棋盘的数学</h3>
+<div class="formula-block">
+  checker = mod(floor(x × N) + floor(y × N), 2.0)
+</div>
+<p>当两个坐标的整数部分之和为偶数 → 白格；奇数 → 黑格。就这么简单。</p>
+
+<h3>💡 提示</h3>
+<ul>
+  <li>使用 <code>mod(..., 2.0)</code> 得到 0 或 1</li>
+  <li>用 mix 选择两种颜色</li>
+  <li>加分：用 fract 得到格子内坐标，画出边框或圆角</li>
+</ul>
+
+<div class="task-box">
+  <h4>🎯 你的任务</h4>
+  <p>1. 实现基础棋盘图案</p>
+  <p>2. 用高级颜色替换纯黑白</p>
+  <p>3. 加分：径向光照渐变 + 格子边框</p>
+</div>

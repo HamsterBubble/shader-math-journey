@@ -1,0 +1,23 @@
+<h2>🎬 电影级色彩分级</h2>
+<h3>后处理的艺术</h3>
+<p>色彩分级（Color Grading）是电影和游戏中最重要的后处理步骤。它不改变内容，但彻底改变<strong>情绪和风格</strong>。</p>
+<h3>分级流水线</h3>
+<ol>
+  <li><strong>对比度</strong>：<code>(color - 0.5) × contrast + 0.5</code></li>
+  <li><strong>色温</strong>：暖 = 加红减蓝；冷 = 加蓝减红</li>
+  <li><strong>暗角</strong>：画面边缘变暗 → 聚焦中心</li>
+  <li><strong>色调映射</strong>：HDR→LDR（如 Reinhard: c/(1+c)）</li>
+  <li><strong>Gamma 校正</strong>：pow(color, 1/2.2) → 适配显示器</li>
+</ol>
+<div class="formula-block">
+  Reinhard: color = color / (1 + color)<br>
+  ACES: 更电影化的 S 曲线色调映射
+</div>
+<div class="info-box tip">
+  <strong>💡 Teal-Orange 调色</strong><br>
+  好莱坞最经典的配色：阴影偏蓝绿(teal)，高光偏橙色。<br>
+  <code>shadows += vec3(-0.1, 0.0, 0.1); highlights += vec3(0.1, 0.05, -0.05);</code>
+</div>
+<div class="task-box"><h4>🎯 动手试试</h4>
+  <p>1. 调整对比度从 0.5 到 2.0</p><p>2. 加暗角效果</p><p>3. 实现 Teal-Orange 调色</p><p>4. 对比有/无 Gamma 校正</p>
+</div>

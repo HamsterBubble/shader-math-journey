@@ -1,19 +1,44 @@
 <h2>🏆 挑战：跳动的心形</h2>
-<p>用 SDF 和矩阵缩放画一个<strong>跳动的心形</strong>。</p>
+
+<p>用 SDF 和矩阵缩放画一个<strong>有节奏跳动的心形</strong>——Shader 领域最浪漫的练习。</p>
+
 <div class="goal-preview">
   <div class="goal-label"><span class="dot"></span>目标效果（实时）</div>
   <canvas class="goal-canvas"></canvas>
 </div>
-<h3>💡 提示</h3>
+
+<h3>心形 SDF 的两种方法</h3>
+
+<p><strong>方法 A：数学公式法</strong></p>
+<div class="formula-block">
+  d = x² + (y - √|x|)² - r²
+</div>
+<p>这个公式用 <code>√|x|</code> 来"撑起"上半部分的两个弧，下半部分自然形成尖角。简单但优雅。</p>
+
+<p><strong>方法 B：几何组合法</strong></p>
 <ul>
-  <li>心形 SDF 可用数学公式：<code>x² + (y - √|x|)² < r²</code></li>
-  <li>或者用两个圆 + 一个旋转45°的正方形组合</li>
-  <li>跳动效果：用 <code>sin(u_time)</code> 控制 <code>scale2d</code></li>
-  <li>缩放矩阵：<code>mat2(s, 0, 0, s)</code></li>
+  <li>画一个 45° 旋转的正方形（SDF = max(abs(x-y), abs(x+y))）</li>
+  <li>在正方形的两条斜边上各放一个半圆</li>
+  <li>用 min 合并 → 心形</li>
 </ul>
+
+<h3>跳动动画</h3>
+<p>心脏跳动不是简单的 sin——它有"快速收缩、慢速舒张"的节奏：</p>
+<ul>
+  <li>基础：<code>scale = 1.0 + 0.1 * sin(u_time * 6.0)</code></li>
+  <li>更真实：<code>scale = 1.0 + 0.15 * pow(sin(u_time * 4.0), 2.0)</code></li>
+  <li>用 pow 让波峰更尖锐 → 模拟心跳的"砰-砰"节奏</li>
+</ul>
+
+<div class="info-box tip">
+  <strong>💡 呼吸光晕</strong><br>
+  在心形外围加一层 <code>exp(-dist * k)</code> 光晕，让 k 也随心跳节奏变化 → 心脏"发光"的效果。光晕颜色可以比心形本体稍浅、稍暖。
+</div>
+
 <div class="task-box">
   <h4>🎯 你的任务</h4>
-  <p>1. 画出心形形状</p>
-  <p>2. 让心脏有节奏地跳动</p>
-  <p>3. 加分：加呼吸光晕</p>
+  <p>1. 画出心形形状（选择任一方法）</p>
+  <p>2. 让心脏有节奏地跳动（缩放动画）</p>
+  <p>3. 加分：添加呼吸光晕</p>
+  <p>4. 加分：背景加微弱的径向渐变</p>
 </div>

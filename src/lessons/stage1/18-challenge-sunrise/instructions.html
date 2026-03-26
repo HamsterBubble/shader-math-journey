@@ -1,0 +1,32 @@
+<h2>🏆 挑战：日出渐变</h2>
+<p>用 <code>mix</code>、<code>smoothstep</code>、<code>exp</code> 和 SDF 创造一幅<strong>日出风景</strong>。</p>
+
+<div class="goal-preview">
+  <div class="goal-label"><span class="dot"></span>目标效果（实时）</div>
+  <canvas class="goal-canvas"></canvas>
+</div>
+
+<h3>分步提示</h3>
+<ol>
+  <li><strong>天空</strong>：用多层 mix 做暖到冷的垂直渐变</li>
+  <li><strong>太阳</strong>：圆形 SDF + smoothstep 硬边</li>
+  <li><strong>光晕</strong>：<code>exp(-distance * k)</code> 柔和衰减</li>
+  <li><strong>地面</strong>：step 或 smoothstep 在底部画暗色地面</li>
+  <li><strong>动画</strong>：让太阳随 u_time 缓慢升起</li>
+</ol>
+
+<div class="info-box tip">
+  <strong>💡 颜色参考</strong><br>
+  天空顶部 → 深蓝 (0.1, 0.1, 0.35)<br>
+  天空中部 → 橙红 (0.8, 0.4, 0.2)<br>
+  天空底部 → 金黄 (1.0, 0.6, 0.1)<br>
+  太阳 → 亮白暖 (1.0, 0.95, 0.8)
+</div>
+
+<div class="task-box">
+  <h4>🎯 你的任务</h4>
+  <p>1. 画三色渐变天空</p>
+  <p>2. 画太阳 + 光晕</p>
+  <p>3. 加地面剪影</p>
+  <p>4. 加分：太阳升起动画</p>
+</div>

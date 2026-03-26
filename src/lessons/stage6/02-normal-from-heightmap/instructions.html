@@ -1,13 +1,39 @@
-<h2>⛰️ 从高度图算法线</h2>
-<p>导数的终极应用：把高度图转换成<strong>法线贴图</strong>，实现凹凸光照。</p>
-<p>原理：在 x 和 y 方向分别求导数，得到表面倾斜方向。</p>
-<div class="info-box">
-  <code>vec3 normal = normalize(vec3(dFdx, dFdy, strength));</code><br>
-  strength 越大 → 法线越"平"（凹凸感弱）
+<h2>🏔️ 从高度图推算法线</h2>
+
+<h3>高度图 → 3D 表面</h3>
+<p>一张灰度图可以当作"高度图"——亮的地方高、暗的地方低。虽然它只是 2D，但通过计算导数，我们可以推算出每个点的<strong>3D 法线方向</strong>。</p>
+
+<h3>核心公式</h3>
+<div class="formula-block">
+  dx = height(x+ε, y) - height(x-ε, y)<br>
+  dy = height(x, y+ε) - height(x, y-ε)<br>
+  normal = normalize(vec3(-dx, -dy, ε*2.0))
 </div>
+<p>原理：在 x 方向采样两个相邻点的高度差作为 x 方向的斜率（导数），y 方向同理。然后用叉积构造法线。</p>
+
+<h3>为什么是 "中心差分"？</h3>
+<p>我们用 <code>(x+ε) - (x-ε)</code> 两侧的差，而不是 <code>(x+ε) - x</code> 单侧的差。前者叫<strong>中心差分</strong>，精度是后者的两倍，且结果更对称。</p>
+
+<div class="info-box">
+  <strong>这就是法线贴图的原理！</strong><br>
+  游戏中的法线贴图 (Normal Map) 就是预先计算好的法线存储为 RGB 图像：<br>
+  ● R = 法线的 x 分量<br>
+  ● G = 法线的 y 分量<br>
+  ● B = 法线的 z 分量<br>
+  蓝紫色的法线贴图（z 分量最大 = 朝上）是游戏开发者最熟悉的颜色。
+</div>
+
+<div class="info-box tip">
+  <strong>💡 ε 的选择</strong><br>
+  ε 太大 → 法线过于平滑，丢失细节<br>
+  ε 太小 → 受像素精度限制，产生噪声<br>
+  通常 1~3 像素宽度是好的选择：<code>ε = 1.0/u_resolution.x</code>
+</div>
+
 <div class="task-box">
   <h4>🎯 动手试试</h4>
-  <p>1. 改 <code>strength</code>（试 0.5, 0.01）→ 凹凸强度</p>
-  <p>2. 改高度函数（试 <code>sin(x*10)*sin(y*10)</code>）</p>
-  <p>3. 改光源方向</p>
+  <p>1. 用 sin 波生成高度图，从中推算法线</p>
+  <p>2. 把法线值映射到颜色（看到蓝紫色法线图）</p>
+  <p>3. 用推算出的法线做 Lambert 光照</p>
+  <p>4. 改 ε 值看法线的平滑度变化</p>
 </div>

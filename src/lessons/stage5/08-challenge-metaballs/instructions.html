@@ -1,18 +1,44 @@
-<h2>🏆 挑战：融球 (Metaballs)</h2>
-<p>Metaballs 是经典 demo 效果：多个能量场叠加产生<strong>有机融合</strong>效果。</p>
+<h2>🏆 挑战：Metaball 融球</h2>
+
+<p>用 <code>smin()</code> 创造<strong>融球（Metaball）</strong>效果——多个球体在接近时像液体一样融合。</p>
+
 <div class="goal-preview">
   <div class="goal-label"><span class="dot"></span>目标效果（实时）</div>
   <canvas class="goal-canvas"></canvas>
 </div>
-<h3>💡 提示</h3>
+
+<h3>Metaball 的核心思路</h3>
+<p>传统 Metaball 用"场函数"（每个球贡献一个衰减场，叠加后取等值线）。在 SDF 框架下更简单：</p>
+<ol>
+  <li>定义多个移动的圆 SDF</li>
+  <li>用 <code>smin()</code> 代替 <code>min()</code> 合并它们</li>
+  <li>smin 的 k 参数控制融合"软度"</li>
+</ol>
+
+<h3>让球动起来</h3>
+<p>用 sin/cos 让每个球在不同轨道上运动：</p>
 <ul>
-  <li>能量场 = <code>radius / distance</code></li>
-  <li>叠加多个点的能量场，总能量 > 阈值的区域就是"融球"</li>
-  <li>让球心沿圆形轨道运动：<code>vec2(cos(t), sin(t))</code></li>
+  <li><code>pos1 = vec2(cos(t * 0.7), sin(t * 1.3)) * 0.3</code></li>
+  <li><code>pos2 = vec2(sin(t * 1.1), cos(t * 0.9)) * 0.25</code></li>
+  <li>使用不同的乘数让运动看起来不重复</li>
 </ul>
+
+<h3>上色技巧</h3>
+<ul>
+  <li>用 SDF 值的绝对值做渐变色 → 等高线着色</li>
+  <li>用 smin 的混合参数 h 做颜色渐变 → 两球颜色在融合处自然过渡</li>
+  <li>加光晕：<code>exp(-abs(d) * k)</code></li>
+</ul>
+
+<div class="info-box">
+  <strong>Metaball 的历史：</strong><br>
+  1982 年 Jim Blinn 提出的概念，后来成为 90 年代演示场景（Demoscene）的标志性效果。如今依然是学习 SDF 技术的最佳练习。
+</div>
+
 <div class="task-box">
   <h4>🎯 你的任务</h4>
-  <p>1. 实现 3-4 个运动的能量场</p>
-  <p>2. 用阈值提取形状</p>
-  <p>3. 加分：用能量值做彩色映射</p>
+  <p>1. 创建 3-5 个移动的圆 SDF</p>
+  <p>2. 用 smin 融合它们</p>
+  <p>3. 调整 k 值看融合效果变化</p>
+  <p>4. 加分：等高线着色 + 光晕</p>
 </div>

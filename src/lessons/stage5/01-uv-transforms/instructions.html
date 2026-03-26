@@ -1,14 +1,42 @@
-<h2>🗺️ UV 坐标变换</h2>
-<p>Shader 中最常见的坐标操作：</p>
+<h2>🗺️ UV 变换大全</h2>
+
+<h3>UV 坐标是一切 Shader 图案的起点</h3>
+<p>所有的 2D Shader 效果，本质上都是对 UV 坐标做某种<strong>变换</strong>后再"着色"。掌握了 UV 变换，你就掌握了 Shader 图案设计的万能钥匙。</p>
+
+<h3>基础 UV 操作清单</h3>
 <ul>
-  <li><strong>归一化</strong>：<code>uv = fragCoord / resolution</code> → [0,1]</li>
-  <li><strong>居中</strong>：<code>uv = uv * 2.0 - 1.0</code> → [-1,1]</li>
-  <li><strong>宽高比</strong>：<code>uv.x *= aspect</code></li>
+  <li><strong>平移</strong>：<code>uv += offset</code> — 移动图案位置</li>
+  <li><strong>缩放</strong>：<code>uv *= scale</code> — 放大/缩小</li>
+  <li><strong>旋转</strong>：<code>uv = mat2(c,s,-s,c) * uv</code></li>
+  <li><strong>镜像</strong>：<code>uv = abs(uv)</code> — 沿轴翻转</li>
+  <li><strong>重复</strong>：<code>uv = fract(uv * N)</code> — 平铺</li>
+  <li><strong>扭曲</strong>：<code>uv.x += sin(uv.y * freq) * amp</code> — 波浪形变</li>
 </ul>
-<p>这三步几乎在每个 Shader 开头都会用到。</p>
+
+<h3>组合变换 = 无限可能</h3>
+<p>每种变换单独都很简单，但<strong>组合</strong>起来就能产生复杂图案：</p>
+<ul>
+  <li>平铺 + 旋转 = 旋转的瓦片（Stage 4 学过）</li>
+  <li>极坐标 + 重复 = 放射状花瓣</li>
+  <li>扭曲 + 平铺 = 有机纹理</li>
+</ul>
+
+<div class="info-box">
+  <strong>变换的层级思维：</strong><br>
+  把 UV 变换想象成 Photoshop 的图层——每层做一个简单变换，叠加在一起就是复杂效果。养成"先想好要什么最终效果，再倒推需要哪些变换步骤"的习惯。
+</div>
+
+<div class="info-box tip">
+  <strong>💡 修正纵横比</strong><br>
+  大多数屏幕不是正方形。直接用 UV 画圆会变成椭圆。修正方法：<br>
+  <code>uv.x *= u_resolution.x / u_resolution.y;</code><br>
+  这一行代码让坐标空间变成"等比例"的——画圆就是圆。
+</div>
+
 <div class="task-box">
   <h4>🎯 动手试试</h4>
-  <p>1. 注释掉宽高比修正，看圆变椭圆</p>
-  <p>2. 注释掉居中步骤，看圆跑到角落</p>
-  <p>3. 加缩放：<code>uv *= 2.0;</code>（在居中之后）</p>
+  <p>1. 组合平移 + 缩放 + 旋转创建复合变换</p>
+  <p>2. 用 <code>sin(uv.y)</code> 做 x 方向扭曲 → 旗帜飘动效果</p>
+  <p>3. 修正纵横比后画圆，对比修正前后</p>
+  <p>4. 向变换链中间插入 fract → 看图案意外变化</p>
 </div>

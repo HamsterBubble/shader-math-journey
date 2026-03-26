@@ -1,21 +1,45 @@
 <h2>🌀 域扭曲 (Domain Warping)</h2>
-<p>域扭曲是终极噪声技巧：用噪声扭曲噪声的输入坐标。</p>
-<p style="text-align:center;color:var(--accent);">
-  f(p + fbm(p + fbm(p)))
-</p>
-<p>产生<strong>大理石、云层、液态金属</strong>般的有机流动纹理。</p>
-<h3>层次</h3>
-<ul>
-  <li>1 层: <code>fbm(p)</code> → 普通噪声</li>
-  <li>2 层: <code>fbm(p + fbm(p))</code> → 开始扭曲</li>
-  <li>3 层: <code>fbm(p + fbm(p + fbm(p)))</code> → 超级有机</li>
-</ul>
-<div class="info-box tip">
-  <strong>💡 Inigo Quilez 的名言</strong>: "Domain warping is one of the most useful techniques in procedural graphics. It can make simple patterns look incredibly organic."
+
+<h3>用噪声来扭曲噪声</h3>
+<p>域扭曲是 Shader 中最强大的过程化纹理技巧之一：<strong>用一个函数的输出来偏移另一个函数的输入坐标</strong>。</p>
+<div class="formula-block">
+  result = fbm(p + fbm(p + fbm(p)))
 </div>
+<p>每一层嵌套都增加了一层"扭曲"，让原本规则的噪声变得极其有机和自然。</p>
+
+<h3>为什么看起来这么"活"？</h3>
+<ul>
+  <li>第一层 fbm → 基础的随机起伏</li>
+  <li>用 fbm 偏移坐标 → 起伏被"弯曲"，出现类似风吹、流动的纹理</li>
+  <li>再嵌套一层 → 弯曲的弯曲，出现旋涡、烟雾般的复杂结构</li>
+</ul>
+
+<h3>控制参数</h3>
+<ul>
+  <li><strong>偏移强度</strong>：<code>fbm(p + fbm(p) * strength)</code> → strength 越大扭曲越剧烈</li>
+  <li><strong>时间动画</strong>：<code>fbm(p + fbm(p + u_time * speed))</code> → 缓慢演变的有机运动</li>
+  <li><strong>不同偏移方向</strong>：x 和 y 用不同的 fbm → 更自然的扭曲</li>
+</ul>
+
+<div class="info-box">
+  <strong>这就是程序化大理石/木纹/云/岩浆的秘密：</strong><br>
+  几乎所有 Shadertoy 上的"有机"纹理——大理石纹路、岩浆流动、热气升腾——核心技巧都是域扭曲。<br>
+  IQ 的经典文章 "warping by noise" 详细解释了这个技巧，被 Shader 社区奉为圣经。
+</div>
+
+<div class="info-box tip">
+  <strong>💡 性能考量</strong><br>
+  嵌套 fbm 意味着每个像素要计算大量噪声采样：<br>
+  ● 1 层 fbm (4 octaves) = 4 次噪声采样<br>
+  ● 2 层嵌套 = 4 + 4 = 8 次<br>
+  ● 3 层嵌套 = 4 + 4 + 4 = 12 次<br>
+  在移动端要注意层数和 octave 数的平衡。
+</div>
+
 <div class="task-box">
   <h4>🎯 动手试试</h4>
-  <p>1. 改扭曲强度 (乘数 4.0)</p>
-  <p>2. 去掉第二层/第三层对比效果</p>
-  <p>3. 改颜色映射创造不同材质</p>
+  <p>1. 实现基础域扭曲：<code>fbm(p + fbm(p))</code></p>
+  <p>2. 增加扭曲强度看效果变化</p>
+  <p>3. 加 u_time 动画 → 流动的有机纹理</p>
+  <p>4. 三层嵌套 + 调色板 → 大理石/火焰/星云</p>
 </div>

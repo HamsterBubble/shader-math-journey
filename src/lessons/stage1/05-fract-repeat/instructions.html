@@ -1,12 +1,43 @@
 <h2>🔄 fract() — 重复的魔法</h2>
-<p><code>fract(x) = x - floor(x)</code>，只保留小数。</p>
-<p>x 从 0→3 时，fract(x) 在 0~1 间循环 3 次。</p>
-<div class="info-box">
-  <strong>核心：</strong><code>fract(uv * N)</code> 把空间分 N×N 格，每格坐标 0~1。
+
+<h3>从地板砖说起</h3>
+<p>走进一间铺满瓷砖的房间，每块砖的花纹完全一样。这就是 <code>fract()</code> 在做的事：<strong>把空间切成重复的小格子</strong>，每格里的坐标回到 0~1。</p>
+
+<h3>数学原理</h3>
+<div class="formula-block">
+  fract(x) = x - floor(x)
 </div>
+<p><code>floor(x)</code> 取整数部分（向下取整），<code>fract(x)</code> 只保留小数部分。</p>
+<ul>
+  <li><code>fract(0.7) = 0.7</code></li>
+  <li><code>fract(1.3) = 0.3</code></li>
+  <li><code>fract(2.9) = 0.9</code></li>
+</ul>
+<p>当 x 从 0 连续增长到 3 时，fract(x) 会在 0~1 之间循环 3 次，像锯齿波。</p>
+
+<h3>空间重复的关键公式</h3>
+<div class="info-box">
+  <strong>核心公式：</strong><code>fract(uv * N)</code><br>
+  先把 UV 坐标放大 N 倍，再取小数 → 空间被分成 <strong>N × N</strong> 个格子，每个格子内的坐标重新从 0~1。<br><br>
+  这意味着你只需要画<strong>一个格子</strong>里的图案，它会自动平铺整个画面！
+</div>
+
+<h3>fract 与 floor 是好搭档</h3>
+<p>当你用 <code>fract()</code> 得到格内坐标时，常常也需要知道"我在第几个格子"：</p>
+<ul>
+  <li><code>fract(uv * N)</code> → 格内坐标（0~1）</li>
+  <li><code>floor(uv * N)</code> → 格子编号（整数）</li>
+</ul>
+<p>格子编号可以用来：给每个格子不同的颜色、不同的动画相位、不同的随机种子……这是很多高级效果的基础。</p>
+
+<div class="warning-box">
+  <strong>⚠️ 常见陷阱：</strong>fract 后的坐标中心在 (0.5, 0.5) 而不是 (0, 0)。如果你要画一个居中的圆，需要减 0.5：<code>vec2 p = fract(uv * N) - 0.5;</code>
+</div>
+
 <div class="task-box">
   <h4>🎯 动手试试</h4>
-  <p>1. 改 <code>3.0</code> → 5.0, 8.0（更多格子）</p>
-  <p>2. 改半径 <code>0.3</code></p>
-  <p>3. 只水平重复: <code>uv.x = fract(uv.x * 5.0);</code></p>
+  <p>1. 改 <code>3.0</code> → 5.0, 8.0（更多格子，图案更密）</p>
+  <p>2. 改圆的半径 <code>0.3</code>，观察每个格子里的圆大小变化</p>
+  <p>3. 只水平重复: <code>uv.x = fract(uv.x * 5.0);</code>（保持 uv.y 不变）</p>
+  <p>4. 用 <code>floor(uv * N)</code> 给不同格子不同的颜色</p>
 </div>

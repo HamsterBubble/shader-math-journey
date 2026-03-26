@@ -1,15 +1,44 @@
 <h2>🔄 2D 旋转矩阵</h2>
-<p><code>mat2</code> 将一个 vec2 变换到新位置。旋转矩阵公式：</p>
-<p style="text-align:center;color:var(--accent);">
+
+<h3>矩阵是什么？</h3>
+<p>矩阵是一种"坐标变换机器"——输入一个 vec2，输出另一个 vec2。<code>mat2</code> 是 2×2 矩阵，能做旋转、缩放、剪切等变换。</p>
+
+<h3>旋转矩阵推导</h3>
+<p>旋转角度 θ 后，原来在 (1,0) 的点跑到了 (cos θ, sin θ)，原来在 (0,1) 的点跑到了 (-sin θ, cos θ)。把这两个新基向量排成矩阵：</p>
+<div class="formula-block">
   | cos θ &nbsp; -sin θ |<br>
   | sin θ &nbsp;&nbsp; cos θ |
-</p>
-<div class="info-box">
-  GLSL 中 <code>mat2(a,b,c,d)</code> 是<strong>按列</strong>填充的：第一列(a,b)，第二列(c,d)。
 </div>
+
+<h3>GLSL 中的 mat2</h3>
+<p>GLSL 的 <code>mat2</code> 写法有个坑：它是<strong>按列</strong>填充的！</p>
+<ul>
+  <li><code>mat2(a, b, c, d)</code> → 第一列 (a,b)，第二列 (c,d)</li>
+  <li>旋转矩阵：<code>mat2(cos(θ), sin(θ), -sin(θ), cos(θ))</code></li>
+  <li>使用：<code>vec2 rotated = rotMat * uv;</code></li>
+</ul>
+
+<div class="warning-box">
+  <strong>⚠️ 列优先 vs 行优先</strong><br>
+  数学教材写矩阵是按行读的，但 GLSL 的 mat2/mat3/mat4 构造函数是<strong>按列</strong>填充。忘记这个会导致旋转方向反转！
+</div>
+
+<div class="info-box">
+  <strong>旋转 UV 和旋转物体是反的：</strong><br>
+  在 Shader 中我们旋转的是"坐标网格"，不是"物体"。把 UV 顺时针旋转 30°，图案看起来会<strong>逆时针</strong>旋转 30°——就像转地图和转你自己的区别。
+</div>
+
+<div class="info-box tip">
+  <strong>💡 封装旋转函数</strong><br>
+  实际项目中常写一个辅助函数：<br>
+  <code>mat2 rot2d(float a) { float c=cos(a), s=sin(a); return mat2(c,s,-s,c); }</code><br>
+  一行搞定，后面直接 <code>uv *= rot2d(angle);</code>
+</div>
+
 <div class="task-box">
   <h4>🎯 动手试试</h4>
   <p>1. 改旋转速度（<code>u_time</code> 的乘数）</p>
-  <p>2. 先旋转再 fract vs 先 fract 再旋转，效果不同！</p>
-  <p>3. 把方块改成其他形状</p>
+  <p>2. 先旋转再 fract vs 先 fract 再旋转 → 效果完全不同！</p>
+  <p>3. 把方块改成其他形状（圆、三角）</p>
+  <p>4. 让不同行的格子旋转方向交替</p>
 </div>

@@ -1,16 +1,41 @@
 <h2>🎯 极坐标系</h2>
-<h3>从 (x,y) 到 (r,θ)</h3>
-<p>极坐标用<strong>距离 r</strong> 和<strong>角度 θ</strong> 描述一个点的位置：</p>
-<ul>
-  <li><code>r = length(uv)</code> — 到中心的距离</li>
-  <li><code>θ = atan(uv.y, uv.x)</code> — 角度 (-π ~ π)</li>
-</ul>
-<div class="info-box">
-  极坐标能让你画出<strong>放射状、旋转对称</strong>的图案，这在直角坐标下很难做到。
+
+<h3>换一种描述位置的方式</h3>
+<p>我们习惯的直角坐标 (x, y) 说："往右走多少，往上走多少"。但有些图案——比如花瓣、旋涡、靶心——天然是围绕中心展开的。用 (x,y) 描述它们很痛苦。</p>
+<p><strong>极坐标</strong> (r, θ) 换了一种说法："离中心多远，朝哪个方向"。</p>
+
+<h3>从 (x,y) 转换到 (r,θ)</h3>
+<div class="formula-block">
+  r = length(uv) — 到中心的距离<br>
+  θ = atan(uv.y, uv.x) — 方向角（-π ~ π）
 </div>
+<p>这两个值完全等价于 (x,y)，只是描述方式不同。</p>
+
+<h3>极坐标的魔力</h3>
+<p>当你把 sin 的输入从 <code>uv.x</code>（直线方向）换成 <code>θ</code>（角度方向），图案就从"波纹条"变成了"花瓣"：</p>
+<ul>
+  <li><code>sin(θ * 6.0)</code> → 6 个花瓣（θ 转一圈 2π，sin 做了 6 个完整周期）</li>
+  <li><code>sin(θ * 3.0)</code> → 3 个花瓣</li>
+  <li>花瓣的"大小"由 sin 的振幅控制</li>
+</ul>
+
+<div class="info-box">
+  <strong>极坐标能轻松画出什么？</strong><br>
+  ● 花瓣/星形：<code>r = base + amp * sin(θ * N)</code><br>
+  ● 螺旋：<code>r = a * θ</code>（r 随角度线性增长）<br>
+  ● 齿轮/锯齿：<code>r = base + amp * fract(θ * N / 2π)</code><br>
+  ● 心形线：<code>r = 1 - sin(θ)</code>（著名的心形曲线！）
+</div>
+
+<div class="info-box tip">
+  <strong>💡 中心化很重要！</strong><br>
+  极坐标的"中心"默认是 (0,0)。我们的 UV 通常是 0~1，所以需要先减去 0.5 把中心移到画面正中间：<code>vec2 uv = gl_FragCoord.xy / u_resolution.xy - 0.5;</code>
+</div>
+
 <div class="task-box">
   <h4>🎯 动手试试</h4>
   <p>1. 改 <code>6.0</code>（花瓣数量）→ 3.0, 5.0, 8.0</p>
   <p>2. 让花瓣旋转：把 <code>angle</code> 改成 <code>angle + u_time</code></p>
-  <p>3. 改 <code>0.3</code>（振幅）看形状变化</p>
+  <p>3. 改 <code>0.3</code>（振幅）看花瓣大小变化</p>
+  <p>4. 试心形线：<code>r = 0.5 * (1.0 - sin(angle))</code></p>
 </div>

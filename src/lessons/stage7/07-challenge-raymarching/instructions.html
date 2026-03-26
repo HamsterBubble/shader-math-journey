@@ -1,28 +1,50 @@
-<h2>🏆 终极挑战：3D Ray Marching</h2>
-<p>Ray Marching 是用 SDF 渲染 3D 场景的技术。</p>
+<h2>🏆 挑战：Ray Marching 入门</h2>
+
+<p>踏入 3D Shader 的大门——用 <strong>Ray Marching</strong> 算法和 SDF 渲染真正的 3D 场景。</p>
+
 <div class="goal-preview">
   <div class="goal-label"><span class="dot"></span>目标效果（实时）</div>
   <canvas class="goal-canvas"></canvas>
 </div>
-<h3>💡 核心思路</h3>
+
+<h3>Ray Marching 的核心思想</h3>
+<p>"射线步进"：从相机发出一条射线，沿着射线一步步往前走。每走一步，用 SDF 查询"离最近物体有多远"。走的步长 = 该距离（因为 SDF 保证在这个范围内不会穿过任何物体）。当距离足够小时 → 碰到物体了！</p>
+
+<h3>算法框架</h3>
+<pre><code>for (int i = 0; i < MAX_STEPS; i++) {
+  vec3 p = ro + rd * t;     // 当前位置
+  float d = sceneSDF(p);    // 到最近物体的距离
+  if (d < 0.001) break;     // 足够近 = 碰到了
+  t += d;                   // 安全步进
+  if (t > MAX_DIST) break;  // 走太远 = 什么都没碰到
+}</code></pre>
+
+<h3>关键组件</h3>
 <ul>
-  <li>对每个像素，从相机发出一条<strong>射线</strong></li>
-  <li>沿射线<strong>步进</strong>，每步前进 = 当前点的 SDF 值</li>
-  <li>SDF 足够小 → <strong>命中表面</strong></li>
-  <li>在命中点用数值导数算<strong>法线</strong></li>
-  <li>用法线做<strong>光照</strong></li>
+  <li><code>ro</code>（Ray Origin）：相机位置</li>
+  <li><code>rd</code>（Ray Direction）：从 UV 计算的射线方向</li>
+  <li><code>sceneSDF</code>：3D 场景的 SDF（可以复用 2D 学到的所有图元！）</li>
 </ul>
+
 <div class="info-box">
-  <strong>⚡ 关键函数：</strong><br>
-  · <code>sceneSDF(p)</code> — 返回点 p 到最近表面的距离<br>
-  · <code>ro + rd * t</code> — 射线上 t 处的点 (ro=起点, rd=方向)<br>
-  · 法线 = sceneSDF 的梯度
+  <strong>2D → 3D 的跨越：</strong><br>
+  你在前面学的所有 SDF 知识——布尔运算、域重复、平滑合并——在 3D 中<strong>完全适用</strong>。只需把 vec2 换成 vec3，把 2D 图元换成 3D 版本（球、方块、圆柱...）。这就是 SDF 的美：维度无关。
 </div>
+
+<div class="info-box tip">
+  <strong>💡 法线计算</strong><br>
+  碰到表面后，用中心差分算法（和 Stage 6 一样）计算 3D 法线：<br>
+  <code>normal = normalize(vec3(<br>
+  &nbsp;&nbsp;sdf(p+e.xyy)-sdf(p-e.xyy),<br>
+  &nbsp;&nbsp;sdf(p+e.yxy)-sdf(p-e.yxy),<br>
+  &nbsp;&nbsp;sdf(p+e.yyx)-sdf(p-e.yyx)))</code><br>
+  有了法线，就能做完整的 Phong 光照了！
+</div>
+
 <div class="task-box">
   <h4>🎯 你的任务</h4>
-  <p>补全下面的 Ray Marching 框架：</p>
-  <p>1. 实现 <code>sceneSDF</code>（试试球+地面）</p>
-  <p>2. 实现步进循环</p>
-  <p>3. 加法线和光照</p>
-  <p>· 加分：加第二个物体（用 <code>min</code> 并集）</p>
+  <p>1. 实现基础 Ray Marching 循环</p>
+  <p>2. 场景中放一个球（最简单的 3D SDF）</p>
+  <p>3. 计算法线并加 Lambert 光照</p>
+  <p>4. 加分：添加第二个物体 + smin 融合</p>
 </div>

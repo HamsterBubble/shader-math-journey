@@ -1,0 +1,20 @@
+<h2>⭕ SDF 环形与切割</h2>
+<h3>从实心到空心</h3>
+<p><code>abs(sdf) - thickness</code> 把任何实心 SDF 变成<strong>环形</strong>（空心壳）。这是 SDF 最优雅的操作之一。</p>
+<div class="formula-block">
+  annular(d) = abs(d) - thickness<br>
+  d 为正（外部）或负（内部）→ abs 消除内外差异 → 减去厚度 → 空心壳
+</div>
+<h3>切割操作</h3>
+<ul>
+  <li><strong>半平面切割</strong>：<code>max(sdf, -plane)</code> — 保留一侧，去除另一侧</li>
+  <li><strong>扇形切割</strong>：用角度条件切出扇形</li>
+  <li><strong>组合</strong>：环形 + 切割 = 半环、弧形、C形</li>
+</ul>
+<div class="info-box tip">
+  <strong>💡 环形→管道</strong><br>
+  对长方形 SDF 做 abs()-thickness 得到方形管道。对任何形状 SDF 都适用。
+</div>
+<div class="task-box"><h4>🎯 动手试试</h4>
+  <p>1. 把圆变成环</p><p>2. 用 max 切成半环</p><p>3. 对方形做环形操作</p><p>4. 动画切割面位置</p>
+</div>

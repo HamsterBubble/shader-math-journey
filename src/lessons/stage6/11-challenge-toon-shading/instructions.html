@@ -1,0 +1,9 @@
+<h2>🏆 卡通渲染</h2>
+<p>用 floor <strong>量化光照</strong>创造 Cel Shading 效果。</p>
+<div class="goal-preview"><div class="goal-label"><span class="dot"></span>目标效果</div><canvas class="goal-canvas"></canvas></div>
+<h3>Cel Shading 原理</h3>
+<div class="formula-block">toonLight = floor(diffuse × bands) / bands</div>
+<ul><li>bands=2 → 明暗两色（漫画风）</li><li>bands=3 → 暗/中/亮 三阶（动画风）</li><li>描边 = SDF 边缘加黑线</li></ul>
+<div class="task-box"><h4>🎯 你的任务</h4>
+  <p>1. 画带光照的球</p><p>2. 用 floor 量化为 3 个色阶</p><p>3. 加描边</p><p>4. 加分：高光也量化</p>
+</div>

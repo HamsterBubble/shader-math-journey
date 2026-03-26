@@ -1,31 +1,59 @@
-<h2>🎚️ 波的三要素</h2>
-<p>任何波动都由三个参数完全描述：</p>
-<p style="text-align:center;color:var(--accent);">
-  y = <strong>A</strong> × sin(<strong>ω</strong> × x + <strong>φ</strong>)
-</p>
-<h3>振幅 A (Amplitude)</h3>
+<h2>🎚️ 波的三要素：频率、相位、振幅</h2>
+
+<h3>用音乐类比</h3>
+<p>把 sin 波想象成一根吉他弦的振动：</p>
 <ul>
-  <li>波的高度，控制强弱</li>
-  <li><code>A = 0.5</code> → 波高 ±0.5</li>
+  <li><strong>振幅</strong> = 弦拨得多用力 → 音量大小</li>
+  <li><strong>频率</strong> = 弦振动多快 → 音调高低</li>
+  <li><strong>相位</strong> = 从哪个时刻开始振动 → 起始点偏移</li>
 </ul>
-<h3>频率 ω (Frequency)</h3>
-<ul>
-  <li>波的"密度"，一个单位内有多少个完整波</li>
-  <li><code>sin(x * 10.0)</code> → 频率 10，很密集</li>
-  <li><code>sin(x * 1.0)</code> → 频率 1，很舒展</li>
-</ul>
-<h3>相位 φ (Phase)</h3>
-<ul>
-  <li>波的水平偏移</li>
-  <li><code>sin(x + u_time)</code> → 波向左移动</li>
-  <li><code>sin(x - u_time)</code> → 波向右移动</li>
-</ul>
-<div class="info-box">
-  <strong>⚡ Shader 动画的秘密</strong>：几乎所有动态效果都是把 <code>u_time</code> 加到相位里。改变频率和振幅就能控制动画的速度和幅度。
+<p>任何波动——无论是声音、光线还是 Shader 中的图案——都完全由这三个参数决定：</p>
+<div class="formula-block">
+  y = A × sin(ω × x + φ)
 </div>
+
+<h3>振幅 A (Amplitude)</h3>
+<p>控制波的"高度"——输出范围变为 [-A, +A]：</p>
+<ul>
+  <li><code>0.5 * sin(x)</code> → 波高 ±0.5（温柔的涟漪）</li>
+  <li><code>2.0 * sin(x)</code> → 波高 ±2.0（剧烈的起伏）</li>
+</ul>
+
+<h3>频率 ω (Frequency)</h3>
+<p>控制波的"密度"——单位距离内有多少个完整波形：</p>
+<ul>
+  <li><code>sin(x * 1.0)</code> → 宽阔疏朗</li>
+  <li><code>sin(x * 10.0)</code> → 密集紧凑</li>
+  <li>频率翻倍 = 波长减半</li>
+</ul>
+
+<h3>相位 φ (Phase)</h3>
+<p>控制波的"起点"——水平平移整个波形：</p>
+<ul>
+  <li><code>sin(x + u_time)</code> → 波向<strong>左</strong>移动</li>
+  <li><code>sin(x - u_time)</code> → 波向<strong>右</strong>移动</li>
+  <li>这就是 Shader 动画的核心：<strong>每帧把 u_time 加到相位里</strong></li>
+</ul>
+
+<div class="info-box">
+  <strong>⚡ Shader 动画的秘密</strong><br>
+  几乎所有动态效果的最终形式都是：<br>
+  <code>result = amplitude * sin(frequency * position + u_time * speed)</code><br>
+  水波、旗帜飘动、草的摇曳、呼吸灯——全是换参数的 sin 动画。
+</div>
+
+<div class="info-box tip">
+  <strong>💡 空间变化的参数</strong><br>
+  参数不必是常数！可以随位置变化：<br>
+  ● 频率随 y 变化：<code>sin((5.0 + uv.y * 10.0) * x)</code> → 上下密度不同<br>
+  ● 振幅随距离衰减：<code>(1.0 / dist) * sin(x)</code> → 波向远处消失<br>
+  这些"空间变化参数"是创造有机感的关键。
+</div>
+
 <div class="task-box">
   <h4>🎯 动手试试</h4>
-  <p>1. 分别改 amp, freq, phase 观察效果</p>
+  <p>1. 分别改 amp, freq, phase 三个参数观察独立效果</p>
   <p>2. 让 freq 随 y 变化: <code>freq = 5.0 + uv.y * 10.0</code></p>
-  <p>3. 让 amp 随距离衰减</p>
+  <p>3. 让 amp 随距离衰减：<code>amp = 1.0 / (1.0 + dist * 3.0)</code></p>
+  <p>4. 同时改动三个参数，创造一个"水面"效果</p>
 </div>

@@ -1,17 +1,47 @@
-<h2>💡 Phong 光照</h2>
-<p>完整的 Phong 光照 = 三种分量相加：</p>
-<ul>
-  <li><strong>环境光</strong> (Ambient)：常数，防止全黑</li>
-  <li><strong>漫反射</strong> (Diffuse)：<code>max(dot(N, L), 0)</code></li>
-  <li><strong>高光</strong> (Specular)：<code>pow(max(dot(R, V), 0), shininess)</code></li>
-</ul>
-<div class="info-box">
-  <strong>R = reflect(-L, N)</strong> 是光的反射方向。<br>
-  V = 视线方向（通常 = vec3(0,0,1)）。
+<h2>💡 Phong 光照模型</h2>
+
+<h3>让平面变"立体"的三部曲</h3>
+<p>Phong 光照模型是 3D 图形学最经典的光照算法，由三个分量叠加而成：</p>
+
+<h3>1. 环境光 (Ambient)</h3>
+<p>来自四面八方的均匀光照，没有方向性：</p>
+<div class="formula-block">
+  ambient = ka × ambientColor
 </div>
+<p>作用：避免未被直射光照到的区域完全漆黑。通常 ka = 0.1 ~ 0.2。</p>
+
+<h3>2. 漫反射 (Diffuse — Lambert)</h3>
+<p>表面正对光源时最亮，侧面逐渐变暗：</p>
+<div class="formula-block">
+  diffuse = kd × max(dot(N, L), 0.0)
+</div>
+<p>N = 法线，L = 光照方向。物理含义：光子打到粗糙表面后<strong>均匀散射</strong>。</p>
+
+<h3>3. 高光 (Specular — Phong)</h3>
+<p>镜面反射的亮点——光滑物体上的白色高光：</p>
+<div class="formula-block">
+  R = reflect(-L, N)<br>
+  specular = ks × pow(max(dot(R, V), 0.0), shininess)
+</div>
+<p>R = 反射方向，V = 视线方向。shininess 越大，高光越锐利。</p>
+
+<h3>最终合成</h3>
+<div class="formula-block">
+  color = ambient + diffuse × materialColor + specular × lightColor
+</div>
+
+<div class="info-box">
+  <strong>Blinn-Phong 变体：</strong><br>
+  实际游戏中更常用 Blinn-Phong，用<strong>半角向量</strong> H 替代反射向量 R：<br>
+  <code>H = normalize(L + V)</code><br>
+  <code>specular = pow(max(dot(N, H), 0.0), shininess)</code><br>
+  计算更快（不需要 reflect），且在某些角度下效果更自然。
+</div>
+
 <div class="task-box">
   <h4>🎯 动手试试</h4>
-  <p>1. 改 <code>shininess</code>（4 = 模糊高光，128 = 锐利高光）</p>
-  <p>2. 改 <code>ambient</code> 值</p>
-  <p>3. 改球的颜色</p>
+  <p>1. 分别关闭 ambient、diffuse、specular 看每个分量的独立贡献</p>
+  <p>2. 改 shininess（8, 32, 128, 512）看高光大小变化</p>
+  <p>3. 实现 Blinn-Phong，对比 Phong 的差异</p>
+  <p>4. 加菲涅尔效应到边缘</p>
 </div>

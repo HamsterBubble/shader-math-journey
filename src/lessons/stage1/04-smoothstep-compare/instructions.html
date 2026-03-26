@@ -1,16 +1,50 @@
 <h2>〰️ smoothstep() — S 曲线过渡</h2>
-<p><code>smoothstep(a, b, x)</code>：在 a~b 之间平滑过渡（S 曲线）。</p>
-<ul>
-  <li><code>x &lt; a</code> → 0</li>
-  <li><code>x &gt; b</code> → 1</li>
-  <li>a~b 之间 → 平滑插值</li>
-</ul>
-<div class="info-box tip">
-  <strong>💡</strong> a, b 越接近 → 越尖锐（像 step）；差距越大 → 越柔和。
+
+<h3>从"硬切"到"柔和"</h3>
+<p><code>step()</code> 是一把刀，非黑即白。但现实世界很少有这么锐利的边界——阴影有虚化、颜色有渐变、边缘有抗锯齿。<code>smoothstep()</code> 就是把刀变成了<strong>软刷</strong>。</p>
+
+<h3>数学原理</h3>
+<div class="formula-block">
+  smoothstep(a, b, x)
 </div>
-<p>下面代码上半显示 smoothstep，下半显示 step 做对比。</p>
+<ul>
+  <li>当 <code>x ≤ a</code> → 返回 <strong>0.0</strong></li>
+  <li>当 <code>x ≥ b</code> → 返回 <strong>1.0</strong></li>
+  <li>当 <code>a < x < b</code> → 返回 0~1 之间的<strong>平滑过渡</strong>值</li>
+</ul>
+<p>这个"平滑"不是简单的线性插值。smoothstep 内部用了一个 <strong>Hermite 多项式</strong>：</p>
+<div class="formula-block">
+  t = (x - a) / (b - a)<br>
+  result = t² × (3 - 2t)
+</div>
+<p>这条 S 形曲线在两端的斜率为 0（"起步慢，结束也慢"），中间加速，看起来非常自然。</p>
+
+<h3>a 和 b 的距离决定"柔软度"</h3>
+<ul>
+  <li><code>smoothstep(0.45, 0.55, x)</code> → 窄范围，过渡很快，接近 step</li>
+  <li><code>smoothstep(0.2, 0.8, x)</code> → 宽范围，大面积柔和过渡</li>
+  <li><code>smoothstep(0.499, 0.501, x)</code> → 极窄，几乎等于 step</li>
+</ul>
+
+<div class="info-box">
+  <strong>smoothstep 是 Shader 世界的"万能柔化剂"：</strong><br>
+  ● 圆的边缘 → <code>smoothstep(r-0.01, r+0.01, dist)</code> = 抗锯齿圆<br>
+  ● 颜色过渡 → <code>smoothstep(0.3, 0.7, uv.x)</code> = 柔和渐变<br>
+  ● 光照衰减 → <code>1.0 - smoothstep(0.0, radius, dist)</code> = 柔和光晕
+</div>
+
+<div class="info-box tip">
+  <strong>💡 step vs smoothstep vs mix</strong><br>
+  ● <code>step</code> — 硬切（0 或 1，无中间态）<br>
+  ● <code>smoothstep</code> — 平滑切（S 曲线过渡）<br>
+  ● <code>mix</code> — 线性混合（直线过渡）<br>
+  它们是 Shader 的三大"过渡工具"，会贯穿你的 Shader 生涯。
+</div>
+
 <div class="task-box">
   <h4>🎯 动手试试</h4>
-  <p>1. 把 <code>0.4, 0.6</code> 改成 <code>0.2, 0.8</code></p>
-  <p>2. 改成 <code>0.49, 0.51</code> → 接近 step</p>
+  <p>1. 把 <code>0.4, 0.6</code> 改成 <code>0.2, 0.8</code> → 更柔和</p>
+  <p>2. 改成 <code>0.49, 0.51</code> → 几乎就是 step</p>
+  <p>3. 对比下半部分的 step 效果，理解两者在边界处的区别</p>
+  <p>4. 试试 <code>smoothstep(0.3, 0.5, uv.x) - smoothstep(0.5, 0.7, uv.x)</code> → 做一条柔和的亮带</p>
 </div>

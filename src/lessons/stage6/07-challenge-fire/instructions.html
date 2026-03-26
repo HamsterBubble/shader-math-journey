@@ -1,19 +1,38 @@
-<h2>🏆 挑战：火焰效果</h2>
-<p>用噪声的<strong>导数和梯度</strong>概念驱动一个动态火焰。</p>
+<h2>🏆 挑战：程序化火焰</h2>
+
+<p>用导数和噪声创造<strong>真实感火焰效果</strong>——这是 Shader 动画的经典挑战。</p>
+
 <div class="goal-preview">
   <div class="goal-label"><span class="dot"></span>目标效果（实时）</div>
   <canvas class="goal-canvas"></canvas>
 </div>
-<h3>💡 提示</h3>
+
+<h3>火焰的视觉分析</h3>
+<p>火焰有几个关键特征：</p>
 <ul>
-  <li>火焰 = 向上运动的噪声（uv.y 加 u_time）</li>
-  <li>火焰形状：越往上越窄，用 <code>abs(uv.x) * (1.0 + uv.y)</code> 收窄</li>
-  <li>颜色映射：黑→红→橙→黄→白</li>
-  <li>叠加 2-3 层噪声（类似 FBM，但只需 2 层）</li>
+  <li><strong>形状</strong>：底宽顶尖的锥形</li>
+  <li><strong>颜色</strong>：底部亮黄/白 → 中部橙色 → 顶部暗红 → 消失</li>
+  <li><strong>运动</strong>：向上飘动，边缘有随机扰动</li>
+  <li><strong>明暗</strong>：中心最亮，边缘柔和衰减</li>
 </ul>
+
+<h3>分步攻略</h3>
+<p><strong>第一步</strong>：基础形状 — 用 SDF 或 UV 遮罩画一个底宽顶尖的区域</p>
+<p><strong>第二步</strong>：UV 扭曲 — 用向上滚动的噪声扰动边缘<br>
+<code>uv.x += noise(uv * freq + vec2(0, -u_time * speed)) * amp</code></p>
+<p><strong>第三步</strong>：颜色映射 — 用高度值从白/黄到红/黑渐变<br>
+<code>color = mix(vec3(1,0.9,0.3), vec3(0.8,0.1,0), 1.0-intensity)</code></p>
+<p><strong>第四步</strong>：亮度衰减 — 顶部和边缘逐渐变暗</p>
+
+<div class="info-box">
+  <strong>简化版噪声（不需要完整 Perlin Noise）：</strong><br>
+  用 <code>sin(x*a + y*b + t*c) + sin(x*d + y*e + t*f)</code> 叠加几个不同频率的 sin 波就能产生类似噪声的效果。真正的 Perlin/Simplex Noise 是 Stage 7 的内容。
+</div>
+
 <div class="task-box">
   <h4>🎯 你的任务</h4>
-  <p>1. 用 hash/noise 创建火焰噪声</p>
-  <p>2. 让噪声向上流动</p>
-  <p>3. 用火焰色阶映射</p>
+  <p>1. 画一个底宽顶尖的火焰基础形状</p>
+  <p>2. 用向上滚动的伪噪声扰动边缘</p>
+  <p>3. 映射火焰的温度色（白/黄/橙/红/黑）</p>
+  <p>4. 加分：多层叠加增加复杂度</p>
 </div>

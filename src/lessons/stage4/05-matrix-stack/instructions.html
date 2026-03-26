@@ -1,24 +1,51 @@
 <h2>📚 变换顺序：为什么顺序很重要</h2>
-<p>矩阵乘法<strong>不可交换</strong>：A × B ≠ B × A</p>
-<h3>关键规则</h3>
-<ul>
-  <li>变换从<strong>右到左</strong>应用：<code>M2 * M1 * v</code> → 先 M1 后 M2</li>
-  <li><strong>先旋转后平移</strong> ≠ <strong>先平移后旋转</strong></li>
-  <li>绕自身中心旋转 → 先平移到原点，旋转，再移回去</li>
-</ul>
-<h3>标准变换顺序</h3>
-<ol>
-  <li>缩放 (Scale)</li>
-  <li>旋转 (Rotate)</li>
-  <li>平移 (Translate)</li>
-</ol>
-<p>这就是 SRT 顺序，几乎所有游戏引擎都用这个默认顺序。</p>
-<div class="info-box tip">
-  <strong>💡 Shader 的巧妙之处</strong>: 我们操作的是<strong>UV 坐标</strong>，不是物体。所以变换效果是"反过来"的——缩小 UV 等于放大物体！
+
+<h3>不可交换——矩阵乘法的本质</h3>
+<p>在普通数学中，3 × 5 = 5 × 3。但矩阵乘法<strong>不可交换</strong>：A × B ≠ B × A。这意味着变换的顺序决定最终结果。</p>
+
+<h3>直觉理解</h3>
+<p>想象你要先转身 90°，再向前走 3 步。和先向前走 3 步、再转身 90°，最终位置完全不同！</p>
+
+<h3>GLSL 中的变换顺序</h3>
+<p>矩阵乘法从<strong>右到左</strong>应用：</p>
+<div class="formula-block">
+  result = M2 × M1 × v → 先应用 M1，再应用 M2
 </div>
+<ul>
+  <li><code>scaleMat * rotateMat * uv</code> → 先旋转，后缩放</li>
+  <li><code>rotateMat * scaleMat * uv</code> → 先缩放，后旋转</li>
+</ul>
+
+<h3>SRT 标准顺序</h3>
+<p>游戏引擎几乎都用这个默认顺序：</p>
+<ol>
+  <li><strong>S</strong>cale（缩放）— 先调整大小</li>
+  <li><strong>R</strong>otate（旋转）— 再转动方向</li>
+  <li><strong>T</strong>ranslate（平移）— 最后移到位置</li>
+</ol>
+<p>在代码中：<code>TranslateMat * RotateMat * ScaleMat * point</code>（从右往左读 = SRT）</p>
+
+<div class="info-box">
+  <strong>绕任意点旋转的三步法：</strong><br>
+  想绕点 P 旋转，而非绕原点？<br>
+  1. 先平移 -P（把 P 移到原点）<br>
+  2. 旋转<br>
+  3. 平移 +P（移回去）<br>
+  代码：<code>uv -= pivot; uv = rotate(uv); uv += pivot;</code>
+</div>
+
+<div class="warning-box">
+  <strong>⚠️ Shader 中的"反向"问题</strong><br>
+  在 Shader 中，我们变换的是 UV 坐标，不是物体。所以：<br>
+  ● 放大 UV = 图案缩小<br>
+  ● 旋转 UV 顺时针 = 图案逆时针旋转<br>
+  如果想直觉地操作，可以对矩阵求逆，或直接用负角度/倒数缩放。
+</div>
+
 <div class="task-box">
   <h4>🎯 动手试试</h4>
-  <p>1. 交换 Line A 和 Line B 的顺序看差异</p>
+  <p>1. 交换两行变换代码的顺序，对比差异</p>
   <p>2. 改旋转中心 (改 pivot 值)</p>
-  <p>3. 加缩放看三种组合的差异</p>
+  <p>3. 加缩放看三种组合 (SRT, TRS, RTS) 的差异</p>
+  <p>4. 实现"绕角落旋转"的效果</p>
 </div>

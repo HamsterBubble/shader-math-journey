@@ -1,15 +1,45 @@
 <h2>🌈 mix() — 线性插值</h2>
-<h3>公式</h3>
-<p><code>mix(a, b, t) = a × (1-t) + b × t</code></p>
+
+<h3>生活中的"混合"</h3>
+<p>想象你面前有一罐红颜料和一罐蓝颜料。你想调出介于两者之间的颜色，该怎么办？</p>
+<p>很简单：<strong>按比例混合</strong>。如果 70% 红 + 30% 蓝，就得到偏红的紫色。这个"比例"，就是 <code>mix()</code> 的核心。</p>
+
+<h3>数学公式</h3>
+<div class="formula-block">
+  mix(a, b, t) = a × (1 - t) + b × t
+</div>
+<p>参数 <code>t</code>（取值 0~1）控制混合比例：</p>
 <ul>
-  <li><code>t = 0.0</code> → 返回 a</li>
-  <li><code>t = 0.5</code> → 返回两者中间值</li>
-  <li><code>t = 1.0</code> → 返回 b</li>
+  <li><code>t = 0.0</code> → 100% 的 a，返回 a</li>
+  <li><code>t = 0.3</code> → 70% 的 a + 30% 的 b</li>
+  <li><code>t = 0.5</code> → 两者各一半，返回正中间值</li>
+  <li><code>t = 1.0</code> → 100% 的 b，返回 b</li>
 </ul>
-<p>用 <code>uv.x</code> 作为 t，颜色从左到右平滑过渡。</p>
+
+<h3>在 Shader 中的妙用</h3>
+<p>当我们把 <code>uv.x</code>（从左到右 0→1）作为 <code>t</code>，颜色就会从左到右平滑过渡——这就是<strong>渐变</strong>的数学原理。</p>
+
+<div class="info-box">
+  <strong>mix() 不只是混颜色！</strong>它可以混合任何类型：<br>
+  <code>mix(float, float, t)</code> — 混合数值<br>
+  <code>mix(vec2, vec2, t)</code> — 混合坐标/方向<br>
+  <code>mix(vec3, vec3, t)</code> — 混合颜色/位置<br>
+  在 Shader 中，mix 是你用得最多的函数之一。
+</div>
+
+<div class="info-box tip">
+  <strong>💡 线性插值 (Lerp)</strong><br>
+  mix() 的学名叫"线性插值（Linear Interpolation, Lerp）"。在游戏引擎、动画、物理模拟中无处不在。它的含义是：从 A 到 B 之间，按比例 t 取一个中间值。
+</div>
+
+<div class="warning-box">
+  <strong>⚠️ 注意：</strong><code>t</code> 超出 0~1 范围时，mix 会做<strong>外推</strong>——结果可能超出 a 和 b 的范围。这有时有用（做过冲效果），但颜色超出 0~1 会被截断。
+</div>
+
 <div class="task-box">
   <h4>🎯 动手试试</h4>
-  <p>1. 修改 <code>colorA / colorB</code> 换颜色</p>
-  <p>2. 用 <code>uv.y</code> 做垂直渐变</p>
-  <p>3. 用 <code>sin(u_time)*0.5+0.5</code> 替代 uv.x → 自动动画</p>
+  <p>1. 修改 <code>colorA</code> 和 <code>colorB</code> 的值，换不同的起止颜色</p>
+  <p>2. 把 <code>uv.x</code> 换成 <code>uv.y</code> 做垂直渐变</p>
+  <p>3. 用 <code>sin(u_time)*0.5+0.5</code> 替代 uv.x → 颜色随时间自动来回变化</p>
+  <p>4. 试两次 mix 嵌套：<code>mix(mix(c1,c2,uv.x), c3, uv.y)</code> → 四角四色</p>
 </div>

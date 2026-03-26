@@ -1,0 +1,19 @@
+<h2>🔄 SDF 形状渐变</h2>
+<h3>SDF 的魔法：直接插值</h3>
+<p>SDF 有一个网格/顶点方法做不到的超能力：直接用 <code>mix(sdfA, sdfB, t)</code> 就能做<strong>形状渐变</strong>！</p>
+<div class="formula-block">
+  morphed = mix(sdCircle, sdBox, t)<br>
+  t = 0 → 圆 | t = 0.5 → 圆角方 | t = 1 → 方
+</div>
+<h3>为什么有效？</h3>
+<div class="info-box">
+  因为 SDF 在每个点都有一个<strong>有意义的标量值</strong>（到轮廓的距离），所以两个 SDF 在同一点的 mix 也是一个有意义的标量值。结果形状是两个形状的"平均"。
+</div>
+<div class="info-box tip">
+  <strong>💡 多形状渐变</strong><br>
+  三个形状：先 mix(A, B, t1)，再 mix(结果, C, t2)。<br>
+  或者用权重：<code>w1*sdfA + w2*sdfB + w3*sdfC</code>（权重和=1）。
+</div>
+<div class="task-box"><h4>🎯 动手试试</h4>
+  <p>1. 圆 → 方 的渐变（用 u_time）</p><p>2. 三角形 → 圆 的渐变</p><p>3. 颜色也跟随形状插值</p><p>4. 加分：缓动函数让渐变非匀速</p>
+</div>

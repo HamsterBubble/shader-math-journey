@@ -1,12 +1,37 @@
-<h2>🧭 normalize — 归一化</h2>
-<p><code>normalize(v) = v / length(v)</code></p>
-<p>结果是一个<strong>长度为 1</strong> 的单位向量，只保留<strong>方向</strong>信息。</p>
-<div class="info-box tip">
-  <strong>💡</strong> 把每个像素到中心的方向可视化：<code>normalize(uv)</code> 的 x,y 分量直接映射到颜色的 r,g 通道。
+<h2>🧭 normalize() — 只要方向，不要长度</h2>
+
+<h3>为什么需要归一化？</h3>
+<p>想象你要描述"东北方向"。你可以说 (3, 3) 也可以说 (100, 100)——方向相同，但大小不同。<code>normalize()</code> 的作用就是<strong>只保留方向，丢弃长度</strong>，得到一个长度恒为 1 的<strong>单位向量</strong>。</p>
+<div class="formula-block">
+  normalize(v) = v / length(v)
 </div>
+
+<h3>为什么光照计算必须归一化？</h3>
+<p>点积 <code>dot(a, b) = |a|·|b|·cos(θ)</code>。如果你只想要 cos(θ)（夹角信息），<strong>必须保证 a 和 b 都是单位向量</strong>，否则长度差异会污染结果。</p>
+<ul>
+  <li>未归一化：<code>dot(vec2(3,3), vec2(1,0)) = 3</code> — 包含了长度信息</li>
+  <li>归一化后：<code>dot(normalize(vec2(3,3)), vec2(1,0)) ≈ 0.707</code> — 纯粹的角度信息</li>
+</ul>
+
+<h3>可视化方向</h3>
+<p>一个优雅的技巧：把 <code>normalize(uv - center)</code> 的 x、y 分量映射到红、绿通道。你会看到一幅"方向场"图，每个像素的颜色代表它相对于中心的方向。</p>
+
+<div class="info-box">
+  <strong>normalize 在 Shader 中的角色：</strong><br>
+  ● <strong>法线</strong>：表面朝向，必须是单位向量<br>
+  ● <strong>光线方向</strong>：从物体指向光源，必须归一化<br>
+  ● <strong>视线方向</strong>：从物体指向相机，必须归一化<br>
+  几乎所有光照公式的输入向量都需要 normalize。
+</div>
+
+<div class="warning-box">
+  <strong>⚠️ 零向量陷阱：</strong><code>normalize(vec2(0,0))</code> 会除零产生 NaN（非数字），导致画面出现黑色或闪烁。在 <code>uv - center</code> 恰好等于中心时就可能发生。安全做法：<code>normalize(p + 0.0001)</code>
+</div>
+
 <div class="task-box">
   <h4>🎯 动手试试</h4>
   <p>1. 观察颜色如何表示方向（右=红，上=绿）</p>
-  <p>2. 把 <code>* 0.5 + 0.5</code> 去掉，看原始 -1~1 范围</p>
-  <p>3. 试试只用 <code>dir.x</code> 做灰度图</p>
+  <p>2. 把 <code>* 0.5 + 0.5</code> 去掉，看原始 -1~1 范围的颜色</p>
+  <p>3. 试试只用 <code>dir.x</code> 做灰度图 → 看左右方向</p>
+  <p>4. 用 normalize 方向作为光照法线，配合固定光源方向做 dot 点积</p>
 </div>

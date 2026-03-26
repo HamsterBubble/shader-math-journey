@@ -1,16 +1,40 @@
 <h2>🔲 step() — 阶跃函数</h2>
-<p><code>step(edge, x)</code>：</p>
-<ul>
-  <li><code>x &lt; edge</code> → <strong>0.0</strong></li>
-  <li><code>x >= edge</code> → <strong>1.0</strong></li>
-</ul>
-<p>像一个<strong>开关</strong>。Shader 中用它代替 if/else。</p>
-<div class="info-box">
-  GPU 上所有核心走相同代码路径，<code>step()</code>用纯数学实现分支，效率更高！
+
+<h3>数字世界的"开关"</h3>
+<p>生活中有很多是/否判断：灯是开的还是关的？温度超过 100°C 水就沸腾。这种"到了某个边界就突然切换"的逻辑，在数学上叫<strong>阶跃函数</strong>。</p>
+
+<h3>step() 的行为</h3>
+<div class="formula-block">
+  step(edge, x) = x &lt; edge ? 0.0 : 1.0
 </div>
+<ul>
+  <li>当 <code>x < edge</code> 时 → 返回 <strong>0.0</strong>（"关"）</li>
+  <li>当 <code>x >= edge</code> 时 → 返回 <strong>1.0</strong>（"开"）</li>
+</ul>
+<p>就像一个跷跷板：超过中心点就咔嗒一声翻过去，没有中间状态。</p>
+
+<h3>为什么 Shader 用 step() 而不用 if-else？</h3>
+<p>在普通编程中，我们写 <code>if (x > 0.5) { ... }</code>。但 GPU 有个特性：</p>
+<div class="info-box">
+  <strong>GPU 的并行本质：</strong>GPU 上几千个核心必须走<strong>完全相同的代码路径</strong>。如果遇到 if-else 分支，两种情况的代码<strong>都会执行</strong>，然后丢弃不要的那个——浪费了一半算力！<br><br>
+  <code>step()</code> 用纯数学实现了同样的效果：乘以 0 就等于"不要"，乘以 1 就等于"保留"，但<strong>没有分支</strong>。这在 GPU 上效率远高于 if-else。
+</div>
+
+<h3>实际用途</h3>
+<ul>
+  <li><strong>分割画面</strong>：<code>step(0.5, uv.x)</code> → 屏幕左黑、右白</li>
+  <li><strong>制作遮罩</strong>：圆内 = 1、圆外 = 0，用 step 实现</li>
+  <li><strong>组合形状</strong>：多个 step 相乘 = AND（交集），相加 = OR（并集）</li>
+</ul>
+
+<div class="warning-box">
+  <strong>⚠️ 注意参数顺序！</strong><code>step(edge, x)</code> 不是 <code>step(x, edge)</code>。第一个参数是阈值，第二个是要判断的值。搞反了不会报错，但效果完全反转。
+</div>
+
 <div class="task-box">
   <h4>🎯 动手试试</h4>
-  <p>1. 修改 <code>0.5</code> 阈值</p>
-  <p>2. 试 <code>step(0.5, uv.y)</code> → 水平分割</p>
-  <p>3. 两个 step 相乘: <code>step(0.3, uv.x) * step(0.3, uv.y)</code></p>
+  <p>1. 修改 <code>0.5</code> 阈值 → 看分界线移动</p>
+  <p>2. 改成 <code>step(0.5, uv.y)</code> → 上下分割</p>
+  <p>3. 两个 step 相乘: <code>step(0.3, uv.x) * step(0.3, uv.y)</code> → 只有右上角亮</p>
+  <p>4. 用 <code>1.0 - step(0.7, uv.x)</code> → 反转效果（左亮右暗）</p>
 </div>
