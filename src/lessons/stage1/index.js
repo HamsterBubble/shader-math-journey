@@ -78,22 +78,27 @@ import lesson18Code from './18-challenge-sunrise/code.glsl?raw';
 import lesson18Goal from './18-challenge-sunrise/goal.glsl?raw';
 
 export const stage1 = [
-  { ...lesson01Meta, instructions: lesson01Instructions, code: lesson01Code },
-  { ...lesson02Meta, instructions: lesson02Instructions, code: lesson02Code },
-  { ...lesson03Meta, instructions: lesson03Instructions, code: lesson03Code },
-  { ...lesson04Meta, instructions: lesson04Instructions, code: lesson04Code },
-  { ...lesson05Meta, instructions: lesson05Instructions, code: lesson05Code },
-  { ...lesson06Meta, instructions: lesson06Instructions, code: lesson06Code },
-  { ...lesson07Meta, instructions: lesson07Instructions, code: lesson07Code },
-  { ...lesson08Meta, instructions: lesson08Instructions, code: lesson08Code },
-  { ...lesson09Meta, instructions: lesson09Instructions, code: lesson09Code },
-  { ...lesson10Meta, instructions: lesson10Instructions, code: lesson10Code },
-  { ...lesson11Meta, instructions: lesson11Instructions, code: lesson11Code },
-  { ...lesson12Meta, instructions: lesson12Instructions, code: lesson12Code },
-  { ...lesson13Meta, instructions: lesson13Instructions, code: lesson13Code, goalCode: lesson13Goal },
-  { ...lesson14Meta, instructions: lesson14Instructions, code: lesson14Code },
-  { ...lesson15Meta, instructions: lesson15Instructions, code: lesson15Code },
-  { ...lesson16Meta, instructions: lesson16Instructions, code: lesson16Code },
-  { ...lesson17Meta, instructions: lesson17Instructions, code: lesson17Code, goalCode: lesson17Goal },
-  { ...lesson18Meta, instructions: lesson18Instructions, code: lesson18Code, goalCode: lesson18Goal },
+  // ── 基础入门：UV 与单值函数 ──
+  { ...lesson01Meta, instructions: lesson01Instructions, code: lesson01Code },       // 01 你好，渐变！
+  { ...lesson02Meta, instructions: lesson02Instructions, code: lesson02Code },       // 02 mix() 颜色混合
+  { ...lesson03Meta, instructions: lesson03Instructions, code: lesson03Code },       // 03 step() 硬边界
+  { ...lesson04Meta, instructions: lesson04Instructions, code: lesson04Code },       // 04 smoothstep() 平滑过渡
+  // ── 几何与距离：先学 length/SDF，后续课才能用 ──
+  { ...lesson06Meta, instructions: lesson06Instructions, code: lesson06Code },       // 05 画一个圆 (SDF) — length() 基础
+  { ...lesson07Meta, instructions: lesson07Instructions, code: lesson07Code },       // 06 u_time 动画
+  { ...lesson08Meta, instructions: lesson08Instructions, code: lesson08Code },       // 07 abs() 与 mod()
+  { ...lesson05Meta, instructions: lesson05Instructions, code: lesson05Code },       // 08 fract() 重复图案 — 有了圆的基础
+  { ...lesson15Meta, instructions: lesson15Instructions, code: lesson15Code },       // 09 floor/ceil — 与 fract 搭配
+  // ── 数值工具 ──
+  { ...lesson09Meta, instructions: lesson09Instructions, code: lesson09Code },       // 10 clamp() 与值域映射
+  { ...lesson10Meta, instructions: lesson10Instructions, code: lesson10Code },       // 11 pow() 与 exp()
+  { ...lesson11Meta, instructions: lesson11Instructions, code: lesson11Code },       // 12 min()/max() 造形
+  // ── 进阶函数 ──
+  { ...lesson14Meta, instructions: lesson14Instructions, code: lesson14Code },       // 13 符号函数 sign()
+  { ...lesson16Meta, instructions: lesson16Instructions, code: lesson16Code },       // 14 条件选择：三元替代
+  { ...lesson12Meta, instructions: lesson12Instructions, code: lesson12Code },       // 15 RGB 颜色数学
+  // ── 综合挑战 ──
+  { ...lesson13Meta, instructions: lesson13Instructions, code: lesson13Code, goalCode: lesson13Goal },   // 16 🏆 创意图案
+  { ...lesson17Meta, instructions: lesson17Instructions, code: lesson17Code, goalCode: lesson17Goal },   // 17 🏆 棋盘大师
+  { ...lesson18Meta, instructions: lesson18Instructions, code: lesson18Code, goalCode: lesson18Goal },   // 18 🏆 日出渐变
 ];

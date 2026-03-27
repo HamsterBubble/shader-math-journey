@@ -64,18 +64,22 @@ import lesson14Code from './14-challenge-galaxy/code.glsl?raw';
 import lesson14Goal from './14-challenge-galaxy/goal.glsl?raw';
 
 export const stage7 = [
-  { ...lesson01Meta, instructions: lesson01Instructions, code: lesson01Code },
-  { ...lesson02Meta, instructions: lesson02Instructions, code: lesson02Code },
-  { ...lesson03Meta, instructions: lesson03Instructions, code: lesson03Code },
-  { ...lesson04Meta, instructions: lesson04Instructions, code: lesson04Code },
-  { ...lesson05Meta, instructions: lesson05Instructions, code: lesson05Code },
-  { ...lesson06Meta, instructions: lesson06Instructions, code: lesson06Code },
-  { ...lesson07Meta, instructions: lesson07Instructions, code: lesson07Code, goalCode: lesson07Goal },
-  { ...lesson08Meta, instructions: lesson08Instructions, code: lesson08Code, goalCode: lesson08Goal },
-  { ...lesson09Meta, instructions: lesson09Instructions, code: lesson09Code, goalCode: lesson09Goal },
-  { ...lesson10Meta, instructions: lesson10Instructions, code: lesson10Code },
-  { ...lesson11Meta, instructions: lesson11Instructions, code: lesson11Code },
-  { ...lesson12Meta, instructions: lesson12Instructions, code: lesson12Code },
-  { ...lesson13Meta, instructions: lesson13Instructions, code: lesson13Code, goalCode: lesson13Goal },
-  { ...lesson14Meta, instructions: lesson14Instructions, code: lesson14Code, goalCode: lesson14Goal },
+  // ── 噪声基础 ──
+  { ...lesson01Meta, instructions: lesson01Instructions, code: lesson01Code },       // 01 伪随机 & 噪声
+  { ...lesson02Meta, instructions: lesson02Instructions, code: lesson02Code },       // 02 FBM 分形噪声
+  // ── 颜色与光照 ──
+  { ...lesson04Meta, instructions: lesson04Instructions, code: lesson04Code },       // 03 HSV 颜色空间
+  { ...lesson03Meta, instructions: lesson03Instructions, code: lesson03Code },       // 04 Phong 光照模型
+  // ── 高级噪声 ──
+  { ...lesson05Meta, instructions: lesson05Instructions, code: lesson05Code },       // 05 Worley 细胞噪声
+  { ...lesson06Meta, instructions: lesson06Instructions, code: lesson06Code },       // 06 域扭曲噪声
+  { ...lesson10Meta, instructions: lesson10Instructions, code: lesson10Code },       // 07 Simplex 噪声
+  { ...lesson11Meta, instructions: lesson11Instructions, code: lesson11Code },       // 08 高级 Voronoi 纹理
+  { ...lesson12Meta, instructions: lesson12Instructions, code: lesson12Code },       // 09 电影级色彩分级
+  // ── 综合挑战 ──
+  { ...lesson07Meta, instructions: lesson07Instructions, code: lesson07Code, goalCode: lesson07Goal },   // 10 🏆 终极: Ray Marching
+  { ...lesson08Meta, instructions: lesson08Instructions, code: lesson08Code, goalCode: lesson08Goal },   // 11 🏆 等离子体
+  { ...lesson09Meta, instructions: lesson09Instructions, code: lesson09Code, goalCode: lesson09Goal },   // 12 🏆 星空隧道
+  { ...lesson13Meta, instructions: lesson13Instructions, code: lesson13Code, goalCode: lesson13Goal },   // 13 🏆 程序化海洋
+  { ...lesson14Meta, instructions: lesson14Instructions, code: lesson14Code, goalCode: lesson14Goal },   // 14 🏆 银河旋臂
 ];

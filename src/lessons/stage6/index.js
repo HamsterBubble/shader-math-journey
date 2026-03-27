@@ -55,16 +55,19 @@ import lesson12Code from './12-challenge-heatmap/code.glsl?raw';
 import lesson12Goal from './12-challenge-heatmap/goal.glsl?raw';
 
 export const stage6 = [
-  { ...lesson01Meta, instructions: lesson01Instructions, code: lesson01Code },
-  { ...lesson02Meta, instructions: lesson02Instructions, code: lesson02Code },
-  { ...lesson03Meta, instructions: lesson03Instructions, code: lesson03Code },
-  { ...lesson04Meta, instructions: lesson04Instructions, code: lesson04Code },
-  { ...lesson05Meta, instructions: lesson05Instructions, code: lesson05Code },
-  { ...lesson06Meta, instructions: lesson06Instructions, code: lesson06Code, goalCode: lesson06Goal },
-  { ...lesson07Meta, instructions: lesson07Instructions, code: lesson07Code, goalCode: lesson07Goal },
-  { ...lesson08Meta, instructions: lesson08Instructions, code: lesson08Code },
-  { ...lesson09Meta, instructions: lesson09Instructions, code: lesson09Code },
-  { ...lesson10Meta, instructions: lesson10Instructions, code: lesson10Code },
-  { ...lesson11Meta, instructions: lesson11Instructions, code: lesson11Code, goalCode: lesson11Goal },
-  { ...lesson12Meta, instructions: lesson12Instructions, code: lesson12Code, goalCode: lesson12Goal },
+  // ── 核心概念 ──
+  { ...lesson01Meta, instructions: lesson01Instructions, code: lesson01Code },       // 01 导数 = 斜率
+  { ...lesson02Meta, instructions: lesson02Instructions, code: lesson02Code },       // 02 法线计算
+  { ...lesson03Meta, instructions: lesson03Instructions, code: lesson03Code },       // 03 梯度场
+  { ...lesson04Meta, instructions: lesson04Instructions, code: lesson04Code },       // 04 GPU 导数函数
+  { ...lesson05Meta, instructions: lesson05Instructions, code: lesson05Code },       // 05 抗锯齿原理
+  // ── 进阶应用 ──
+  { ...lesson08Meta, instructions: lesson08Instructions, code: lesson08Code },       // 06 边缘检测 (Sobel)
+  { ...lesson09Meta, instructions: lesson09Instructions, code: lesson09Code },       // 07 曲率可视化
+  { ...lesson10Meta, instructions: lesson10Instructions, code: lesson10Code },       // 08 拉普拉斯算子
+  // ── 综合挑战 ──
+  { ...lesson06Meta, instructions: lesson06Instructions, code: lesson06Code, goalCode: lesson06Goal },   // 09 🏆 法线可视化
+  { ...lesson07Meta, instructions: lesson07Instructions, code: lesson07Code, goalCode: lesson07Goal },   // 10 🏆 火焰效果
+  { ...lesson11Meta, instructions: lesson11Instructions, code: lesson11Code, goalCode: lesson11Goal },   // 11 🏆 卡通渲染
+  { ...lesson12Meta, instructions: lesson12Instructions, code: lesson12Code, goalCode: lesson12Goal },   // 12 🏆 热力图
 ];

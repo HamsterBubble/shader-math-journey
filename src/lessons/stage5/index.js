@@ -59,17 +59,21 @@ import lesson13Code from './13-challenge-ui-button/code.glsl?raw';
 import lesson13Goal from './13-challenge-ui-button/goal.glsl?raw';
 
 export const stage5 = [
-  { ...lesson01Meta, instructions: lesson01Instructions, code: lesson01Code },
-  { ...lesson02Meta, instructions: lesson02Instructions, code: lesson02Code },
-  { ...lesson03Meta, instructions: lesson03Instructions, code: lesson03Code },
-  { ...lesson04Meta, instructions: lesson04Instructions, code: lesson04Code },
-  { ...lesson05Meta, instructions: lesson05Instructions, code: lesson05Code },
-  { ...lesson06Meta, instructions: lesson06Instructions, code: lesson06Code },
-  { ...lesson07Meta, instructions: lesson07Instructions, code: lesson07Code, goalCode: lesson07Goal },
-  { ...lesson08Meta, instructions: lesson08Instructions, code: lesson08Code, goalCode: lesson08Goal },
-  { ...lesson09Meta, instructions: lesson09Instructions, code: lesson09Code },
-  { ...lesson10Meta, instructions: lesson10Instructions, code: lesson10Code },
-  { ...lesson11Meta, instructions: lesson11Instructions, code: lesson11Code },
-  { ...lesson12Meta, instructions: lesson12Instructions, code: lesson12Code, goalCode: lesson12Goal },
-  { ...lesson13Meta, instructions: lesson13Instructions, code: lesson13Code, goalCode: lesson13Goal },
+  // ── 基础: UV 与 SDF 核心 ──
+  { ...lesson01Meta, instructions: lesson01Instructions, code: lesson01Code },       // 01 UV 坐标变换
+  { ...lesson02Meta, instructions: lesson02Instructions, code: lesson02Code },       // 02 SDF 基础形状
+  { ...lesson03Meta, instructions: lesson03Instructions, code: lesson03Code },       // 03 SDF 布尔运算
+  { ...lesson04Meta, instructions: lesson04Instructions, code: lesson04Code },       // 04 SDF 原语集
+  // ── 偏移与变形 ──
+  { ...lesson05Meta, instructions: lesson05Instructions, code: lesson05Code },       // 05 偏移与洋葱皮
+  { ...lesson09Meta, instructions: lesson09Instructions, code: lesson09Code },       // 06 SDF 环形与切割 — 与洋葱皮紧邻
+  // ── 空间操作 ──
+  { ...lesson06Meta, instructions: lesson06Instructions, code: lesson06Code },       // 07 域重复
+  { ...lesson10Meta, instructions: lesson10Instructions, code: lesson10Code },       // 08 六边形网格
+  { ...lesson11Meta, instructions: lesson11Instructions, code: lesson11Code },       // 09 SDF 形状渐变
+  // ── 综合挑战 ──
+  { ...lesson07Meta, instructions: lesson07Instructions, code: lesson07Code, goalCode: lesson07Goal },   // 10 🏆 SDF Logo
+  { ...lesson08Meta, instructions: lesson08Instructions, code: lesson08Code, goalCode: lesson08Goal },   // 11 🏆 融球 Metaballs
+  { ...lesson12Meta, instructions: lesson12Instructions, code: lesson12Code, goalCode: lesson12Goal },   // 12 🏆 Emoji 表情
+  { ...lesson13Meta, instructions: lesson13Instructions, code: lesson13Code, goalCode: lesson13Goal },   // 13 🏆 纯Shader按钮
 ];
