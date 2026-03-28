@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌊 sin/cos 三角函数 — 知识点</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0d1117;color:#e6edf3;font-family:'Inter',-apple-system,sans-serif;line-height:1.8;padding:40px 24px}
+.container{max-width:880px;margin:0 auto}
+h1{font-size:2rem;margin-bottom:.3em;background:linear-gradient(135deg,#58a6ff,#39d2c0);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+h2{font-size:1.3rem;color:#58a6ff;margin:2rem 0 .8rem;padding-left:12px;border-left:3px solid #58a6ff}
+p{color:#8b949e;margin-bottom:.8rem}
+strong{color:#e6edf3}
+code{font-family:'JetBrains Mono',monospace;background:rgba(255,255,255,.06);padding:2px 6px;border-radius:4px;color:#58a6ff;font-size:.85rem}
+.formula{text-align:center;color:#58a6ff;background:rgba(88,166,255,.06);border:1px solid rgba(88,166,255,.15);border-radius:8px;padding:14px;margin:1rem 0;font-family:'JetBrains Mono',monospace;font-size:1.1rem}
+canvas{width:100%;height:220px;border-radius:8px;display:block;margin:1rem 0;background:#000}
+.slider-group{background:rgba(88,166,255,.04);border:1px solid rgba(88,166,255,.12);border-radius:10px;padding:16px;margin:1rem 0}
+.slider-row{display:flex;align-items:center;gap:12px;margin:6px 0}
+.slider-row label{min-width:110px;font-size:.82rem;color:#8b949e}
+.slider-row input[type=range]{flex:1;accent-color:#58a6ff}
+.slider-row .val{min-width:50px;font-family:'JetBrains Mono',monospace;font-size:.8rem;color:#58a6ff}
+table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.85rem}
+th{background:rgba(255,255,255,.04);color:#58a6ff;padding:8px 12px;text-align:center}
+td{padding:8px 12px;text-align:center;color:#8b949e;border-top:1px solid rgba(255,255,255,.06)}
+.tip{background:rgba(63,185,80,.06);border:1px solid rgba(63,185,80,.15);border-radius:8px;padding:12px 16px;margin:1rem 0;font-size:.88rem;color:#8b949e}
+.tip strong{color:#3fb950}
+.comparison{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:1rem 0}
+.card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:16px}
+.card h4{font-size:.85rem;color:#bc8cff;margin-bottom:8px}
+.memory{text-align:center;font-size:1.4rem;color:#bc8cff;margin:2rem 0;padding:20px;background:rgba(188,140,255,.06);border:1px solid rgba(188,140,255,.15);border-radius:10px}
+.memory .sub{font-size:.85rem;color:#8b949e;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>🌊 sin/cos 三角函数</h1>
+<p>描述<strong>周期性振荡</strong>的数学工具 — Shader 动画的灵魂函数。</p>
+
+<h2>一、万能波动公式</h2>
+<div class="formula">
+y = A × sin(F × x + P)
+</div>
+<table>
+<tr><th>参数</th><th>名称</th><th>控制</th><th>直觉</th></tr>
+<tr><td><strong>A</strong></td><td>振幅 Amplitude</td><td>波的高度</td><td>A = 0.5 → 波只有一半高</td></tr>
+<tr><td><strong>F</strong></td><td>频率 Frequency</td><td>波的密度</td><td>F = 10 → 10倍多波纹</td></tr>
+<tr><td><strong>P</strong></td><td>相位 Phase</td><td>波的偏移</td><td>P = u_time → 动起来</td></tr>
+</table>
+
+<h2>二、交互波形</h2>
+<canvas id="wave-canvas"></canvas>
+<div class="slider-group">
+  <div class="slider-row"><label>振幅 A:</label><input type="range" id="s-a" min="5" max="100" value="50"><span class="val" id="v-a">0.50</span></div>
+  <div class="slider-row"><label>频率 F:</label><input type="range" id="s-f" min="1" max="80" value="20"><span class="val" id="v-f">4.0</span></div>
+  <div class="slider-row"><label>相位 P:</label><input type="range" id="s-p" min="0" max="628" value="0"><span class="val" id="v-p">0.00</span></div>
+</div>
+
+<h2>三、sin vs cos</h2>
+<div class="comparison">
+  <div class="card">
+    <h4>sin(x) — 从零开始</h4>
+    <canvas id="c-sin" style="height:140px"></canvas>
+  </div>
+  <div class="card">
+    <h4>cos(x) — 从峰值开始</h4>
+    <canvas id="c-cos" style="height:140px"></canvas>
+  </div>
+</div>
+<div class="tip">
+  <strong>💡 本质上完全一样</strong><br>
+  <code>cos(x) = sin(x + π/2)</code> — cos 只是 sin 向左平移了 1/4 周期。<br>
+  选择哪个取决于你需要从零还是从峰值开始。
+</div>
+
+<h2>四、关键值速查</h2>
+<table>
+<tr><th>x</th><th>sin(x)</th><th>cos(x)</th><th>记忆</th></tr>
+<tr><td>0</td><td>0</td><td>1</td><td>起点</td></tr>
+<tr><td>π/2 (90°)</td><td>1</td><td>0</td><td>sin 到顶</td></tr>
+<tr><td>π (180°)</td><td>0</td><td>-1</td><td>半程</td></tr>
+<tr><td>3π/2 (270°)</td><td>-1</td><td>0</td><td>sin 到底</td></tr>
+<tr><td>2π (360°)</td><td>0</td><td>1</td><td>一个完整周期</td></tr>
+</table>
+
+<h2>五、Shader 中的典型用法</h2>
+<div class="tip">
+  <strong>🌊 水波</strong>: <code>sin(uv.x * 10.0 + u_time)</code> — 空间做 x，时间做相位<br>
+  <strong>💓 脉动</strong>: <code>0.5 + 0.5 * sin(u_time * 3.0)</code> — 输出映射到 [0,1]<br>
+  <strong>🔄 旋转</strong>: <code>vec2(cos(θ)*x - sin(θ)*y, sin(θ)*x + cos(θ)*y)</code><br>
+  <strong>⭕ 画圆</strong>: <code>vec2(cos(t), sin(t)) * r</code> — 参数方程
+</div>
+
+<div class="memory">
+  <div>y = A × sin(F × x + P)</div>
+  <div class="sub">A 控高 | F 控密 | P 控偏移 | u_time 放 P → 动画</div>
+</div>
+</div>
+
+<script>
+function drawWave(id, fn, opts = {}) {
+  const c = document.getElementById(id);
+  const ctx = c.getContext('2d');
+  c.width = c.offsetWidth * 2; c.height = c.offsetHeight * 2;
+  const W = c.width, H = c.height;
+  ctx.clearRect(0, 0, W, H);
+  ctx.strokeStyle = 'rgba(255,255,255,.06)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(0, H/2); ctx.lineTo(W, H/2); ctx.stroke();
+  ctx.beginPath(); ctx.strokeStyle = opts.color || '#58a6ff'; ctx.lineWidth = 3;
+  for (let px = 0; px < W; px++) {
+    const x = (px / W) * Math.PI * 4; const y = fn(x);
+    const cy = H/2 - y * H * 0.4;
+    if (px === 0) ctx.moveTo(px, cy); else ctx.lineTo(px, cy);
+  }
+  ctx.stroke();
+}
+drawWave('c-sin', x => Math.sin(x), { color: '#58a6ff' });
+drawWave('c-cos', x => Math.cos(x), { color: '#f778ba' });
+
+const sA = document.getElementById('s-a'), sF = document.getElementById('s-f'), sP = document.getElementById('s-p');
+const vA = document.getElementById('v-a'), vF = document.getElementById('v-f'), vP = document.getElementById('v-p');
+function updateWave() {
+  const A = sA.value / 100, F = sF.value / 5, P = sP.value / 100;
+  vA.textContent = A.toFixed(2); vF.textContent = F.toFixed(1); vP.textContent = P.toFixed(2);
+  drawWave('wave-canvas', x => A * Math.sin(F * x + P), { color: '#39d2c0' });
+}
+[sA, sF, sP].forEach(s => s.addEventListener('input', updateWave));
+updateWave();
+window.addEventListener('resize', () => { drawWave('c-sin', x => Math.sin(x), {color:'#58a6ff'}); drawWave('c-cos', x => Math.cos(x), {color:'#f778ba'}); updateWave(); });
+</script>
+</body>
+</html>

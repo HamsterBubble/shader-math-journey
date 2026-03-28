@@ -1,4 +1,5 @@
 import React, { memo, useMemo } from 'react';
+import { Palette } from 'lucide-react';
 
 const LessonItem = memo(function LessonItem({ lesson, index, isActive, onSelect }) {
   return (
@@ -46,7 +47,7 @@ function Sidebar({ stages, lessons, currentIndex, onSelectLesson }) {
   return (
     <aside className="sidebar">
       <div className="sidebar-header">
-        <span className="ico">🎨</span>
+        <Palette size={20} className="sidebar-logo-icon" />
         <h1>Shader 数学之旅</h1>
       </div>
       <nav className="stage-list">

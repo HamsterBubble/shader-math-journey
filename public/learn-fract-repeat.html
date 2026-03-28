@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🔁 fract 取小数 — 知识点</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0d1117;color:#e6edf3;font-family:'Inter',-apple-system,sans-serif;line-height:1.8;padding:40px 24px}
+.container{max-width:880px;margin:0 auto}
+h1{font-size:2rem;margin-bottom:.3em;background:linear-gradient(135deg,#3fb950,#58a6ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+h2{font-size:1.3rem;color:#58a6ff;margin:2rem 0 .8rem;padding-left:12px;border-left:3px solid #58a6ff}
+p{color:#8b949e;margin-bottom:.8rem}
+strong{color:#e6edf3}
+code{font-family:'JetBrains Mono',monospace;background:rgba(255,255,255,.06);padding:2px 6px;border-radius:4px;color:#58a6ff;font-size:.85rem}
+.formula{text-align:center;color:#58a6ff;background:rgba(88,166,255,.06);border:1px solid rgba(88,166,255,.15);border-radius:8px;padding:14px;margin:1rem 0;font-family:'JetBrains Mono',monospace;font-size:1.1rem}
+canvas{width:100%;height:220px;border-radius:8px;display:block;margin:1rem 0;background:#000}
+.interactive{background:rgba(88,166,255,.04);border:1px solid rgba(88,166,255,.12);border-radius:10px;padding:20px;margin:1.5rem 0}
+.slider-row{display:flex;align-items:center;gap:12px;margin:8px 0}
+.slider-row label{min-width:80px;font-size:.82rem;color:#8b949e}
+.slider-row input[type=range]{flex:1;accent-color:#58a6ff}
+.slider-row .val{min-width:40px;font-family:'JetBrains Mono',monospace;font-size:.8rem;color:#58a6ff}
+table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.85rem}
+th{background:rgba(255,255,255,.04);color:#58a6ff;padding:8px 12px;text-align:center}
+td{padding:8px 12px;text-align:center;color:#8b949e;border-top:1px solid rgba(255,255,255,.06)}
+.comparison{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:1rem 0}
+.card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:16px}
+.card h4{font-size:.85rem;color:#bc8cff;margin-bottom:8px}
+.tip{background:rgba(63,185,80,.06);border:1px solid rgba(63,185,80,.15);border-radius:8px;padding:12px 16px;margin:1rem 0;font-size:.88rem;color:#8b949e}
+.tip strong{color:#3fb950}
+.memory{text-align:center;font-size:1.4rem;color:#bc8cff;margin:2rem 0;padding:20px;background:rgba(188,140,255,.06);border:1px solid rgba(188,140,255,.15);border-radius:10px}
+.memory .sub{font-size:.85rem;color:#8b949e;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>🔁 fract 取小数与图案重复</h1>
+<p>只保留小数部分 — 将无限空间切割成<strong>无限重复的格子</strong>。</p>
+
+<h2>一、函数定义</h2>
+<div class="formula">
+fract(x) = x - floor(x)
+</div>
+<p>效果：无论 x 多大，输出永远在 <strong>[0, 1)</strong> 之间循环。</p>
+
+<h2>二、数值直觉</h2>
+<table>
+<tr><th>x</th><th>floor(x)</th><th>fract(x)</th><th>理解</th></tr>
+<tr><td>0.3</td><td>0</td><td style="color:#3fb950">0.3</td><td>小数部分</td></tr>
+<tr><td>1.7</td><td>1</td><td style="color:#3fb950">0.7</td><td>去掉整数</td></tr>
+<tr><td>3.14</td><td>3</td><td style="color:#3fb950">0.14</td><td>只留小数</td></tr>
+<tr><td>5.0</td><td>5</td><td style="color:#3fb950">0.0</td><td>整数 → 0</td></tr>
+<tr><td>-0.3</td><td>-1</td><td style="color:#3fb950">0.7</td><td>负数也安全</td></tr>
+</table>
+
+<h2>三、图形效果：锯齿波</h2>
+<div class="comparison">
+  <div class="card">
+    <h4>y = x（线性）</h4>
+    <canvas id="c-linear"></canvas>
+  </div>
+  <div class="card">
+    <h4>y = fract(x)（重复）</h4>
+    <canvas id="c-fract"></canvas>
+  </div>
+</div>
+
+<h2>四、交互：控制密度</h2>
+<div class="interactive">
+  <canvas id="c-interactive"></canvas>
+  <div class="slider-row">
+    <label>重复数 N:</label>
+    <input type="range" id="s-n" min="1" max="20" value="4">
+    <span class="val" id="v-n">4</span>
+  </div>
+  <p style="font-size:.82rem;color:#8b949e;margin-top:8px">使用 <code>fract(uv * N)</code>，N 越大 → 格子越多</p>
+</div>
+
+<h2>五、2D 空间重复</h2>
+<canvas id="c-2d" style="height:260px"></canvas>
+<p style="font-size:.82rem;color:#8b949e"><code>vec2 cell_uv = fract(uv * 4.0)</code> — 将画面均匀切成 4×4 格子，每个格子内 UV 从 0~1 重新开始。</p>
+
+<h2>六、与 floor 搭配</h2>
+<div class="tip">
+  <strong>💡 fract + floor = 完整信息</strong><br>
+  <code>vec2 cellId = floor(uv * N);</code> — 哪个格子 (整数 ID)<br>
+  <code>vec2 cellUv = fract(uv * N);</code> — 格子内坐标 (0~1)<br>
+  两者配合 → 同时知道"在哪个格子"和"格子内的位置"
+</div>
+<div class="tip">
+  <strong>💡 偏移形成交错</strong><br>
+  <code>if (mod(floor(uv.y * N), 2.0) == 1.0) uv.x += 0.5;</code><br>
+  奇数行偏移半格 → 砖墙排列效果
+</div>
+
+<div class="memory">
+  <div>fract(x) = 永远在 0~1 循环</div>
+  <div class="sub">乘 N 再 fract → N 倍重复 | floor = 格子序号 | fract = 格子内坐标</div>
+</div>
+</div>
+
+<script>
+function drawGraph(canvasId, fn, opts = {}) {
+  const c = document.getElementById(canvasId);
+  const ctx = c.getContext('2d');
+  c.width = c.offsetWidth * 2; c.height = c.offsetHeight * 2;
+  const W = c.width, H = c.height;
+  ctx.clearRect(0, 0, W, H);
+  ctx.strokeStyle = 'rgba(255,255,255,.06)'; ctx.lineWidth = 1;
+  for (let i = 0; i <= 10; i++) { const x = W*i/10; ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); const y = H*i/10; ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+  ctx.beginPath(); ctx.strokeStyle = opts.color || '#3fb950'; ctx.lineWidth = 3;
+  const xRange = opts.xRange || [0, 1]; const yRange = opts.yRange || [0, 1];
+  for (let px = 0; px < W; px++) {
+    const x = xRange[0] + (px/W)*(xRange[1]-xRange[0]);
+    const y = fn(x);
+    const cy = H - ((y - yRange[0]) / (yRange[1] - yRange[0])) * H * 0.85 - H * 0.075;
+    if (px === 0) ctx.moveTo(px, cy); else ctx.lineTo(px, cy);
+  }
+  ctx.stroke();
+}
+
+drawGraph('c-linear', x => x, { xRange: [0,4], yRange: [0,4], color: 'rgba(255,255,255,.3)' });
+drawGraph('c-fract', x => x - Math.floor(x), { xRange: [0,4], yRange: [0,1], color: '#3fb950' });
+
+// Interactive
+const sN = document.getElementById('s-n'), vN = document.getElementById('v-n');
+function updateFract() {
+  const N = parseInt(sN.value);
+  vN.textContent = N;
+  drawGraph('c-interactive', x => (x*N) - Math.floor(x*N), { xRange: [0,1], yRange: [0,1], color: '#58a6ff' });
+}
+sN.addEventListener('input', updateFract);
+updateFract();
+
+// 2D grid
+function draw2D() {
+  const c = document.getElementById('c-2d');
+  const ctx = c.getContext('2d');
+  c.width = c.offsetWidth * 2; c.height = c.offsetHeight * 2;
+  const W = c.width, H = c.height, N = 4;
+  const img = ctx.createImageData(W, H);
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const u = (x/W)*N, v = (y/H)*N;
+    const fu = u - Math.floor(u), fv = v - Math.floor(v);
+    const d = Math.sqrt((fu-0.5)**2 + (fv-0.5)**2);
+    const circle = d < 0.3 ? 1 : 0;
+    const r = circle ? 88 : 15, g = circle ? 166 : 20, b = circle ? 255 : 40;
+    const i = (y*W+x)*4;
+    img.data[i]=r; img.data[i+1]=g; img.data[i+2]=b; img.data[i+3]=255;
+    // Grid lines
+    if (fu < 0.01 || fv < 0.01) { img.data[i]=60; img.data[i+1]=70; img.data[i+2]=90; }
+  }
+  ctx.putImageData(img, 0, 0);
+}
+draw2D();
+window.addEventListener('resize', () => { drawGraph('c-linear', x=>x, {xRange:[0,4],yRange:[0,4],color:'rgba(255,255,255,.3)'}); drawGraph('c-fract', x=>x-Math.floor(x), {xRange:[0,4],yRange:[0,1],color:'#3fb950'}); updateFract(); draw2D(); });
+</script>
+</body>
+</html>

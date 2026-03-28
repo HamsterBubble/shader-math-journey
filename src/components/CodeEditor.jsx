@@ -1,6 +1,7 @@
 import React, { memo, useRef, useEffect, useCallback } from 'react';
 import * as monaco from 'monaco-editor';
 import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
+import { glslDocs } from '../core/glsl-docs.js';
 
 // ── Monaco worker configuration for Vite ──
 self.MonacoEnvironment = {
@@ -16,6 +17,28 @@ function registerGLSL() {
   langRegistered = true;
 
   monaco.languages.register({ id: 'glsl' });
+
+  // ── Hover documentation for GLSL built-ins ──
+  monaco.languages.registerHoverProvider('glsl', {
+    provideHover(model, position) {
+      const word = model.getWordAtPosition(position);
+      if (!word) return null;
+
+      const doc = glslDocs[word.word];
+      if (!doc) return null;
+
+      return {
+        range: new monaco.Range(
+          position.lineNumber, word.startColumn,
+          position.lineNumber, word.endColumn,
+        ),
+        contents: [
+          { value: '```glsl\n' + doc.signature + '\n```' },
+          { value: doc.description },
+        ],
+      };
+    },
+  });
 
   monaco.languages.setMonarchTokensProvider('glsl', {
     keywords: [

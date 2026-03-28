@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📈 smoothstep 平滑阶跃 — 知识点</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0d1117;color:#e6edf3;font-family:'Inter',-apple-system,sans-serif;line-height:1.8;padding:40px 24px}
+.container{max-width:880px;margin:0 auto}
+h1{font-size:2rem;margin-bottom:.3em;background:linear-gradient(135deg,#58a6ff,#bc8cff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+h2{font-size:1.3rem;color:#58a6ff;margin:2rem 0 .8rem;padding-left:12px;border-left:3px solid #58a6ff}
+h3{font-size:1.05rem;color:#e6edf3;margin:1.2rem 0 .5rem}
+p{color:#8b949e;margin-bottom:.8rem}
+strong{color:#e6edf3}
+code{font-family:'JetBrains Mono',monospace;background:rgba(255,255,255,.06);padding:2px 6px;border-radius:4px;color:#58a6ff;font-size:.85rem}
+.formula{text-align:center;color:#58a6ff;background:rgba(88,166,255,.06);border:1px solid rgba(88,166,255,.15);border-radius:8px;padding:14px;margin:1rem 0;font-family:'JetBrains Mono',monospace;font-size:1.05rem;line-height:2}
+.comparison{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:1.2rem 0}
+.card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:16px}
+.card h4{font-size:.85rem;color:#bc8cff;margin-bottom:8px}
+.card canvas{width:100%;height:180px;border-radius:6px;background:#000}
+table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.85rem}
+th{background:rgba(255,255,255,.04);color:#58a6ff;padding:8px 12px;text-align:center;font-weight:600}
+td{padding:8px 12px;text-align:center;color:#8b949e;border-top:1px solid rgba(255,255,255,.06)}
+td:first-child{color:#e6edf3;font-weight:500}
+.highlight{color:#3fb950;font-weight:700}
+.tip{background:rgba(63,185,80,.06);border:1px solid rgba(63,185,80,.15);border-radius:8px;padding:12px 16px;margin:1rem 0;font-size:.88rem;color:#8b949e}
+.tip strong{color:#3fb950}
+.interactive{background:rgba(88,166,255,.04);border:1px solid rgba(88,166,255,.12);border-radius:10px;padding:20px;margin:1.5rem 0}
+.slider-row{display:flex;align-items:center;gap:12px;margin:8px 0}
+.slider-row label{min-width:80px;font-size:.82rem;color:#8b949e}
+.slider-row input[type=range]{flex:1;accent-color:#58a6ff}
+.slider-row .val{min-width:50px;font-family:'JetBrains Mono',monospace;font-size:.8rem;color:#58a6ff}
+.memory{text-align:center;font-size:1.6rem;color:#bc8cff;margin:2rem 0;padding:20px;background:rgba(188,140,255,.06);border:1px solid rgba(188,140,255,.15);border-radius:10px}
+.memory .sub{font-size:.85rem;color:#8b949e;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>📈 smoothstep 平滑阶跃</h1>
+<p>Shader 中使用频率最高的函数之一，用于创建<strong>平滑过渡</strong>。</p>
+
+<h2>一、函数签名</h2>
+<div class="formula">
+float smoothstep(float edge0, float edge1, float x)
+</div>
+<p>返回 0.0 ~ 1.0 之间的值，根据 x 相对于 [edge0, edge1] 区间的位置做平滑插值。</p>
+
+<h2>二、底层数学</h2>
+<p>smoothstep 内部做了三步：</p>
+<div class="formula">
+t = clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0)<br>
+result = t × t × (3 - 2t)
+</div>
+<table>
+<tr><th>步骤</th><th>作用</th><th>输出范围</th></tr>
+<tr><td>① 线性映射</td><td>(x - edge0) / (edge1 - edge0)</td><td>-∞ ~ +∞</td></tr>
+<tr><td>② clamp</td><td>限制到 [0, 1]</td><td>0 ~ 1</td></tr>
+<tr><td>③ Hermite 插值</td><td>t²(3 - 2t)，起点终点斜率都是 0</td><td>0 ~ 1 (平滑)</td></tr>
+</table>
+
+<h2>三、对比：step vs smoothstep</h2>
+<div class="comparison">
+  <div class="card">
+    <h4>step(edge, x)</h4>
+    <canvas id="c-step"></canvas>
+    <p style="margin-top:8px;font-size:.78rem;color:#8b949e">硬切：x &lt; edge → 0，x ≥ edge → 1</p>
+  </div>
+  <div class="card">
+    <h4>smoothstep(e0, e1, x)</h4>
+    <canvas id="c-smooth"></canvas>
+    <p style="margin-top:8px;font-size:.78rem;color:#8b949e">平滑过渡：在 [e0, e1] 之间渐变</p>
+  </div>
+</div>
+
+<h2>四、交互探索</h2>
+<div class="interactive">
+  <canvas id="c-interactive" style="width:100%;height:220px;border-radius:6px;background:#000"></canvas>
+  <div class="slider-row">
+    <label>edge0:</label>
+    <input type="range" id="s-e0" min="0" max="100" value="30">
+    <span class="val" id="v-e0">0.30</span>
+  </div>
+  <div class="slider-row">
+    <label>edge1:</label>
+    <input type="range" id="s-e1" min="0" max="100" value="70">
+    <span class="val" id="v-e1">0.70</span>
+  </div>
+  <p style="font-size:.82rem;color:#8b949e;margin-top:8px">🖱 拖动滑条调整 edge0/edge1，观察过渡宽度变化</p>
+</div>
+
+<h2>五、数值速查</h2>
+<table>
+<tr><th>x 值</th><th>smoothstep(0.3, 0.7, x)</th><th>含义</th></tr>
+<tr><td>0.0</td><td class="highlight">0.0</td><td>完全在区间外（左）</td></tr>
+<tr><td>0.3</td><td class="highlight">0.0</td><td>刚到 edge0，开始过渡</td></tr>
+<tr><td>0.4</td><td>0.156</td><td>过渡中 (25%)</td></tr>
+<tr><td>0.5</td><td>0.500</td><td>正中间 → 正好 0.5</td></tr>
+<tr><td>0.6</td><td>0.844</td><td>过渡中 (75%)</td></tr>
+<tr><td>0.7</td><td class="highlight">1.0</td><td>到达 edge1，过渡完成</td></tr>
+<tr><td>1.0</td><td class="highlight">1.0</td><td>完全在区间外（右）</td></tr>
+</table>
+
+<h2>六、常用技巧</h2>
+<div class="tip">
+  <strong>💡 反转 smoothstep</strong><br>
+  <code>smoothstep(0.7, 0.3, x)</code> — 当 edge0 &gt; edge1 时，结果从 1 → 0<br>
+  效果：在 x = 0.3 处值为 1，x = 0.7 处值为 0。常用于制作渐隐效果。
+</div>
+<div class="tip">
+  <strong>💡 窄边 = 硬边（模拟 step）</strong><br>
+  <code>smoothstep(0.49, 0.51, x)</code> — edge 间距极小时，效果接近 step，但有微小抗锯齿。<br>
+  这是 SDF 渲染中最常用的抗锯齿技巧！
+</div>
+<div class="tip">
+  <strong>💡 制作条纹/环</strong><br>
+  <code>smoothstep(0.3, 0.31, x) - smoothstep(0.5, 0.51, x)</code><br>
+  两个 smoothstep 相减 = 一个精确的条带选择器。
+</div>
+
+<div class="memory">
+  <div>edge0 = 开始过渡，edge1 = 完成过渡</div>
+  <div class="sub">区间越窄 → 越锐利 | 区间越宽 → 越柔和 | 反转 → 渐隐</div>
+</div>
+</div>
+
+<script>
+function drawGraph(canvasId, fn, opts = {}) {
+  const c = document.getElementById(canvasId);
+  const ctx = c.getContext('2d');
+  c.width = c.offsetWidth * 2; c.height = c.offsetHeight * 2;
+  const W = c.width, H = c.height;
+  ctx.clearRect(0, 0, W, H);
+  // Grid
+  ctx.strokeStyle = 'rgba(255,255,255,.06)'; ctx.lineWidth = 1;
+  for (let i = 0; i <= 10; i++) {
+    const x = W * i / 10, y = H * i / 10;
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+  }
+  // Axes labels
+  ctx.fillStyle = 'rgba(255,255,255,.2)'; ctx.font = `${Math.max(16,W/40)}px monospace`;
+  ctx.fillText('0', 8, H - 8); ctx.fillText('1', W - 20, H - 8); ctx.fillText('1', 8, 20);
+  // Curve
+  ctx.beginPath(); ctx.strokeStyle = opts.color || '#58a6ff'; ctx.lineWidth = 3;
+  for (let px = 0; px < W; px++) {
+    const x = px / W; const y = fn(x);
+    const cy = H - y * H * 0.85 - H * 0.075;
+    if (px === 0) ctx.moveTo(px, cy); else ctx.lineTo(px, cy);
+  }
+  ctx.stroke();
+  // Edge markers
+  if (opts.edges) {
+    opts.edges.forEach(e => {
+      const ex = e * W;
+      ctx.setLineDash([6, 4]); ctx.strokeStyle = 'rgba(188,140,255,.5)'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(ex, 0); ctx.lineTo(ex, H); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = '#bc8cff'; ctx.font = `${Math.max(14,W/45)}px monospace`;
+      ctx.fillText(e.toFixed(2), ex + 4, H - 8);
+    });
+  }
+}
+// step
+drawGraph('c-step', x => x >= 0.5 ? 1 : 0, { color: '#f85149', edges: [0.5] });
+// smoothstep
+function ss(e0, e1, x) { let t = Math.max(0, Math.min(1, (x - e0) / (e1 - e0))); return t * t * (3 - 2 * t); }
+drawGraph('c-smooth', x => ss(0.3, 0.7, x), { color: '#3fb950', edges: [0.3, 0.7] });
+// Interactive
+const sE0 = document.getElementById('s-e0'), sE1 = document.getElementById('s-e1');
+const vE0 = document.getElementById('v-e0'), vE1 = document.getElementById('v-e1');
+function updateInteractive() {
+  const e0 = sE0.value / 100, e1 = sE1.value / 100;
+  vE0.textContent = e0.toFixed(2); vE1.textContent = e1.toFixed(2);
+  drawGraph('c-interactive', x => ss(e0, e1, x), { color: '#58a6ff', edges: [e0, e1] });
+}
+sE0.addEventListener('input', updateInteractive);
+sE1.addEventListener('input', updateInteractive);
+updateInteractive();
+window.addEventListener('resize', () => { drawGraph('c-step', x => x >= 0.5 ? 1 : 0, { color:'#f85149', edges:[0.5] }); drawGraph('c-smooth', x => ss(0.3,0.7,x), { color:'#3fb950', edges:[0.3,0.7] }); updateInteractive(); });
+</script>
+</body>
+</html>

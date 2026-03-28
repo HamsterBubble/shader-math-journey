@@ -1,4 +1,9 @@
 <h2>🔁 域重复 (Domain Repetition)</h2>
+<p class="knowledge-tags"><a class="knowledge-link" data-page="/learn-uv-remap.html" data-title="坐标居中：uv × 2 − 1"><span class="kl-icon">📐</span><span class="kl-text">坐标居中原理</span></a><a class="knowledge-link" data-page="/learn-smoothstep.html" data-title="smoothstep 平滑阶跃"><span class="kl-icon">📈</span><span class="kl-text">smoothstep 原理</span></a><a class="knowledge-link" data-page="/learn-sdf-basics.html" data-title="SDF 有符号距离函数"><span class="kl-icon">⭕</span><span class="kl-text">SDF 基础</span></a><a class="knowledge-link" data-page="/learn-sin-cos.html" data-title="sin/cos 三角函数"><span class="kl-icon">🌊</span><span class="kl-text">sin/cos 波形</span></a><a class="knowledge-link" data-page="/learn-mix-blend.html" data-title="mix 颜色混合与插值"><span class="kl-icon">🎨</span><span class="kl-text">mix 混合原理</span></a><a class="knowledge-link" data-page="/learn-matrix-transform.html" data-title="矩阵变换：旋转/缩放/剪切"><span class="kl-icon">🔄</span><span class="kl-text">矩阵变换</span></a></p>
+
+
+
+
 
 <h3>一个形状，无限复制</h3>
 <p>画一个圆很容易。画一百个相同的圆呢？如果用循环……GPU 不喜欢循环。用 <code>fract</code>（或 <code>mod</code>）做<strong>域重复</strong>才是 Shader 的正确姿势。</p>
