@@ -3,159 +3,174 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🔄 矩阵变换 — 知识点</title>
+<title>📐 矩阵变换：旋转 / 缩放 / 平移</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0d1117;color:#e6edf3;font-family:'Inter',-apple-system,sans-serif;line-height:1.8;padding:40px 24px}
-.container{max-width:880px;margin:0 auto}
-h1{font-size:2rem;margin-bottom:.3em;background:linear-gradient(135deg,#bc8cff,#58a6ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-h2{font-size:1.3rem;color:#58a6ff;margin:2rem 0 .8rem;padding-left:12px;border-left:3px solid #58a6ff}
-p{color:#8b949e;margin-bottom:.8rem}
+body{background:#0d1117;color:#e6edf3;font-family:'Inter',-apple-system,sans-serif;line-height:1.7;padding:40px 24px;padding-bottom:80px}
+.container{max-width:820px;margin:0 auto}
+h1{font-size:1.8rem;margin-bottom:0.5rem;color:#58a6ff;}
+h2{font-size:1.3rem;color:#58a6ff;margin:2.5rem 0 1rem;padding-left:12px;border-left:3px solid #58a6ff}
+p, li{color:#8b949e;margin-bottom:.8rem; font-size: 0.95rem;}
 strong{color:#e6edf3}
-code{font-family:'JetBrains Mono',monospace;background:rgba(255,255,255,.06);padding:2px 6px;border-radius:4px;color:#58a6ff;font-size:.85rem}
-.formula{text-align:center;color:#58a6ff;background:rgba(88,166,255,.06);border:1px solid rgba(88,166,255,.15);border-radius:8px;padding:14px;margin:1rem 0;font-family:'JetBrains Mono',monospace;font-size:1rem;line-height:2}
-table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.85rem}
-th{background:rgba(255,255,255,.04);color:#58a6ff;padding:8px 12px;text-align:center}
-td{padding:8px 12px;text-align:center;color:#8b949e;border-top:1px solid rgba(255,255,255,.06)}
-canvas{width:100%;height:300px;border-radius:8px;display:block;margin:1rem 0;cursor:pointer}
-.interactive{background:rgba(88,166,255,.04);border:1px solid rgba(88,166,255,.12);border-radius:10px;padding:20px;margin:1.5rem 0}
-.slider-row{display:flex;align-items:center;gap:12px;margin:6px 0}
-.slider-row label{min-width:60px;font-size:.82rem;color:#8b949e}
-.slider-row input[type=range]{flex:1;accent-color:#58a6ff}
-.slider-row .val{min-width:50px;font-family:'JetBrains Mono',monospace;font-size:.8rem;color:#58a6ff}
-.matrix-vis{display:grid;grid-template-columns:auto 1fr;gap:8px 24px;align-items:center;margin:12px 0;padding:12px;background:rgba(255,255,255,.02);border-radius:8px}
-.matrix-vis .label{font-size:.8rem;color:#8b949e;text-align:right}
-.matrix-vis .vals{font-family:'JetBrains Mono',monospace;font-size:.9rem;color:#bc8cff}
-.tip{background:rgba(63,185,80,.06);border:1px solid rgba(63,185,80,.15);border-radius:8px;padding:12px 16px;margin:1rem 0;font-size:.88rem;color:#8b949e}
-.tip strong{color:#3fb950}
-.memory{text-align:center;font-size:1.3rem;color:#bc8cff;margin:2rem 0;padding:20px;background:rgba(188,140,255,.06);border:1px solid rgba(188,140,255,.15);border-radius:10px}
-.memory .sub{font-size:.85rem;color:#8b949e;margin-top:8px}
+code{font-family:'JetBrains Mono',monospace;background:rgba(255,255,255,.06);padding:2px 6px;border-radius:4px;color:#58a6ff;font-size:0.9rem}
+pre.code-block{background:rgba(0,0,0,0.4);border:1px solid rgba(88,166,255,0.2);padding:15px;border-radius:8px;overflow-x:auto;font-family:'JetBrains Mono',monospace;color:#a5d6ff;font-size:0.9rem;margin:10px 0 20px;}
+canvas{border-radius:8px;display:block;margin:1rem auto;background:#000; border: 1px solid rgba(255,255,255,0.1);}
+.card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:24px; margin-bottom:20px;}
+.card h4{color:#39d2c0;margin-bottom:12px;font-size:1.05rem;}
+.tip-box{background:rgba(88,166,255,0.08);border:1px solid rgba(88,166,255,0.2);padding:16px 20px;border-radius:8px;font-size:0.9rem;margin:15px 0;}
+hr{border:0;border-top:1px solid rgba(255,255,255,0.1);margin:30px 0;}
+.slider-container{margin-top:15px;background:rgba(255,255,255,.02);padding:15px;border-radius:8px; border:1px solid rgba(255,255,255,.05);}
+.slider-row{display:flex;align-items:center;gap:12px;margin-bottom:8px;}
+.slider-row label{width:100px;font-size:0.85rem;color:#bc8cff;}
+input[type=range]{flex:1;accent-color:#58a6ff;}
+.val{font-family:monospace;font-size:0.85rem;color:#58a6ff;width:50px;}
 </style>
 </head>
 <body>
 <div class="container">
-<h1>🔄 矩阵变换</h1>
-<p>用矩阵乘法实现<strong>旋转、缩放、剪切</strong> — GPU 的原生思维方式。</p>
+  <h1>📐 矩阵变换 — Shader 里"扭曲空间"的钥匙</h1>
+  <p style="font-size:1.05rem;">在 Shader 中，我们不是移动图形本身，而是<strong>移动整个坐标空间</strong>。矩阵就是执行这种空间扭曲的数学工具。</p>
 
-<h2>一、为什么用矩阵？</h2>
-<p>矩阵的威力：<strong>一次乘法 = 同时完成旋转+缩放+剪切</strong>。而且多个变换可以预先合并成一个矩阵。</p>
+  <hr>
 
-<h2>二、2D 旋转矩阵</h2>
-<div class="formula">
-mat2 rotate = mat2(cos(θ), -sin(θ),<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sin(θ),  cos(θ));<br>
-vec2 rotated = rotate * uv;
-</div>
+  <h2>一、为什么要用矩阵？</h2>
+  <p>如果你想在 Shader 中<strong>旋转</strong>一个图案，最直觉的做法可能是去改每个像素的颜色。但更高效的方法是：<strong>在计算颜色之前，先把 UV 坐标旋转一下</strong>！图案自然就跟着转了。</p>
+  <p>矩阵让你可以把旋转、缩放、错切等多种变换<strong>打包成一次乘法</strong>：<code>uv = mat2 * uv;</code> 一行搞定！</p>
 
-<h2>三、交互演示</h2>
-<div class="interactive">
-  <canvas id="matrix-canvas"></canvas>
-  <div class="slider-row"><label>旋转 θ:</label><input type="range" id="s-rot" min="0" max="628" value="0"><span class="val" id="v-rot">0°</span></div>
-  <div class="slider-row"><label>缩放 S:</label><input type="range" id="s-scale" min="20" max="200" value="100"><span class="val" id="v-scale">1.00</span></div>
-  <div class="slider-row"><label>剪切 K:</label><input type="range" id="s-shear" min="-100" max="100" value="0"><span class="val" id="v-shear">0.00</span></div>
-  <div class="matrix-vis">
-    <span class="label">mat2 =</span>
-    <span class="vals" id="mat-vals">[ 1.00, 0.00 | 0.00, 1.00 ]</span>
+  <hr>
+
+  <h2>二、最常用的三种变换</h2>
+
+  <div class="card" style="border-top: 4px solid #f778ba;">
+    <h4 style="color:#f778ba;">🔄 旋转 (Rotation)</h4>
+    <p>围绕坐标原点旋转角度 θ：</p>
+    <pre class="code-block"><code>mat2 rot = mat2(
+    cos(θ), -sin(θ),
+    sin(θ),  cos(θ)
+);
+uv = rot * uv;</code></pre>
+    <p>这个 2×2 矩阵把 (x,y) 按照圆周公式重新分配。cos 控制"保留原方向的分量"，sin 控制"注入垂直方向的分量"。两者配合就产生了旋转。</p>
   </div>
-</div>
 
-<h2>四、变换速查</h2>
-<table>
-<tr><th>变换</th><th>mat2 构成</th><th>GLSL</th></tr>
-<tr><td>旋转 θ</td><td>[cosθ, -sinθ, sinθ, cosθ]</td><td><code>mat2(c,-s,s,c)</code></td></tr>
-<tr><td>均匀缩放 s</td><td>[s, 0, 0, s]</td><td><code>mat2(s,0,0,s)</code></td></tr>
-<tr><td>X 剪切 k</td><td>[1, k, 0, 1]</td><td><code>mat2(1,0,k,1)</code></td></tr>
-<tr><td>反射 (X轴)</td><td>[1, 0, 0, -1]</td><td><code>mat2(1,0,0,-1)</code></td></tr>
-</table>
+  <div class="card" style="border-top: 4px solid #3fb950;">
+    <h4 style="color:#3fb950;">📏 缩放 (Scale)</h4>
+    <pre class="code-block"><code>mat2 scl = mat2(
+    sx,  0.0,
+    0.0, sy
+);
+uv = scl * uv;</code></pre>
+    <p>对角线上的 sx 和 sy 分别拉伸 X 和 Y 轴。<code>sx=2</code> 相当于 X 方向拉伸两倍（图案变扁窄），<code>sy=0.5</code> 把 Y 压缩一半。</p>
+    <p>⚠️ 注意：这是变换坐标空间！所以 <code>sx=2</code> 会让<strong>图案看起来缩小</strong>，因为 UV 空间变大了。</p>
+  </div>
 
-<div class="tip">
-  <strong>💡 GLSL 的 mat2 是列优先！</strong><br>
-  <code>mat2(a, b, c, d)</code> 表示：<br>
-  第 1 列 = (a, b)，第 2 列 = (c, d)<br>
-  所以旋转写作 <code>mat2(cos,-sin, sin,cos)</code><br>
-  <em>注意 -sin 在第一列第二位，而非右上角！</em>
-</div>
+  <div class="card" style="border-top: 4px solid #58a6ff;">
+    <h4 style="color:#58a6ff;">↕️ 平移 (Translation)</h4>
+    <p>平移最简单，不需要矩阵，直接加减就行：</p>
+    <pre class="code-block"><code>uv = uv - vec2(offsetX, offsetY);</code></pre>
+    <p>减去偏移量 = 图案向那个方向移动。注意是<strong>减</strong>而不是加！因为我们移的是坐标空间，方向是反的。</p>
+  </div>
 
-<div class="tip">
-  <strong>💡 变换的顺序很重要</strong><br>
-  <code>rotate * (scale * uv)</code> 先缩放后旋转<br>
-  <code>scale * (rotate * uv)</code> 先旋转后缩放<br>
-  两者结果不同！
-</div>
+  <hr>
 
-<div class="memory">
-  <div>变换 = 矩阵 × 坐标</div>
-  <div class="sub">旋转用 cos/sin | 缩放用对角线 | 组合用矩阵乘法 | 列优先！</div>
-</div>
-</div>
+  <h2>三、互动实验：旋转 + 缩放一个图案</h2>
+  <p>拖动滑块观察旋转角度和缩放对图案的影响。注意：是坐标在转，不是像素在移！</p>
 
+  <div class="card" style="border-color: rgba(88, 166, 255, 0.5);">
+    <canvas id="c-transform" width="400" height="400" style="width:400px;height:400px;"></canvas>
+    <div class="slider-container">
+      <div class="slider-row">
+        <label>旋转角度 θ</label>
+        <input type="range" id="sl-rot" min="0" max="360" value="0">
+        <span class="val" id="vl-rot">0°</span>
+      </div>
+      <div class="slider-row">
+        <label>缩放 Scale</label>
+        <input type="range" id="sl-scale" min="50" max="300" value="100">
+        <span class="val" id="vl-scale">1.00</span>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <h2>四、黄金法则：变换的顺序很重要！</h2>
+  <div class="card" style="border-color: rgba(255, 215, 0, 0.5); background: rgba(255,215,0,0.04);">
+    <h4 style="color:#ffd700">⚠️ 先平移再旋转 ≠ 先旋转再平移</h4>
+    <p>矩阵乘法<strong>不可交换</strong>！就像现实中：先往前走10步再右转90° 和 先右转90°再往前走10步，你最终站的位置完全不同！</p>
+    <p>在 Shader 中最常见的顺序是：</p>
+    <ol>
+      <li><strong>居中</strong>：<code>uv = uv * 2.0 - 1.0;</code> 让原点在中间</li>
+      <li><strong>旋转</strong>：<code>uv = rot * uv;</code> 围绕中心旋转</li>
+      <li><strong>缩放</strong>：<code>uv *= scale;</code></li>
+      <li><strong>平移</strong>：<code>uv -= offset;</code></li>
+    </ol>
+  </div>
+
+</div>
 <script>
-const canvas = document.getElementById('matrix-canvas');
-const ctx2 = canvas.getContext('2d');
-const sRot = document.getElementById('s-rot'), sScale = document.getElementById('s-scale'), sShear = document.getElementById('s-shear');
-const vRot = document.getElementById('v-rot'), vScale = document.getElementById('v-scale'), vShear = document.getElementById('v-shear');
-const matVals = document.getElementById('mat-vals');
+function ss(e0,e1,x){let t=Math.max(0,Math.min(1,(x-e0)/(e1-e0)));return t*t*(3-2*t);}
 
-const squarePoints = [[-0.3,-0.3],[0.3,-0.3],[0.3,0.3],[-0.3,0.3]];
+function render() {
+  const c = document.getElementById('c-transform');
+  const ctx = c.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  c.width = 400 * dpr; c.height = 400 * dpr;
+  const W = c.width, H = c.height;
 
-function transform(p, m) { return [m[0]*p[0]+m[2]*p[1], m[1]*p[0]+m[3]*p[1]]; }
+  const angleDeg = parseFloat(document.getElementById('sl-rot').value);
+  const scale = parseFloat(document.getElementById('sl-scale').value) / 100;
+  document.getElementById('vl-rot').textContent = angleDeg + '°';
+  document.getElementById('vl-scale').textContent = scale.toFixed(2);
 
-function render2() {
-  canvas.width = canvas.offsetWidth * 2; canvas.height = canvas.offsetHeight * 2;
-  const W = canvas.width, H = canvas.height, cx = W/2, cy = H/2, unit = Math.min(W,H)*0.4;
-  const ctx = ctx2;
-  ctx.clearRect(0,0,W,H);
-  // Grid
-  ctx.strokeStyle = 'rgba(255,255,255,.04)'; ctx.lineWidth = 1;
-  for (let i = -5; i <= 5; i++) { const x=cx+i*unit/3; ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); const y=cy+i*unit/3; ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
-  // Axes
-  ctx.strokeStyle='rgba(255,255,255,.1)'; ctx.lineWidth=2;
-  ctx.beginPath(); ctx.moveTo(0,cy); ctx.lineTo(W,cy); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(cx,0); ctx.lineTo(cx,H); ctx.stroke();
+  const theta = angleDeg * Math.PI / 180;
+  const cosT = Math.cos(theta), sinT = Math.sin(theta);
 
-  const th = sRot.value / 100;
-  const sc = sScale.value / 100;
-  const sh = sShear.value / 100;
-  const c = Math.cos(th), s = Math.sin(th);
-  // Mat = Rotation * Scale * Shear
-  const m = [sc*(c+sh*s), sc*(s-sh*c), sc*(-s+sh*c), sc*(c+sh*(-s)*0+sh*s*0)]; // Simplified
-  // Actually: rotation mat * shear mat * scale
-  const rot = [c,-s,s,c];
-  const shM = [1,0,sh,1];
-  const scM = [sc,0,0,sc];
-  // Combined: rot * shear * scale
-  const combined = matMul(rot, matMul(shM, scM));
+  const img = ctx.createImageData(W, H);
+  const data = img.data;
 
-  vRot.textContent = (th * 180 / Math.PI).toFixed(0) + '°';
-  vScale.textContent = sc.toFixed(2);
-  vShear.textContent = sh.toFixed(2);
-  matVals.textContent = `[ ${combined[0].toFixed(2)}, ${combined[2].toFixed(2)} | ${combined[1].toFixed(2)}, ${combined[3].toFixed(2)} ]`;
+  for (let py = 0; py < H; py++) {
+    for (let px = 0; px < W; px++) {
+      // UV: -1 to 1
+      let uvx = (px / W) * 2.0 - 1.0;
+      let uvy = (1.0 - py / H) * 2.0 - 1.0;
+      // Aspect correction
+      uvx *= W / H;
 
-  // Draw original (faded)
-  drawShape(squarePoints, null, 'rgba(255,255,255,.1)', 'rgba(255,255,255,.03)');
-  // Draw transformed
-  const tPoints = squarePoints.map(p => transform(p, combined));
-  drawShape(tPoints, null, '#58a6ff', 'rgba(88,166,255,.1)');
-  // Label
-  ctx.fillStyle='rgba(255,255,255,.15)'; ctx.font=`${Math.max(14,W/50)}px monospace`;
-  ctx.fillText('原始', cx + squarePoints[1][0]*unit + 10, cy - squarePoints[1][1]*unit);
-  ctx.fillStyle='#58a6ff';
-  ctx.fillText('变换后', cx + tPoints[1][0]*unit + 10, cy - tPoints[1][1]*unit);
+      // Apply rotation
+      const rx = uvx * cosT - uvy * sinT;
+      const ry = uvx * sinT + uvy * cosT;
 
-  function drawShape(pts, _, strokeC, fillC) {
-    ctx.beginPath();
-    pts.forEach((p,i) => { const x = cx+p[0]*unit, y = cy-p[1]*unit; i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y); });
-    ctx.closePath();
-    ctx.fillStyle = fillC; ctx.fill();
-    ctx.strokeStyle = strokeC; ctx.lineWidth = 3; ctx.stroke();
+      // Apply scale
+      const sx = rx * scale;
+      const sy = ry * scale;
+
+      // Draw a simple square grid + circle pattern
+      const gx = (sx * 3.0) - Math.floor(sx * 3.0); // fract for grid
+      const gy = (sy * 3.0) - Math.floor(sy * 3.0);
+      const cx = gx * 2.0 - 1.0;
+      const cy = gy * 2.0 - 1.0;
+      const d = Math.sqrt(cx*cx + cy*cy) - 0.6;
+      const circle = ss(0.02, -0.02, d);
+
+      // Grid lines
+      const lineX = ss(0.02, 0.0, gx) + ss(0.98, 1.0, gx);
+      const lineY = ss(0.02, 0.0, gy) + ss(0.98, 1.0, gy);
+      const grid = Math.min(1, lineX + lineY) * 0.15;
+
+      let r = 13 + circle * 40 + grid * 60;
+      let g = 15 + circle * 140 + grid * 60;
+      let b = 26 + circle * 230 + grid * 80;
+
+      const i = (py * W + px) * 4;
+      data[i] = Math.min(255, r); data[i+1] = Math.min(255, g); data[i+2] = Math.min(255, b); data[i+3] = 255;
+    }
   }
+  ctx.putImageData(img, 0, 0);
 }
 
-function matMul(a,b) { return [a[0]*b[0]+a[2]*b[1], a[1]*b[0]+a[3]*b[1], a[0]*b[2]+a[2]*b[3], a[1]*b[2]+a[3]*b[3]]; }
-
-[sRot, sScale, sShear].forEach(s => s.addEventListener('input', render2));
-render2();
-window.addEventListener('resize', render2);
+document.getElementById('sl-rot').addEventListener('input', render);
+document.getElementById('sl-scale').addEventListener('input', render);
+render();
 </script>
 </body>
 </html>

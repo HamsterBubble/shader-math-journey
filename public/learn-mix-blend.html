@@ -3,106 +3,131 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🎨 mix 颜色混合 — 知识点</title>
+<title>🎨 mix 颜色混合与插值：底层原理</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0d1117;color:#e6edf3;font-family:'Inter',-apple-system,sans-serif;line-height:1.8;padding:40px 24px}
-.container{max-width:880px;margin:0 auto}
-h1{font-size:2rem;margin-bottom:.3em;background:linear-gradient(135deg,#f85149,#d29922,#3fb950,#58a6ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-h2{font-size:1.3rem;color:#58a6ff;margin:2rem 0 .8rem;padding-left:12px;border-left:3px solid #58a6ff}
-p{color:#8b949e;margin-bottom:.8rem}
+body{background:#0d1117;color:#e6edf3;font-family:'Inter',-apple-system,sans-serif;line-height:1.7;padding:40px 24px;padding-bottom:80px}
+.container{max-width:820px;margin:0 auto}
+h1{font-size:1.8rem;margin-bottom:0.5rem;color:#58a6ff;}
+h2{font-size:1.3rem;color:#58a6ff;margin:2.5rem 0 1rem;padding-left:12px;border-left:3px solid #58a6ff}
+p, li{color:#8b949e;margin-bottom:.8rem; font-size: 0.95rem;}
 strong{color:#e6edf3}
-code{font-family:'JetBrains Mono',monospace;background:rgba(255,255,255,.06);padding:2px 6px;border-radius:4px;color:#58a6ff;font-size:.85rem}
-.formula{text-align:center;color:#58a6ff;background:rgba(88,166,255,.06);border:1px solid rgba(88,166,255,.15);border-radius:8px;padding:14px;margin:1rem 0;font-family:'JetBrains Mono',monospace;font-size:1.05rem}
-table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.85rem}
-th{background:rgba(255,255,255,.04);color:#58a6ff;padding:8px 12px;text-align:center}
-td{padding:8px 12px;text-align:center;color:#8b949e;border-top:1px solid rgba(255,255,255,.06)}
-canvas{width:100%;height:80px;border-radius:6px;display:block}
-.interactive{background:rgba(88,166,255,.04);border:1px solid rgba(88,166,255,.12);border-radius:10px;padding:20px;margin:1.5rem 0}
-.slider-row{display:flex;align-items:center;gap:12px;margin:6px 0}
-.slider-row label{min-width:30px;font-size:.82rem;color:#8b949e}
-.slider-row input[type=range]{flex:1;accent-color:#58a6ff}
-.slider-row .val{min-width:40px;font-family:'JetBrains Mono',monospace;font-size:.8rem;color:#58a6ff}
-.color-row{display:flex;gap:12px;align-items:center;margin:12px 0}
-.swatch{width:60px;height:40px;border-radius:6px;border:1px solid rgba(255,255,255,.1)}
-.arrow{color:#8b949e;font-size:1.2rem}
-.tip{background:rgba(63,185,80,.06);border:1px solid rgba(63,185,80,.15);border-radius:8px;padding:12px 16px;margin:1rem 0;font-size:.88rem;color:#8b949e}
-.tip strong{color:#3fb950}
-.memory{text-align:center;font-size:1.4rem;color:#bc8cff;margin:2rem 0;padding:20px;background:rgba(188,140,255,.06);border:1px solid rgba(188,140,255,.15);border-radius:10px}
-.memory .sub{font-size:.85rem;color:#8b949e;margin-top:8px}
+code{font-family:'JetBrains Mono',monospace;background:rgba(255,255,255,.06);padding:2px 6px;border-radius:4px;color:#58a6ff;font-size:0.9rem}
+canvas{width:100%;border-radius:8px;display:block;margin:1rem 0;background:#000; border: 1px solid rgba(255,255,255,0.1);}
+.card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:24px; margin-bottom:20px;}
+.card h4{color:#39d2c0;margin-bottom:12px;font-size:1.05rem;}
+.tip-box{background:rgba(88,166,255,0.08);border:1px solid rgba(88,166,255,0.2);padding:16px 20px;border-radius:8px;font-size:0.9rem;margin:15px 0;}
+hr{border:0;border-top:1px solid rgba(255,255,255,0.1);margin:30px 0;}
+.slider-container{margin-top:15px;background:rgba(255,255,255,.02);padding:15px;border-radius:8px; border:1px solid rgba(255,255,255,.05);}
+.slider-row{display:flex;align-items:center;gap:12px;margin-bottom:8px;}
+.slider-row label{width:80px;font-size:0.85rem;color:#bc8cff;}
+input[type=range]{flex:1;accent-color:#58a6ff;}
+.val{font-family:monospace;font-size:0.85rem;color:#58a6ff;width:40px;}
+.swatch{width:80px;height:50px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);display:inline-block;vertical-align:middle;}
+table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:0.9rem;}
+th{background:rgba(255,255,255,.04);color:#58a6ff;padding:8px 12px;text-align:center;border:1px solid rgba(255,255,255,0.06);}
+td{padding:8px 12px;text-align:center;color:#8b949e;border:1px solid rgba(255,255,255,0.06);}
 </style>
 </head>
 <body>
 <div class="container">
-<h1>🎨 mix 颜色混合与插值</h1>
-<p>Shader 中最常用的颜色混合工具 — 线性插值的本质。</p>
+  <h1>🎨 mix — Shader 的万能调色板</h1>
+  <p style="font-size:1.05rem;"><code>mix()</code> 是 Shader 中使用频率最高的函数之一。它的本质就一句话：<strong>按比例混合两个值</strong>。不管是颜色、位置、大小还是形状，全都能混。</p>
 
-<h2>一、函数定义</h2>
-<div class="formula">
-mix(a, b, t) = a × (1 - t) + b × t
-</div>
-<p>当 <code>t = 0</code> 时返回 <code>a</code>，当 <code>t = 1</code> 时返回 <code>b</code>，中间值则按比例混合。</p>
+  <hr>
 
-<h2>二、数值速查</h2>
-<table>
-<tr><th>t</th><th>mix(红, 蓝, t)</th><th>含义</th></tr>
-<tr><td>0.0</td><td style="color:#f85149">纯红</td><td>100% a, 0% b</td></tr>
-<tr><td>0.25</td><td style="color:#c06080">偏红</td><td>75% a, 25% b</td></tr>
-<tr><td>0.50</td><td style="color:#8060a0">中间紫</td><td>50-50 对半</td></tr>
-<tr><td>0.75</td><td style="color:#5060c0">偏蓝</td><td>25% a, 75% b</td></tr>
-<tr><td>1.0</td><td style="color:#58a6ff">纯蓝</td><td>0% a, 100% b</td></tr>
-</table>
-
-<h2>三、交互调色</h2>
-<div class="interactive">
-  <div class="color-row">
-    <div class="swatch" id="sw-a" style="background:#f85149"></div>
-    <span class="arrow">→</span>
-    <canvas id="mix-bar"></canvas>
-    <span class="arrow">→</span>
-    <div class="swatch" id="sw-b" style="background:#58a6ff"></div>
+  <h2>一、像调奶茶一样理解 mix</h2>
+  <div class="tip-box">
+    <code>mix(a, b, t) = a × (1 - t) + b × t</code>
   </div>
-  <div class="slider-row">
-    <label>t:</label>
-    <input type="range" id="s-t" min="0" max="100" value="50">
-    <span class="val" id="v-t">0.50</span>
+  <p>想象你面前有两杯饮料：<strong>A 杯是纯咖啡 ☕</strong>，<strong>B 杯是纯牛奶 🥛</strong>。<code>t</code> 就是你往杯子里倒了多少比例的牛奶：</p>
+  <ul>
+    <li><code>t = 0.0</code>：一滴牛奶都没放 → 纯咖啡（100% A）</li>
+    <li><code>t = 0.3</code>：放了三成牛奶 → 偏咖啡色的拿铁</li>
+    <li><code>t = 0.5</code>：咖啡和牛奶对半 → 标准拿铁</li>
+    <li><code>t = 1.0</code>：杯子里全是牛奶 → 纯牛奶（100% B）</li>
+  </ul>
+  <p>在 Shader 中，A 和 B 可以是任何东西：两个颜色、两个位置、两个亮度数字……而 <code>t</code> 就是"偏向 B 的程度"。</p>
+
+  <hr>
+
+  <h2>二、互动调色实验室</h2>
+  <p>拖动滑块观察两种颜色是如何按比例融合的。注意<strong>渐变条</strong>上白色圆点的位置就是当前 t 值对应的混合结果：</p>
+
+  <div class="card" style="border-color: rgba(88, 166, 255, 0.5);">
+    <div style="display:flex;align-items:center;gap:15px;justify-content:center;margin-bottom:15px;">
+      <div style="text-align:center;">
+        <div class="swatch" id="sw-a" style="background:#f85149"></div>
+        <div style="font-size:0.8rem;color:#f85149;margin-top:4px;">A 纯红</div>
+      </div>
+      <span style="color:#8b949e;font-size:1.5rem;">→</span>
+      <canvas id="mix-bar" height="50" style="height:50px;flex:1;max-width:400px;"></canvas>
+      <span style="color:#8b949e;font-size:1.5rem;">→</span>
+      <div style="text-align:center;">
+        <div class="swatch" id="sw-b" style="background:#58a6ff"></div>
+        <div style="font-size:0.8rem;color:#58a6ff;margin-top:4px;">B 纯蓝</div>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-bottom:15px;">
+      <div class="swatch" id="sw-result" style="width:140px;height:60px;"></div>
+      <div id="result-text" style="font-family:monospace;font-size:0.9rem;color:#58a6ff;margin-top:8px;"></div>
+    </div>
+
+    <div class="slider-container">
+      <div class="slider-row">
+        <label>混合比 t</label>
+        <input type="range" id="s-t" min="0" max="100" value="50">
+        <span class="val" id="v-t">0.50</span>
+      </div>
+    </div>
   </div>
-  <div class="color-row" style="justify-content:center">
-    <div class="swatch" id="sw-result" style="width:120px;height:50px"></div>
-    <span id="result-text" style="font-family:monospace;font-size:.85rem;color:#8b949e"></span>
+
+  <hr>
+
+  <h2>三、数值速查表</h2>
+  <table>
+    <tr><th>t 值</th><th>mix(红, 蓝, t)</th><th>大白话</th></tr>
+    <tr><td>0.0</td><td style="color:#f85149">■ 纯红</td><td>一滴 B 都没有，100% 全是 A</td></tr>
+    <tr><td>0.25</td><td style="color:#c06080">■ 偏红紫</td><td>四分之三的 A + 四分之一的 B</td></tr>
+    <tr><td>0.50</td><td style="color:#8060a0">■ 正紫色</td><td>对半开！红蓝各 50%</td></tr>
+    <tr><td>0.75</td><td style="color:#5060c0">■ 偏蓝紫</td><td>四分之一的 A + 四分之三的 B</td></tr>
+    <tr><td>1.0</td><td style="color:#58a6ff">■ 纯蓝</td><td>A 已经完全消失，100% 的 B</td></tr>
+  </table>
+
+  <hr>
+
+  <h2>四、Shader 中最常见的四大用法</h2>
+
+  <div class="card" style="border-top: 4px solid #f778ba;">
+    <h4 style="color:#f778ba;">🎨 用法 ① 上色（SDF 的标配）</h4>
+    <p><code>vec3 color = mix(背景色, 前景色, circle_mask);</code></p>
+    <p>圆的 SDF 遮罩是 0（外部）或 1（内部），带有平滑过渡边缘。把它当做 t 传进 mix，那些 0 的地方自动显示背景，1 的地方变成前景色。抗锯齿边缘则**按比例自动混合**两种颜色！</p>
   </div>
-</div>
 
-<h2>四、在 Shader 中的典型用法</h2>
-<div class="tip">
-  <strong>🎨 SDF 着色（最常用）</strong><br>
-  <code>vec3 color = mix(bg, fg, circle_mask);</code><br>
-  circle_mask 为 0 → 背景色，为 1 → 前景色，边缘处平滑过渡。
-</div>
-<div class="tip">
-  <strong>🌅 渐变</strong><br>
-  <code>vec3 color = mix(color1, color2, uv.y);</code><br>
-  UV 的 y 从 0→1，颜色自然从 color1 过渡到 color2。
-</div>
-<div class="tip">
-  <strong>⏱ 动画过渡</strong><br>
-  <code>float t = smoothstep(0.0, 1.0, u_time);</code><br>
-  <code>vec3 color = mix(stateA, stateB, t);</code><br>
-  用时间驱动 t，实现状态之间的平滑动画。
-</div>
-<div class="tip">
-  <strong>💡 mix 不限于颜色</strong><br>
-  可以混合任何类型：float、vec2、vec3、vec4<br>
-  <code>float size = mix(0.1, 0.5, pulse);</code> — 混合数值<br>
-  <code>vec2 pos = mix(posA, posB, t);</code> — 混合位置
-</div>
+  <div class="card" style="border-top: 4px solid #3fb950;">
+    <h4 style="color:#3fb950;">🌅 用法 ② 天空渐变</h4>
+    <p><code>vec3 color = mix(地面棕, 天空蓝, uv.y);</code></p>
+    <p><code>uv.y</code> 从 0(底部) 到 1(顶部)。屏幕下方 t≈0 显示棕色地面，上方 t≈1 变成蓝天，中间自然过渡。一行代码画出日落渐变！</p>
+  </div>
 
-<div class="memory">
-  <div>t = 0 → 全 a ，t = 1 → 全 b</div>
-  <div class="sub">mix = 线性插值 | t 来自 smoothstep → 平滑过渡 | t 来自 UV → 渐变</div>
-</div>
-</div>
+  <div class="card" style="border-top: 4px solid #58a6ff;">
+    <h4 style="color:#58a6ff;">⏱ 用法 ③ 时间动画</h4>
+    <p><code>float t = smoothstep(0.0, 1.0, u_time);</code><br>
+    <code>vec3 color = mix(状态A, 状态B, t);</code></p>
+    <p>让时间 <code>u_time</code> 驱动 t 从 0 慢慢爬向 1，画面就在两个状态之间平滑过渡。这就是 Shader 动画的核心手法！</p>
+  </div>
 
+  <div class="card" style="border-top: 4px solid #bc8cff;">
+    <h4 style="color:#bc8cff;">📐 用法 ④ 不止是颜色！</h4>
+    <p>mix 可以混合任何类型的值：</p>
+    <ul>
+      <li><code>float size = mix(0.1, 0.5, pulse);</code> → 大小在 0.1 和 0.5 之间随 pulse 变化</li>
+      <li><code>vec2 pos = mix(posA, posB, t);</code> → 两个位置之间的平滑移动（做动画！）</li>
+    </ul>
+  </div>
+
+</div>
 <script>
 const sT = document.getElementById('s-t'), vT = document.getElementById('v-t');
 const mixBar = document.getElementById('mix-bar');
@@ -128,13 +153,12 @@ function update() {
   vT.textContent = t.toFixed(2);
   const r = lerp(cA[0],cB[0],t), g = lerp(cA[1],cB[1],t), b = lerp(cA[2],cB[2],t);
   swResult.style.background = `rgb(${r},${g},${b})`;
-  resultText.textContent = `rgb(${r}, ${g}, ${b})  t = ${t.toFixed(2)}`;
+  resultText.textContent = `mix 结果 = rgb(${r}, ${g}, ${b})  ←  t = ${t.toFixed(2)}`;
   drawBar();
-  // Draw marker
   const ctx = mixBar.getContext('2d');
   const mx = t * mixBar.width;
-  ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(mx, mixBar.height/2, 6, 0, Math.PI*2); ctx.fill();
-  ctx.strokeStyle = '#000'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(mx, mixBar.height/2, 6, 0, Math.PI*2); ctx.stroke();
+  ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(mx, mixBar.height/2, 8, 0, Math.PI*2); ctx.fill();
+  ctx.strokeStyle = '#000'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(mx, mixBar.height/2, 8, 0, Math.PI*2); ctx.stroke();
 }
 
 sT.addEventListener('input', update);

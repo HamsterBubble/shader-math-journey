@@ -3,157 +3,195 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🔁 fract 取小数 — 知识点</title>
+<title>🔁 fract 取小数与图案重复</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0d1117;color:#e6edf3;font-family:'Inter',-apple-system,sans-serif;line-height:1.8;padding:40px 24px}
-.container{max-width:880px;margin:0 auto}
-h1{font-size:2rem;margin-bottom:.3em;background:linear-gradient(135deg,#3fb950,#58a6ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-h2{font-size:1.3rem;color:#58a6ff;margin:2rem 0 .8rem;padding-left:12px;border-left:3px solid #58a6ff}
-p{color:#8b949e;margin-bottom:.8rem}
+body{background:#0d1117;color:#e6edf3;font-family:'Inter',-apple-system,sans-serif;line-height:1.7;padding:40px 24px;padding-bottom:80px}
+.container{max-width:820px;margin:0 auto}
+h1{font-size:1.8rem;margin-bottom:0.5rem;color:#58a6ff;}
+h2{font-size:1.3rem;color:#58a6ff;margin:2.5rem 0 1rem;padding-left:12px;border-left:3px solid #58a6ff}
+p, li{color:#8b949e;margin-bottom:.8rem; font-size: 0.95rem;}
 strong{color:#e6edf3}
-code{font-family:'JetBrains Mono',monospace;background:rgba(255,255,255,.06);padding:2px 6px;border-radius:4px;color:#58a6ff;font-size:.85rem}
-.formula{text-align:center;color:#58a6ff;background:rgba(88,166,255,.06);border:1px solid rgba(88,166,255,.15);border-radius:8px;padding:14px;margin:1rem 0;font-family:'JetBrains Mono',monospace;font-size:1.1rem}
-canvas{width:100%;height:220px;border-radius:8px;display:block;margin:1rem 0;background:#000}
-.interactive{background:rgba(88,166,255,.04);border:1px solid rgba(88,166,255,.12);border-radius:10px;padding:20px;margin:1.5rem 0}
-.slider-row{display:flex;align-items:center;gap:12px;margin:8px 0}
-.slider-row label{min-width:80px;font-size:.82rem;color:#8b949e}
-.slider-row input[type=range]{flex:1;accent-color:#58a6ff}
-.slider-row .val{min-width:40px;font-family:'JetBrains Mono',monospace;font-size:.8rem;color:#58a6ff}
-table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.85rem}
-th{background:rgba(255,255,255,.04);color:#58a6ff;padding:8px 12px;text-align:center}
-td{padding:8px 12px;text-align:center;color:#8b949e;border-top:1px solid rgba(255,255,255,.06)}
-.comparison{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:1rem 0}
-.card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:16px}
-.card h4{font-size:.85rem;color:#bc8cff;margin-bottom:8px}
-.tip{background:rgba(63,185,80,.06);border:1px solid rgba(63,185,80,.15);border-radius:8px;padding:12px 16px;margin:1rem 0;font-size:.88rem;color:#8b949e}
-.tip strong{color:#3fb950}
-.memory{text-align:center;font-size:1.4rem;color:#bc8cff;margin:2rem 0;padding:20px;background:rgba(188,140,255,.06);border:1px solid rgba(188,140,255,.15);border-radius:10px}
-.memory .sub{font-size:.85rem;color:#8b949e;margin-top:8px}
+code{font-family:'JetBrains Mono',monospace;background:rgba(255,255,255,.06);padding:2px 6px;border-radius:4px;color:#58a6ff;font-size:0.9rem}
+canvas{width:100%;border-radius:8px;display:block;margin:1rem 0;background:#000; border: 1px solid rgba(255,255,255,0.1);}
+.card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:24px; margin-bottom:20px;}
+.card h4{color:#39d2c0;margin-bottom:12px;font-size:1.05rem;}
+.tip-box{background:rgba(88,166,255,0.08);border:1px solid rgba(88,166,255,0.2);padding:16px 20px;border-radius:8px;font-size:0.9rem;margin:15px 0;}
+hr{border:0;border-top:1px solid rgba(255,255,255,0.1);margin:30px 0;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.slider-container{margin-top:15px;background:rgba(255,255,255,.02);padding:15px;border-radius:8px; border:1px solid rgba(255,255,255,.05);}
+.slider-row{display:flex;align-items:center;gap:12px;margin-bottom:8px;}
+.slider-row label{width:130px;font-size:0.85rem;color:#bc8cff;}
+input[type=range]{flex:1;accent-color:#58a6ff;}
+.val{font-family:monospace;font-size:0.85rem;color:#58a6ff;width:40px;}
+table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:0.9rem;}
+th{background:rgba(255,255,255,.04);color:#58a6ff;padding:8px 12px;text-align:center;border:1px solid rgba(255,255,255,0.06);}
+td{padding:8px 12px;text-align:center;color:#8b949e;border:1px solid rgba(255,255,255,0.06);}
 </style>
 </head>
 <body>
 <div class="container">
-<h1>🔁 fract 取小数与图案重复</h1>
-<p>只保留小数部分 — 将无限空间切割成<strong>无限重复的格子</strong>。</p>
+  <h1>🔁 fract — "无限复制粘贴"的底层密码</h1>
+  <p style="font-size:1.05rem;">想在 Shader 的屏幕上铺满重复的花纹、棋盘格或者无限延伸的瓷砖？你需要的就是一个函数：<code>fract()</code>。它是 Shader 世界中最强大的"复印机"。</p>
 
-<h2>一、函数定义</h2>
-<div class="formula">
-fract(x) = x - floor(x)
-</div>
-<p>效果：无论 x 多大，输出永远在 <strong>[0, 1)</strong> 之间循环。</p>
+  <hr>
 
-<h2>二、数值直觉</h2>
-<table>
-<tr><th>x</th><th>floor(x)</th><th>fract(x)</th><th>理解</th></tr>
-<tr><td>0.3</td><td>0</td><td style="color:#3fb950">0.3</td><td>小数部分</td></tr>
-<tr><td>1.7</td><td>1</td><td style="color:#3fb950">0.7</td><td>去掉整数</td></tr>
-<tr><td>3.14</td><td>3</td><td style="color:#3fb950">0.14</td><td>只留小数</td></tr>
-<tr><td>5.0</td><td>5</td><td style="color:#3fb950">0.0</td><td>整数 → 0</td></tr>
-<tr><td>-0.3</td><td>-1</td><td style="color:#3fb950">0.7</td><td>负数也安全</td></tr>
-</table>
-
-<h2>三、图形效果：锯齿波</h2>
-<div class="comparison">
-  <div class="card">
-    <h4>y = x（线性）</h4>
-    <canvas id="c-linear"></canvas>
+  <h2>一、fract 到底干了什么？</h2>
+  <div class="tip-box">
+    <code>fract(x) = x - floor(x)</code> → 只保留小数部分
   </div>
-  <div class="card">
-    <h4>y = fract(x)（重复）</h4>
-    <canvas id="c-fract"></canvas>
+  <p>本质就一句话：<strong>把一个数字的整数部分扔掉，只留小数部分</strong>。就像时钟上的分针，不管过了几小时，表盘上它永远只显示 0~59 分。</p>
+
+  <table>
+    <tr><th>输入 x</th><th>floor(x)</th><th>fract(x)</th><th>大白话</th></tr>
+    <tr><td>0.3</td><td>0</td><td style="color:#3fb950"><strong>0.3</strong></td><td>小数部分就是它自己</td></tr>
+    <tr><td>1.7</td><td>1</td><td style="color:#3fb950"><strong>0.7</strong></td><td>扔掉整数1，留下0.7</td></tr>
+    <tr><td>3.14</td><td>3</td><td style="color:#3fb950"><strong>0.14</strong></td><td>扔掉3，留下0.14</td></tr>
+    <tr><td>5.0</td><td>5</td><td style="color:#3fb950"><strong>0.0</strong></td><td>没有小数，归零重新开始！</td></tr>
+  </table>
+
+  <hr>
+
+  <h2>二、为什么它能复制图案？</h2>
+  <p>这是最神奇的地方。看看当 UV 坐标从 0 一直增长到比如 5.0 时，<code>fract(uv)</code> 会发生什么：</p>
+
+  <div class="card" style="border-color: rgba(88, 166, 255, 0.5);">
+    <h4 style="color:#58a6ff">📊 fract 的锯齿波魔法</h4>
+    <p>下方蓝色曲线是 <code>fract(uv.x * N)</code> 的输出。原本 uv.x 从 0 一路涨到 1，但 fract 让它每走完一个整数就<strong>咔嚓归零，重头再来</strong>！拖动滑块，看看重复次数 N 越大，锯齿越密集——也就是瓷砖越小越多！</p>
+    <canvas id="c-saw" height="160"></canvas>
+    <div class="slider-container">
+      <div class="slider-row">
+        <label>重复次数 N</label>
+        <input type="range" id="sl-n" min="1" max="10" value="4">
+        <span class="val" id="vl-n">4</span>
+      </div>
+    </div>
   </div>
-</div>
 
-<h2>四、交互：控制密度</h2>
-<div class="interactive">
-  <canvas id="c-interactive"></canvas>
-  <div class="slider-row">
-    <label>重复数 N:</label>
-    <input type="range" id="s-n" min="1" max="20" value="4">
-    <span class="val" id="v-n">4</span>
+  <hr>
+
+  <h2>三、实时渲染：fract 铺出来的瓷砖世界</h2>
+  <p>左边是一个普通的圆形 SDF 图案。右边则对 UV 做了 <code>fract(uv * N)</code>，于是同一个圆被无限复制铺满了整个屏幕！</p>
+
+  <div class="grid-2">
+    <div>
+      <p style="text-align:center;color:#f778ba;font-weight:bold;">原始 UV（只有一个圆）</p>
+      <canvas id="c-single" height="200"></canvas>
+    </div>
+    <div>
+      <p style="text-align:center;color:#58a6ff;font-weight:bold;">fract(uv * N)（铺满！）</p>
+      <canvas id="c-tiled" height="200"></canvas>
+    </div>
   </div>
-  <p style="font-size:.82rem;color:#8b949e;margin-top:8px">使用 <code>fract(uv * N)</code>，N 越大 → 格子越多</p>
-</div>
+  <div class="slider-container" style="margin-top:5px;">
+    <div class="slider-row">
+      <label>瓷砖密度 N</label>
+      <input type="range" id="sl-tile" min="1" max="8" value="3">
+      <span class="val" id="vl-tile">3</span>
+    </div>
+  </div>
 
-<h2>五、2D 空间重复</h2>
-<canvas id="c-2d" style="height:260px"></canvas>
-<p style="font-size:.82rem;color:#8b949e"><code>vec2 cell_uv = fract(uv * 4.0)</code> — 将画面均匀切成 4×4 格子，每个格子内 UV 从 0~1 重新开始。</p>
+  <hr>
 
-<h2>六、与 floor 搭配</h2>
-<div class="tip">
-  <strong>💡 fract + floor = 完整信息</strong><br>
-  <code>vec2 cellId = floor(uv * N);</code> — 哪个格子 (整数 ID)<br>
-  <code>vec2 cellUv = fract(uv * N);</code> — 格子内坐标 (0~1)<br>
-  两者配合 → 同时知道"在哪个格子"和"格子内的位置"
-</div>
-<div class="tip">
-  <strong>💡 偏移形成交错</strong><br>
-  <code>if (mod(floor(uv.y * N), 2.0) == 1.0) uv.x += 0.5;</code><br>
-  奇数行偏移半格 → 砖墙排列效果
-</div>
+  <h2>四、常见搭配技巧</h2>
+  <div class="card" style="border-top: 4px solid #f778ba;">
+    <h4 style="color:#f778ba;">🔢 搭配 floor —— 获取格子编号</h4>
+    <p><code>floor(uv * N)</code> 返回的是第几个格子（整数编号）。<br>
+    <code>fract(uv * N)</code> 返回的是格子内部的局部坐标。<br>
+    两者配合就能做出棋盘格：<code>mod(floor(uv.x * N) + floor(uv.y * N), 2.0)</code> → 奇偶交替黑白！</p>
+  </div>
 
-<div class="memory">
-  <div>fract(x) = 永远在 0~1 循环</div>
-  <div class="sub">乘 N 再 fract → N 倍重复 | floor = 格子序号 | fract = 格子内坐标</div>
-</div>
-</div>
+  <div class="card" style="border-top: 4px solid #3fb950;">
+    <h4 style="color:#3fb950;">🌊 搭配 sin —— 做波纹</h4>
+    <p><code>sin(fract(uv.x * 5.0) * 6.28)</code> → 5 个完整的正弦波周期。<br>fract 负责制造重复，sin 负责画出波浪线形。</p>
+  </div>
 
+</div>
 <script>
-function drawGraph(canvasId, fn, opts = {}) {
-  const c = document.getElementById(canvasId);
+function ss(e0, e1, x) { let t = Math.max(0, Math.min(1, (x - e0) / (e1 - e0))); return t * t * (3 - 2 * t); }
+
+// Sawtooth graph
+function drawSaw() {
+  const N = parseInt(document.getElementById('sl-n').value);
+  document.getElementById('vl-n').textContent = N;
+  const c = document.getElementById('c-saw');
   const ctx = c.getContext('2d');
   c.width = c.offsetWidth * 2; c.height = c.offsetHeight * 2;
-  const W = c.width, H = c.height;
-  ctx.clearRect(0, 0, W, H);
-  ctx.strokeStyle = 'rgba(255,255,255,.06)'; ctx.lineWidth = 1;
-  for (let i = 0; i <= 10; i++) { const x = W*i/10; ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); const y = H*i/10; ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
-  ctx.beginPath(); ctx.strokeStyle = opts.color || '#3fb950'; ctx.lineWidth = 3;
-  const xRange = opts.xRange || [0, 1]; const yRange = opts.yRange || [0, 1];
-  for (let px = 0; px < W; px++) {
-    const x = xRange[0] + (px/W)*(xRange[1]-xRange[0]);
-    const y = fn(x);
-    const cy = H - ((y - yRange[0]) / (yRange[1] - yRange[0])) * H * 0.85 - H * 0.075;
-    if (px === 0) ctx.moveTo(px, cy); else ctx.lineTo(px, cy);
+  const W = c.width, H = c.height, pad = 30;
+  ctx.fillStyle = '#080c14'; ctx.fillRect(0,0,W,H);
+  // Axes
+  ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(pad, H-pad); ctx.lineTo(W-pad, H-pad); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(pad, pad); ctx.lineTo(pad, H-pad); ctx.stroke();
+  // Labels
+  ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.font = `${Math.round(H*0.06)}px monospace`; ctx.textAlign = 'center';
+  ctx.fillText('0', pad, H-pad+16); ctx.fillText('1', W-pad, H-pad+16);
+  ctx.textAlign = 'right'; ctx.fillText('0', pad-6, H-pad+4); ctx.fillText('1', pad-6, pad+8);
+  // Curve
+  const pW = W - pad*2, pH = H - pad*2;
+  ctx.beginPath(); ctx.strokeStyle = '#58a6ff'; ctx.lineWidth = 3;
+  for(let px=0; px<=pW; px++) {
+    const x = px / pW;
+    const y = (x * N) - Math.floor(x * N); // fract
+    const plotX = pad + px;
+    const plotY = (H - pad) - y * pH;
+    if(px===0) ctx.moveTo(plotX, plotY); else ctx.lineTo(plotX, plotY);
   }
   ctx.stroke();
 }
 
-drawGraph('c-linear', x => x, { xRange: [0,4], yRange: [0,4], color: 'rgba(255,255,255,.3)' });
-drawGraph('c-fract', x => x - Math.floor(x), { xRange: [0,4], yRange: [0,1], color: '#3fb950' });
-
-// Interactive
-const sN = document.getElementById('s-n'), vN = document.getElementById('v-n');
-function updateFract() {
-  const N = parseInt(sN.value);
-  vN.textContent = N;
-  drawGraph('c-interactive', x => (x*N) - Math.floor(x*N), { xRange: [0,1], yRange: [0,1], color: '#58a6ff' });
+// Circle rendering
+function drawCircles() {
+  const N = parseInt(document.getElementById('sl-tile').value);
+  document.getElementById('vl-tile').textContent = N;
+  
+  ['c-single', 'c-tiled'].forEach((id, idx) => {
+    const c = document.getElementById(id);
+    const ctx = c.getContext('2d');
+    const w = c.offsetWidth * 2, h = c.offsetHeight * 2;
+    c.width = w; c.height = h;
+    const img = ctx.getImageData(0,0,w,h);
+    const data = img.data;
+    const useTile = idx === 1;
+    
+    for(let py=0; py<h; py++) {
+      for(let px=0; px<w; px++) {
+        let uvx = px / w;
+        let uvy = 1.0 - py / h;
+        
+        if(useTile) {
+          uvx = (uvx * N) - Math.floor(uvx * N);
+          uvy = (uvy * N) - Math.floor(uvy * N);
+        }
+        
+        // Center
+        uvx = uvx * 2.0 - 1.0;
+        uvy = uvy * 2.0 - 1.0;
+        
+        const d = Math.sqrt(uvx*uvx + uvy*uvy) - 0.6;
+        const t = Math.max(0, Math.min(1, (0.02 - d) / 0.04));
+        const circle = t * t * (3 - 2 * t);
+        
+        let r = 13 + circle * 40;
+        let g = 15 + circle * 140;
+        let b = 26 + circle * 230;
+        
+        // glow
+        const glow = Math.exp(-Math.abs(d) * 12) * 0.2;
+        r += 51 * glow; g += 153 * glow; b += 255 * glow;
+        
+        const i = (py * w + px) * 4;
+        data[i] = Math.min(255, r); data[i+1] = Math.min(255, g); data[i+2] = Math.min(255, b); data[i+3] = 255;
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+  });
 }
-sN.addEventListener('input', updateFract);
-updateFract();
 
-// 2D grid
-function draw2D() {
-  const c = document.getElementById('c-2d');
-  const ctx = c.getContext('2d');
-  c.width = c.offsetWidth * 2; c.height = c.offsetHeight * 2;
-  const W = c.width, H = c.height, N = 4;
-  const img = ctx.createImageData(W, H);
-  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
-    const u = (x/W)*N, v = (y/H)*N;
-    const fu = u - Math.floor(u), fv = v - Math.floor(v);
-    const d = Math.sqrt((fu-0.5)**2 + (fv-0.5)**2);
-    const circle = d < 0.3 ? 1 : 0;
-    const r = circle ? 88 : 15, g = circle ? 166 : 20, b = circle ? 255 : 40;
-    const i = (y*W+x)*4;
-    img.data[i]=r; img.data[i+1]=g; img.data[i+2]=b; img.data[i+3]=255;
-    // Grid lines
-    if (fu < 0.01 || fv < 0.01) { img.data[i]=60; img.data[i+1]=70; img.data[i+2]=90; }
-  }
-  ctx.putImageData(img, 0, 0);
-}
-draw2D();
-window.addEventListener('resize', () => { drawGraph('c-linear', x=>x, {xRange:[0,4],yRange:[0,4],color:'rgba(255,255,255,.3)'}); drawGraph('c-fract', x=>x-Math.floor(x), {xRange:[0,4],yRange:[0,1],color:'#3fb950'}); updateFract(); draw2D(); });
+document.getElementById('sl-n').addEventListener('input', drawSaw);
+document.getElementById('sl-tile').addEventListener('input', drawCircles);
+drawSaw(); drawCircles();
+window.addEventListener('resize', () => { drawSaw(); drawCircles(); });
 </script>
 </body>
 </html>

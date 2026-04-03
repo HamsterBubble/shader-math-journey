@@ -5,10 +5,41 @@ import Toolbar from './components/Toolbar.jsx';
 import InstructionPanel from './components/InstructionPanel.jsx';
 import PreviewCanvas from './components/PreviewCanvas.jsx';
 import CodeEditor from './components/CodeEditor.jsx';
+import KnowledgePanel from './components/KnowledgePanel.jsx';
 
 export default function App() {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(() => {
+    try {
+      const stored = localStorage.getItem('completedLessons');
+      const completed = stored ? JSON.parse(stored) : [];
+      const idx = lessons.findIndex(l => !completed.includes(l.id));
+      return idx >= 0 ? idx : 0;
+    } catch {
+      return 0;
+    }
+  });
   const [compileStatus, setCompileStatus] = useState({ ok: true, error: null });
+  const [selectedKnowledge, setSelectedKnowledge] = useState(null);
+  
+  const [completedLessons, setCompletedLessons] = useState(() => {
+    try {
+      const stored = localStorage.getItem('completedLessons');
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const toggleComplete = useCallback((id) => {
+    setCompletedLessons(prev => {
+      const next = prev.includes(id) 
+        ? prev.filter(x => x !== id) 
+        : [...prev, id];
+      localStorage.setItem('completedLessons', JSON.stringify(next));
+      return next;
+    });
+  }, []);
+
   const rendererRef = useRef(null);
   const editorRef = useRef(null);
 
@@ -42,18 +73,25 @@ export default function App() {
     if (currentIndex < lessons.length - 1) handleLessonChange(currentIndex + 1);
   }, [currentIndex, handleLessonChange]);
 
+  const handleOpenKnowledge = useCallback((kp) => {
+    setSelectedKnowledge(kp);
+  }, []);
+
   return (
     <div className="app">
       <Sidebar
         stages={stages}
         lessons={lessons}
         currentIndex={currentIndex}
+        completedLessons={completedLessons}
         onSelectLesson={handleLessonChange}
       />
       <div className="main">
         <Toolbar
           title={lesson.title}
           badge={lesson.badge}
+          isCompleted={completedLessons.includes(lesson.id)}
+          onToggleComplete={() => toggleComplete(lesson.id)}
           onReset={handleReset}
           onPrev={handlePrev}
           onNext={handleNext}
@@ -63,6 +101,7 @@ export default function App() {
         <div className="workspace">
           <InstructionPanel
             lesson={lesson}
+            onOpenKnowledge={handleOpenKnowledge}
           />
           <div className="editor-preview">
             <PreviewCanvas
@@ -85,6 +124,11 @@ export default function App() {
           </div>
         </div>
       </div>
+      <KnowledgePanel
+        selectedKnowledge={selectedKnowledge}
+        onSelect={setSelectedKnowledge}
+        onBack={() => setSelectedKnowledge(null)}
+      />
     </div>
   );
 }

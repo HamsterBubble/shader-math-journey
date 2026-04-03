@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>✨ 颜色加减与光效叠加：底层原理与高阶方案</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0d1117;color:#e6edf3;font-family:'Inter',-apple-system,sans-serif;line-height:1.7;padding:40px 24px; padding-bottom: 80px;}
+.container{max-width:880px;margin:0 auto}
+h1{font-size:1.8rem;margin-bottom:0.5rem;color:#58a6ff;}
+h2{font-size:1.3rem;color:#58a6ff;margin:2.5rem 0 1rem;padding-left:12px;border-left:3px solid #58a6ff}
+h3{font-size:1.1rem;color:#e6edf3;margin:1.5rem 0 0.8rem;}
+p, li{color:#8b949e;margin-bottom:.8rem; font-size: 0.95rem;}
+strong{color:#e6edf3}
+code{font-family:'JetBrains Mono',monospace;background:rgba(255,255,255,.06);padding:2px 6px;border-radius:4px;color:#58a6ff;font-size:0.9rem}
+pre.code-block{background:rgba(0,0,0,0.4);border:1px solid rgba(88,166,255,0.2);padding:15px;border-radius:8px;overflow-x:auto;font-family:'JetBrains Mono',monospace;color:#a5d6ff;font-size:0.9rem;margin:10px 0 20px;}
+canvas{border-radius:8px;display:block;margin:1rem auto;background:#000; border: 1px solid rgba(255,255,255,0.1); box-shadow:0 0 20px rgba(0,0,0,0.8);}
+.card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:24px; margin-bottom:20px;}
+.tip-box{background:rgba(88,166,255,0.08);border:1px solid rgba(88,166,255,0.2);padding:16px 20px;border-radius:8px;font-size:0.9rem;margin:15px 0;}
+hr{border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 40px 0;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+
+/* 交互区样式 */
+.interactive-panel {background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 30px; display: flex; flex-direction: column; align-items: center;}
+.selectors {display:flex; gap:15px; flex-wrap:wrap; justify-content:center; margin-bottom: 25px;}
+.btn-blend {background:#21262d;border:1px solid rgba(255,255,255,0.1);color:#c9d1d9;padding:8px 16px;border-radius:6px;cursor:pointer;transition:all 0.2s;}
+.btn-blend:hover {border-color:#8b949e;}
+.btn-blend.active {background:#1f6feb;border-color:#58a6ff;color:#ffffff;}
+.demo-formula {font-family:monospace; font-size:1.1rem; color:#58a6ff; margin-top:20px; background:rgba(88,166,255,0.1); padding: 8px 20px; border-radius: 6px;}
+.demo-desc {text-align:center;color:#8b949e;margin-top:15px; font-size:0.95rem; max-width:600px;}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>✨ 颜色加减与光效叠加：Shader底层原理</h1>
+  <p style="font-size:1.05rem;">在 WebGL 和 Shader 开发中，我们绝不能用现实中“刷油漆覆盖”的思维去理解颜色。屏幕背后的本质是<strong>受激发光的二极管</strong>，所谓的色彩合成，底层就是严酷的数字<strong>加减乘除</strong>。</p>
+  <p>只要弄懂这几套数学法则，Photoshop里的“滤色、叠加、正片叠底”以及游戏里的“激光、极光、冲击波”你都能靠几行代码徒手捏出来！</p>
+
+  <hr>
+
+  <h2>第一部分：四大基础色彩算法（光之四则运算）</h2>
+  <div class="tip-box">
+    我们设定：底层是一团蓝色星云 <strong>A = `vec3(0, 0, 0.8)`</strong>；飞来了一发红色激光 <strong>B = `vec3(0.8, 0, 0)`</strong>。两团像素发生相撞时的四种基础反应：
+  </div>
+
+  <div class="grid-2">
+    <!-- 1. 加法 -->
+    <div class="card" style="border-top: 4px solid #f778ba;">
+      <h3 style="color:#f778ba;">➕ 加法 ( += )：极亮发光叠加</h3>
+      <p><strong>底层逻辑</strong>：光子越聚越多，能量直接相加。<br><code>公式: result = A + B</code>。超出 1.0 的部分会溢出变成刺眼的死白。</p>
+      <p><strong>特效应用</strong>：镭射波、强光束、霓虹灯、魔法特效。这是一切自发光材质的绝对基石。在图像软件中称为 <strong>Linear Dodge (线性减淡)</strong>。</p>
+      <code>vec3 result = A + B; // -> vec3(0.8, 0, 0.8) 洋红色，非常亮</code>
+    </div>
+
+    <!-- 2. 乘法 -->
+    <div class="card" style="border-top: 4px solid #bc8cff;">
+      <h3 style="color:#bc8cff;">✖️ 乘法 ( *= )：遮罩过滤 / 衰减</h3>
+      <p><strong>底层逻辑</strong>：由于 RGB 是 [0, 1] 之间的小数，乘法等于<strong>打折（越乘越暗）</strong>。任何光乘黑(0)都会被无情抹掉。</p>
+      <p><strong>特效应用</strong>：阴影贴花、根据 SDF 创建的遮罩裁剪、全局降低亮度。在图像软件中这叫做 <strong>Multiply (正片叠底)</strong>。</p>
+      <code>vec3 result = A * B; // -> vec3(0,0,0) 全黑！纯蓝与纯红没有交集</code>
+    </div>
+
+    <!-- 3. 插值 -->
+    <div class="card" style="border-top: 4px solid #3fb950;">
+      <h3 style="color:#3fb950;">⚖️ 插值 mix(A, B, alpha)：阿尔法混合</h3>
+      <p><strong>底层逻辑</strong>：像放一张半透明的贴纸。由 Alpha (0~1) 控制 B 借用多少 A 的面积。<br><code>公式: A*(1 - a) + B*a</code></p>
+      <p><strong>特效应用</strong>：渲染带透明度的 UI、画硬边缘的几何体盖在底图上。这是经典的 <strong>Normal (正常混合)</strong>。</p>
+      <code>vec3 result = mix(A, B, 1.0); // -> vec3(0.8,0,0) A 完全被 B 盖掉</code>
+    </div>
+
+    <!-- 4. 减法 -->
+    <div class="card" style="border-top: 4px solid #ff7b72;">
+      <h3 style="color:#ff7b72;">➖ 减法 ( -= )：凿洞与色相反转</h3>
+      <p><strong>底层逻辑</strong>：抽干光子。<br><code>公式: result = A - B</code>，结果低于 0.0 底限则被截断为彻底的深渊黑。</p>
+      <p><strong>特效应用</strong>：在发光的网格中劈开一道黑暗的裂缝、用 <code>1.0 - color</code> 制作负片反相效果。在软件里称为 <strong>Subtract (减去)</strong>。</p>
+      <code>vec3 result = A - B; // -> 蓝光被红光减，互不相关，依然是蓝色</code>
+    </div>
+  </div>
+
+  <hr>
+
+  <h2>第二部分：视觉实验室（亲手操控像素相撞）</h2>
+  <p>底图是一团幽冷的<strong>纯蓝光 🔵</strong>，我们要叠加上一团燃烧的<strong>纯红光 🔴</strong>。选择下方的不同方程式，观察两束光在正中心交汇时，像素的剧烈化学反应：</p>
+  
+  <div class="interactive-panel">
+    <div class="selectors" id="mode-selectors">
+      <!-- Buttons injected by JS -->
+    </div>
+    
+    <!-- Using a hidden base canvas and a display canvas for pixel operations -->
+    <canvas id="playground" width="300" height="200"></canvas>
+    
+    <div class="demo-formula" id="lbl-formula">result = A</div>
+    <p class="demo-desc" id="lbl-desc">描述</p>
+  </div>
+
+  <hr>
+
+  <h2>第三部分：高阶特效公式方案（PS神技复刻）</h2>
+  <p>纯粹的相加或相乘有时候会过于极端（太亮或太暗）。Shader 前辈们根据人眼感光曲线，推导出了很多极其优美的改良公式。</p>
+  
+  <div class="card">
+    <h4 style="color:#58a6ff;">✨ 方案一：Screen (滤色) — 最完美的柔和发光光晕</h4>
+    <p>直接用 <code>A+B</code> 相加的话很容易突破1.0产生死白，细节会全部糊掉。<strong>滤色(Screen)</strong> 是发光特效中最通用的防爆白方案。它会让底层和顶层的光像投屏机一样叠加，永远不会超过纯白，非常适合做极光、星空光晕。</p>
+    <pre class="code-block"><code>// Screen 公式 (A, B 必须是 0.0 ~ 1.0 之间)
+vec3 screenEffect(vec3 A, vec3 B) {
+    return 1.0 - (1.0 - A) * (1.0 - B);
+}</code></pre>
+  </div>
+
+  <div class="card">
+    <h4 style="color:#bc8cff;">✨ 方案二：Overlay (叠加) — 神秘的对比度增强</h4>
+    <p>做游戏场景后期或材质强化时无敌好用。如果底层偏亮，它就在上面做滤色发光；如果底层偏暗，它就在上面做正片叠底。它会让亮的更亮，暗的更黑！</p>
+    <pre class="code-block"><code>// Overlay 公式 (需要依据底色 A 的亮度分情况计算)
+vec3 overlayEffect(vec3 A, vec3 B) {
+    // 这里是一个快速拟合近似的极简写法
+    // 根据底色 A 决定使用哪种混色倾向
+    vec3 result;
+    for(int i=0; i<3; i++) { // 对RGB分别计算
+        if(A[i] < 0.5) result[i] = 2.0 * A[i] * B[i];
+        else result[i] = 1.0 - 2.0 * (1.0 - A[i]) * (1.0 - B[i]);
+    }
+    return result;
+}</code></pre>
+  </div>
+  
+  <div class="card">
+    <h4 style="color:#39d2c0;">✨ 方案三：Soft Light (柔光) — 注入氛围色</h4>
+    <p>就像在镜头前蒙上一层有颜色的玻璃纸。如果你写了一个极度黑暗冷酷的灰度迷宫 Shader，可以在最后一步加上一点暖橘色的 Soft Light，绝不破坏原有图案的立体感。</p>
+    <pre class="code-block"><code>// 简化的柔光模拟公式
+vec3 softLight(vec3 A, vec3 B) {
+    return A * (1.0 - A) * B + A;
+}</code></pre>
+  </div>
+
+</div>
+<script>
+const modes = [
+  {
+    id: 'normal', name: '替换盖层 (=)',
+    formula: 'B', desc: '毫无光学感应。就像现实中的不透明贴纸盖在了图上，直接强行替换颜色。',
+    fn: (a, b) => b
+  },
+  {
+    id: 'add', name: '相加发光 (+=)',
+    formula: 'A + B', desc: '光的特性！像素值被暴力相加，纯红(1,0,0)+纯蓝(0,0,1)=高亮洋红色(1,0,1)。这是我们做绝大多数 Shader 光效的必备方式！',
+    fn: (a, b) => Math.min(255, a + b)
+  },
+  {
+    id: 'mult', name: '相乘过滤 (*=)',
+    formula: 'A * B', desc: '正片叠底。任何包含 0 的通道都会被抹杀。因为 A(蓝)没红，B(红)没蓝，所以交点全部变死黑！这通常被当做遮罩(Mask)用来剪裁图案。',
+    fn: (a, b) => (a * b) / 255
+  },
+  {
+    id: 'sub', name: '相减黑洞 (-=)',
+    formula: 'max(0, A - B)', desc: '在 A(蓝) 的底子上硬生生减去了红色通道。因为蓝色里原本就没有红可减，所以底部毫无变化！',
+    fn: (a, b) => Math.max(0, a - b)
+  },
+  {
+    id: 'screen', name: '高阶：滤色 (Screen)',
+    formula: '1.0 - (1.0-A) * (1.0-B)', desc: '柔和叠加界的女王。它像在暗室同时打开两台投影仪，色彩得到了完美的交织与混合，保留极其优美的发光细节。',
+    fn: (a, b) => 255 - (((255 - a) * (255 - b)) / 255)
+  },
+  {
+    id: 'mix', name: '透明插值 (mix Alpha)',
+    formula: 'A*(1-α) + B*α', desc: '当给红光加上 50% 也就是 0.5 的透明度时，背景会有透发效应。这是传统 UI 和 2D 绘图最常用的标准做法。',
+    fn: (a, b) => (a * 0.5) + (b * 0.5) // a 50% blend
+  }
+];
+
+const canvas = document.getElementById('playground');
+const ctx = canvas.getContext('2d');
+const btnContainer = document.getElementById('mode-selectors');
+const lblFormula = document.getElementById('lbl-formula');
+const lblDesc = document.getElementById('lbl-desc');
+
+let currentMode = modes[1]; // default to add
+
+// Render function: we do raw pixel manipulation to emulate shaders exactly!
+function render() {
+  const w = canvas.width;
+  const h = canvas.height;
+  
+  // Base background is deep dark (not perfectly black so mult/screen act interestingly)
+  ctx.fillStyle = '#080c14';
+  ctx.fillRect(0,0,w,h);
+  
+  // Get image data to write manually
+  const imgData = ctx.getImageData(0,0,w,h);
+  const data = imgData.data;
+  
+  // A is Blue (bg), B is Red (fg)
+  // Circle A properties
+  const ax = w*0.4, ay = h*0.5, ar = 60;
+  // Circle B properties
+  const bx = w*0.6, by = h*0.5, br = 60;
+
+  for(let y=0; y<h; y++) {
+    for(let x=0; x<w; x++) {
+      const idx = (y * w + x) * 4;
+      
+      // Calculate smooth distance for A
+      const distA = Math.hypot(x - ax, y - ay);
+      const intensityA = Math.max(0, 1.0 - distA/ar); // 0 to 1
+      const A_R = 0, A_G = 50 * intensityA, A_B = 255 * intensityA;
+      
+      // Calculate smooth distance for B
+      const distB = Math.hypot(x - bx, y - by);
+      const intensityB = Math.max(0, 1.0 - distB/br); // 0 to 1
+      const B_R = 255 * intensityB, B_G = 30 * intensityB, B_B = 0;
+
+      // Base background noise color
+      let Final_R = 10, Final_G = 15, Final_B = 25;
+      
+      // Add Circle A to background naturally (Additive)
+      const curA_R = Math.min(255, Final_R + A_R);
+      const curA_G = Math.min(255, Final_G + A_G);
+      const curA_B = Math.min(255, Final_B + A_B);
+      
+      // If there is Circle B influence, apply the selected BLEND operation!
+      if (intensityB > 0) {
+        if(currentMode.id === 'normal') {
+          // Normal implies alpha composition where B covers A entirely if B exists solidly, 
+          // but we have a soft brush. Let's do a hard replace where intensity > 0.1 for visibility
+          if(intensityB > 0.05) {
+             Final_R = B_R; Final_G = B_G; Final_B = B_B;
+          } else {
+             Final_R = curA_R; Final_G = curA_G; Final_B = curA_B;
+          }
+        } else {
+             Final_R = currentMode.fn(curA_R, B_R);
+             Final_G = currentMode.fn(curA_G, B_G);
+             Final_B = currentMode.fn(curA_B, B_B);
+        }
+      } else {
+        // Just A
+        Final_R = curA_R; Final_G = curA_G; Final_B = curA_B;
+      }
+      
+      data[idx] = Final_R;
+      data[idx+1] = Final_G;
+      data[idx+2] = Final_B;
+      data[idx+3] = 255;
+    }
+  }
+  ctx.putImageData(imgData, 0, 0);
+  
+  // UI update
+  lblFormula.innerText = currentMode.formula;
+  lblDesc.innerText = currentMode.desc;
+}
+
+// Setup buttons
+modes.forEach(m => {
+  const btn = document.createElement('button');
+  btn.className = 'btn-blend';
+  if(m === currentMode) btn.classList.add('active');
+  btn.innerText = m.name;
+  btn.onclick = () => {
+    document.querySelectorAll('.btn-blend').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentMode = m;
+    render();
+  };
+  btnContainer.appendChild(btn);
+});
+
+render();
+</script>
+</body>
+</html>

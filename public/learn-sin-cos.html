@@ -1,132 +1,497 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🌊 sin/cos 三角函数 — 知识点</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:#0d1117;color:#e6edf3;font-family:'Inter',-apple-system,sans-serif;line-height:1.8;padding:40px 24px}
-.container{max-width:880px;margin:0 auto}
-h1{font-size:2rem;margin-bottom:.3em;background:linear-gradient(135deg,#58a6ff,#39d2c0);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-h2{font-size:1.3rem;color:#58a6ff;margin:2rem 0 .8rem;padding-left:12px;border-left:3px solid #58a6ff}
-p{color:#8b949e;margin-bottom:.8rem}
-strong{color:#e6edf3}
-code{font-family:'JetBrains Mono',monospace;background:rgba(255,255,255,.06);padding:2px 6px;border-radius:4px;color:#58a6ff;font-size:.85rem}
-.formula{text-align:center;color:#58a6ff;background:rgba(88,166,255,.06);border:1px solid rgba(88,166,255,.15);border-radius:8px;padding:14px;margin:1rem 0;font-family:'JetBrains Mono',monospace;font-size:1.1rem}
-canvas{width:100%;height:220px;border-radius:8px;display:block;margin:1rem 0;background:#000}
-.slider-group{background:rgba(88,166,255,.04);border:1px solid rgba(88,166,255,.12);border-radius:10px;padding:16px;margin:1rem 0}
-.slider-row{display:flex;align-items:center;gap:12px;margin:6px 0}
-.slider-row label{min-width:110px;font-size:.82rem;color:#8b949e}
-.slider-row input[type=range]{flex:1;accent-color:#58a6ff}
-.slider-row .val{min-width:50px;font-family:'JetBrains Mono',monospace;font-size:.8rem;color:#58a6ff}
-table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.85rem}
-th{background:rgba(255,255,255,.04);color:#58a6ff;padding:8px 12px;text-align:center}
-td{padding:8px 12px;text-align:center;color:#8b949e;border-top:1px solid rgba(255,255,255,.06)}
-.tip{background:rgba(63,185,80,.06);border:1px solid rgba(63,185,80,.15);border-radius:8px;padding:12px 16px;margin:1rem 0;font-size:.88rem;color:#8b949e}
-.tip strong{color:#3fb950}
-.comparison{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:1rem 0}
-.card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:16px}
-.card h4{font-size:.85rem;color:#bc8cff;margin-bottom:8px}
-.memory{text-align:center;font-size:1.4rem;color:#bc8cff;margin:2rem 0;padding:20px;background:rgba(188,140,255,.06);border:1px solid rgba(188,140,255,.15);border-radius:10px}
-.memory .sub{font-size:.85rem;color:#8b949e;margin-top:8px}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🌊 sin/cos 三角函数 — 知识点</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box
+    }
+
+    body {
+      background: #0d1117;
+      color: #e6edf3;
+      font-family: 'Inter', -apple-system, sans-serif;
+      line-height: 1.8;
+      padding: 40px 24px
+    }
+
+    .container {
+      max-width: 880px;
+      margin: 0 auto
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: .3em;
+      background: linear-gradient(135deg, #58a6ff, #39d2c0);
+      -webkit-text-fill-color: transparent
+    }
+
+    h2 {
+      font-size: 1.3rem;
+      color: #58a6ff;
+      margin: 2rem 0 .8rem;
+      padding-left: 12px;
+      border-left: 3px solid #58a6ff
+    }
+
+    p {
+      color: #8b949e;
+      margin-bottom: .8rem
+    }
+
+    strong {
+      color: #e6edf3
+    }
+
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      background: rgba(255, 255, 255, .06);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #58a6ff;
+      font-size: .85rem
+    }
+
+    .formula {
+      text-align: center;
+      color: #58a6ff;
+      background: rgba(88, 166, 255, .06);
+      border: 1px solid rgba(88, 166, 255, .15);
+      border-radius: 8px;
+      padding: 14px;
+      margin: 1rem 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.1rem
+    }
+
+    canvas {
+      width: 100%;
+      height: 220px;
+      border-radius: 8px;
+      display: block;
+      margin: 1rem 0;
+      background: #000
+    }
+
+    .slider-group {
+      background: rgba(88, 166, 255, .04);
+      border: 1px solid rgba(88, 166, 255, .12);
+      border-radius: 10px;
+      padding: 16px;
+      margin: 1rem 0
+    }
+
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 6px 0
+    }
+
+    .slider-row label {
+      min-width: 110px;
+      font-size: .82rem;
+      color: #8b949e
+    }
+
+    .slider-row input[type=range] {
+      flex: 1;
+      accent-color: #58a6ff
+    }
+
+    .slider-row .val {
+      min-width: 50px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .8rem;
+      color: #58a6ff
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: .85rem
+    }
+
+    th {
+      background: rgba(255, 255, 255, .04);
+      color: #58a6ff;
+      padding: 8px 12px;
+      text-align: center
+    }
+
+    td {
+      padding: 8px 12px;
+      text-align: center;
+      color: #8b949e;
+      border-top: 1px solid rgba(255, 255, 255, .06)
+    }
+
+    .tip {
+      background: rgba(63, 185, 80, .06);
+      border: 1px solid rgba(63, 185, 80, .15);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin: 1rem 0;
+      font-size: .88rem;
+      color: #8b949e
+    }
+
+    .tip strong {
+      color: #3fb950
+    }
+
+    .comparison {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 1rem 0
+    }
+
+    .card {
+      background: rgba(255, 255, 255, .03);
+      border: 1px solid rgba(255, 255, 255, .08);
+      border-radius: 10px;
+      padding: 16px
+    }
+
+    .card h4 {
+      font-size: .85rem;
+      color: #bc8cff;
+      margin-bottom: 8px
+    }
+
+    .memory {
+      text-align: center;
+      font-size: 1.4rem;
+      color: #bc8cff;
+      margin: 2rem 0;
+      padding: 20px;
+      background: rgba(188, 140, 255, .06);
+      border: 1px solid rgba(188, 140, 255, .15);
+      border-radius: 10px
+    }
+
+    .memory .sub {
+      font-size: .85rem;
+      color: #8b949e;
+      margin-top: 8px
+    }
+  </style>
 </head>
+
 <body>
-<div class="container">
-<h1>🌊 sin/cos 三角函数</h1>
-<p>描述<strong>周期性振荡</strong>的数学工具 — Shader 动画的灵魂函数。</p>
+  <div class="container">
+    <h1>🌊 sin/cos 三角函数</h1>
+    <p>描述<strong>周期性振荡</strong>的数学工具 — Shader 动画的灵魂函数。</p>
 
-<h2>一、万能波动公式</h2>
-<div class="formula">
-y = A × sin(F × x + P)
-</div>
-<table>
-<tr><th>参数</th><th>名称</th><th>控制</th><th>直觉</th></tr>
-<tr><td><strong>A</strong></td><td>振幅 Amplitude</td><td>波的高度</td><td>A = 0.5 → 波只有一半高</td></tr>
-<tr><td><strong>F</strong></td><td>频率 Frequency</td><td>波的密度</td><td>F = 10 → 10倍多波纹</td></tr>
-<tr><td><strong>P</strong></td><td>相位 Phase</td><td>波的偏移</td><td>P = u_time → 动起来</td></tr>
-</table>
+    <h2>一、万能波动公式</h2>
+    <div class="formula">
+      y = A × sin(F × x + P)
+    </div>
+    <table>
+      <tr>
+        <th>参数</th>
+        <th>名称</th>
+        <th>控制</th>
+        <th>直觉</th>
+      </tr>
+      <tr>
+        <td><strong>A</strong></td>
+        <td>振幅 Amplitude</td>
+        <td>波的高度</td>
+        <td>A = 0.5 → 波只有一半高</td>
+      </tr>
+      <tr>
+        <td><strong>F</strong></td>
+        <td>频率 Frequency</td>
+        <td>波的密度</td>
+        <td>F = 10 → 10倍多波纹</td>
+      </tr>
+      <tr>
+        <td><strong>P</strong></td>
+        <td>相位 Phase</td>
+        <td>波的偏移</td>
+        <td>P = u_time → 动起来</td>
+      </tr>
+    </table>
 
-<h2>二、交互波形</h2>
-<canvas id="wave-canvas"></canvas>
-<div class="slider-group">
-  <div class="slider-row"><label>振幅 A:</label><input type="range" id="s-a" min="5" max="100" value="50"><span class="val" id="v-a">0.50</span></div>
-  <div class="slider-row"><label>频率 F:</label><input type="range" id="s-f" min="1" max="80" value="20"><span class="val" id="v-f">4.0</span></div>
-  <div class="slider-row"><label>相位 P:</label><input type="range" id="s-p" min="0" max="628" value="0"><span class="val" id="v-p">0.00</span></div>
-</div>
+    <h2>二、交互波形</h2>
+    <canvas id="wave-canvas"></canvas>
+    <div class="slider-group">
+      <div class="slider-row"><label>振幅 A:</label><input type="range" id="s-a" min="5" max="100" value="50"><span
+          class="val" id="v-a">0.50</span></div>
+      <div class="slider-row"><label>频率 F:</label><input type="range" id="s-f" min="1" max="80" value="20"><span
+          class="val" id="v-f">4.0</span></div>
+      <div class="slider-row"><label>相位 P:</label><input type="range" id="s-p" min="0" max="628" value="0"><span
+          class="val" id="v-p">0.00</span></div>
+    </div>
 
-<h2>三、sin vs cos</h2>
-<div class="comparison">
-  <div class="card">
-    <h4>sin(x) — 从零开始</h4>
-    <canvas id="c-sin" style="height:140px"></canvas>
+    <h2>三、sin vs cos</h2>
+    <div class="comparison">
+      <div class="card">
+        <h4>sin(x) — 从零开始</h4>
+        <canvas id="c-sin" style="height:140px"></canvas>
+      </div>
+      <div class="card">
+        <h4>cos(x) — 从峰值开始</h4>
+        <canvas id="c-cos" style="height:140px"></canvas>
+      </div>
+    </div>
+    <div class="tip">
+      <strong>💡 本质上完全一样</strong><br>
+      <code>cos(x) = sin(x + π/2)</code> — cos 只是 sin 向左平移了 1/4 周期。<br>
+      选择哪个取决于你需要从零还是从峰值开始。
+    </div>
+
+    <h2>四、关键值速查</h2>
+    <table>
+      <tr>
+        <th>x</th>
+        <th>sin(x)</th>
+        <th>cos(x)</th>
+        <th>记忆</th>
+      </tr>
+      <tr>
+        <td>0</td>
+        <td>0</td>
+        <td>1</td>
+        <td>起点</td>
+      </tr>
+      <tr>
+        <td>π/2 (90°)</td>
+        <td>1</td>
+        <td>0</td>
+        <td>sin 到顶</td>
+      </tr>
+      <tr>
+        <td>π (180°)</td>
+        <td>0</td>
+        <td>-1</td>
+        <td>半程</td>
+      </tr>
+      <tr>
+        <td>3π/2 (270°)</td>
+        <td>-1</td>
+        <td>0</td>
+        <td>sin 到底</td>
+      </tr>
+      <tr>
+        <td>2π (360°)</td>
+        <td>0</td>
+        <td>1</td>
+        <td>一个完整周期</td>
+      </tr>
+    </table>
+
+    <h2>五、Shader 中的典型用法详解</h2>
+    <div style="display:flex; flex-direction:column; gap:16px; margin: 1rem 0;">
+      <div class="card">
+        <h4 style="color:#58a6ff; font-size:1rem; margin-bottom:10px; display:flex; align-items:center; gap:8px;">
+          <span>🌊</span> 水波波动：<code>sin(uv.x * 10.0 + u_time)</code>
+        </h4>
+        <svg viewBox="0 0 300 120"
+          style="width:100%; height:120px; background:rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.05); border-radius:6px; margin: 12px 0;">
+          <!-- Axis -->
+          <line x1="20" y1="60" x2="280" y2="60" stroke="#484f58" />
+          <text x="270" y="55" fill="#8b949e" font-size="10">x</text>
+          <!-- Wave 1 (Base) -->
+          <path d="M 20 60 Q 52.5 10, 85 60 T 150 60 T 215 60 T 280 60" fill="none" stroke="#58a6ff" stroke-width="2" />
+          <!-- Wave 2 (Shifted) -->
+          <path d="M 40 60 Q 72.5 10, 105 60 T 170 60 T 235 60 T 300 60" fill="none" stroke="#39d2c0" stroke-width="2"
+            stroke-dasharray="4" opacity="0.8" />
+          <!-- Arrow -->
+          <line x1="85" y1="25" x2="105" y2="25" stroke="#bc8cff" stroke-width="2"
+            marker-end="url(#arrow-purple-wave)" />
+          <text x="95" y="20" fill="#bc8cff" font-size="10" text-anchor="middle">u_time 相移</text>
+          <defs>
+            <marker id="arrow-purple-wave" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4"
+              orient="auto">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#bc8cff" />
+            </marker>
+          </defs>
+        </svg>
+        <p style="font-size:0.9rem; color:#8b949e; margin-bottom:0; line-height:1.7;">
+          <strong>数学知识：</strong>本质是物理学中的 <b>行波方程 <code>y = sin(kx + &omega;t)</code></b>。在着色器中，空间坐标（如
+          <code>uv.x</code>）充当波数变量来提供周期性的空间振荡，系数 <code>10.0</code> 决定波的密集程度（频率）；而时间变量 <code>u_time</code> 充当了不断增加的
+          <b>相位偏移 (Phase Shift)</b>。相位的线性递增使得原本静态的波形在视觉上产生了类似流水般持续推进的动态效果。
+        </p>
+      </div>
+
+      <div class="card">
+        <h4 style="color:#58a6ff; font-size:1rem; margin-bottom:10px; display:flex; align-items:center; gap:8px;">
+          <span>💓</span> 脉动效果：<code>0.5 + 0.5 * sin(u_time * 3.0)</code>
+        </h4>
+        <svg viewBox="0 0 300 120"
+          style="width:100%; height:120px; background:rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.05); border-radius:6px; margin: 12px 0;">
+          <!-- Left Side [-1, 1] -->
+          <line x1="20" y1="60" x2="130" y2="60" stroke="#484f58" />
+          <line x1="20" y1="20" x2="130" y2="20" stroke="#484f58" stroke-dasharray="2" opacity="0.3" />
+          <line x1="20" y1="100" x2="130" y2="100" stroke="#484f58" stroke-dasharray="2" opacity="0.3" />
+          <text x="15" y="24" fill="#8b949e" font-size="10" text-anchor="end">1</text>
+          <text x="15" y="104" fill="#8b949e" font-size="10" text-anchor="end">-1</text>
+          <path d="M 20 60 Q 47.5 20, 75 60 T 130 60" fill="none" stroke="#58a6ff" stroke-width="2" />
+
+          <!-- Arrow -->
+          <line x1="140" y1="60" x2="160" y2="60" stroke="#bc8cff" stroke-width="2"
+            marker-end="url(#arrow-purple-pulse)" />
+          <!-- Mapping eq -->
+          <text x="150" y="52" fill="#bc8cff" font-size="10" text-anchor="middle">0.5 * sin + 0.5</text>
+
+          <!-- Right Side [0, 1] -->
+          <line x1="170" y1="100" x2="280" y2="100" stroke="#484f58" />
+          <line x1="170" y1="20" x2="280" y2="20" stroke="#484f58" stroke-dasharray="2" opacity="0.3" />
+          <text x="165" y="24" fill="#8b949e" font-size="10" text-anchor="end">1</text>
+          <text x="165" y="104" fill="#8b949e" font-size="10" text-anchor="end">0</text>
+          <path d="M 170 60 Q 197.5 20, 225 60 T 280 60" fill="none" stroke="#39d2c0" stroke-width="2" />
+          <defs>
+            <marker id="arrow-purple-pulse" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4"
+              orient="auto">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#bc8cff" />
+            </marker>
+          </defs>
+        </svg>
+        <p style="font-size:0.9rem; color:#8b949e; margin-bottom:0; line-height:1.7;">
+          <strong>数学知识：</strong>运用了基础的 <b>线性变换与归一化缩放</b>。原生正弦波的值域分布在 <code>[-1, 1]</code> 会产生负值（在颜色体系中无物理意义）。我们通过前置
+          <code>0.5 *</code> 将振幅压缩一半，使其收敛到 <code>[-0.5, 0.5]</code>；紧接着附加 <code>0.5 + </code> 作为函数截距，将其整体纵向平移至
+          <b>标准正标量值域 <code>[0, 1]</code></b> 之间。常被用于平滑控制发光强度或形变缩放比例，实现极具生命力的呼吸映射过渡。
+        </p>
+      </div>
+
+      <div class="card">
+        <h4 style="color:#58a6ff; font-size:1rem; margin-bottom:10px; display:flex; align-items:center; gap:8px;">
+          <span>🔄</span> 坐标旋转：<code>vec2(cos(&theta;)*x - sin(&theta;)*y, sin(&theta;)*x + cos(&theta;)*y)</code>
+        </h4>
+        <svg viewBox="0 0 300 120"
+          style="width:100%; height:120px; background:rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.05); border-radius:6px; margin: 12px 0;">
+          <!-- Axis -->
+          <line x1="150" y1="110" x2="150" y2="10" stroke="#484f58" />
+          <line x1="120" y1="100" x2="250" y2="100" stroke="#484f58" />
+
+          <!-- Original Vector -->
+          <line x1="150" y1="100" x2="220" y2="80" stroke="#8b949e" stroke-width="2" marker-end="url(#arrow-gray)" />
+          <text x="230" y="85" fill="#8b949e" font-size="11" font-family="monospace">P(x, y)</text>
+
+          <!-- Rotated Vector -->
+          <line x1="150" y1="100" x2="190" y2="30" stroke="#58a6ff" stroke-width="2" marker-end="url(#arrow-blue)" />
+          <text x="180" y="24" fill="#58a6ff" font-size="11" font-family="monospace">P'(x', y')</text>
+
+          <!-- Angle Arc -->
+          <path d="M 190 88 A 41 41 0 0 0 178 50" fill="none" stroke="#f778ba" stroke-width="1.5"
+            marker-end="url(#arrow-pink)" />
+          <text x="195" y="65" fill="#f778ba" font-size="12" font-style="italic">θ</text>
+
+          <defs>
+            <marker id="arrow-gray" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4"
+              orient="auto">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#8b949e" />
+            </marker>
+            <marker id="arrow-blue" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4"
+              orient="auto">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#58a6ff" />
+            </marker>
+            <marker id="arrow-pink" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="3" markerHeight="3"
+              orient="auto">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#f778ba" />
+            </marker>
+          </defs>
+        </svg>
+        <p style="font-size:0.9rem; color:#8b949e; margin-bottom:0; line-height:1.7;">
+          <strong>数学知识：</strong>来源于线性代数的 <b>二维平面旋转矩阵 (Rotation Matrix)</b> 展开代数式。将其追溯到极坐标系下：若定义初始点为
+          <code>(R*cos(&alpha;), R*sin(&alpha;))</code>，当它逆时针增加 <code>&theta;</code> 角度偏差变为
+          <code>(R*cos(&alpha;+&theta;), R*sin(&alpha;+&theta;))</code>
+          时，利用传统的三角函数“和角公式”将其降解并提公因式替代，便精确推导出此公式，将原坐标与目标坐标实现完美的绕原点旋转映射关联。
+        </p>
+      </div>
+
+      <div class="card">
+        <h4 style="color:#58a6ff; font-size:1rem; margin-bottom:10px; display:flex; align-items:center; gap:8px;">
+          <span>⭕</span> 参数方程画圆：<code>vec2(cos(t), sin(t)) * r</code>
+        </h4>
+        <svg viewBox="0 0 300 120"
+          style="width:100%; height:120px; background:rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.05); border-radius:6px; margin: 12px 0;">
+          <!-- Axis -->
+          <line x1="150" y1="110" x2="150" y2="10" stroke="#484f58" />
+          <line x1="80" y1="60" x2="220" y2="60" stroke="#484f58" />
+
+          <!-- Circle -->
+          <circle cx="150" cy="60" r="40" fill="none" stroke="#58a6ff" stroke-width="1.5" stroke-dasharray="4" />
+
+          <!-- Radius vector -->
+          <line x1="150" y1="60" x2="184.6" y2="40" stroke="#bc8cff" stroke-width="2"
+            marker-end="url(#arrow-purple-circ)" />
+
+          <!-- Projections -->
+          <line x1="184.6" y1="60" x2="184.6" y2="40" stroke="#39d2c0" stroke-width="1.5" stroke-dasharray="2" />
+          <line x1="150" y1="40" x2="184.6" y2="40" stroke="#8b949e" stroke-width="1.5" stroke-dasharray="2" />
+
+          <!-- Labels -->
+          <text x="156" y="75" fill="#39d2c0" font-size="10" font-family="monospace">cos(t)</text>
+          <text x="120" y="45" fill="#8b949e" font-size="10" font-family="monospace">sin(t)</text>
+          <text x="190" y="38" fill="#58a6ff" font-size="11" font-family="monospace">P(x, y)</text>
+
+          <!-- Angle t -->
+          <path d="M 165 60 A 15 15 0 0 0 163 53" fill="none" stroke="#f778ba" stroke-width="1.5" />
+          <text x="170" y="56" fill="#f778ba" font-size="10" font-style="italic">t</text>
+
+          <defs>
+            <marker id="arrow-purple-circ" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4"
+              orient="auto">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#bc8cff" />
+            </marker>
+          </defs>
+        </svg>
+        <p style="font-size:0.9rem; color:#8b949e; margin-bottom:0; line-height:1.7;">
+          <strong>数学知识：</strong>圆周几何学最典型的 <b>参数方程 (Parametric Equation)</b> 表达。<code>cos(t)</code> 刻画了动点在 X
+          轴向上的余弦投影，<code>sin(t)</code> 刻画了在其正交的 Y 轴的投影。当驱动变量 <code>t</code> (代表角度或时间标量) 一次性扫过 <code>[0, 2&pi;]</code>
+          闭环空间时，两者所衍生的矢端曲线在笛卡尔坐标平面里自然交织描绘出一个规整的单位圆。外部乘区 <code>* r</code> 则是数学向量的标量乘法放大机制，对圆形半径进行调校。
+        </p>
+      </div>
+    </div>
+
+    <div class="memory">
+      <div>y = A × sin(F × x + P)</div>
+      <div class="sub">A 控高 | F 控密 | P 控偏移 | u_time 放 P → 动画</div>
+    </div>
   </div>
-  <div class="card">
-    <h4>cos(x) — 从峰值开始</h4>
-    <canvas id="c-cos" style="height:140px"></canvas>
-  </div>
-</div>
-<div class="tip">
-  <strong>💡 本质上完全一样</strong><br>
-  <code>cos(x) = sin(x + π/2)</code> — cos 只是 sin 向左平移了 1/4 周期。<br>
-  选择哪个取决于你需要从零还是从峰值开始。
-</div>
 
-<h2>四、关键值速查</h2>
-<table>
-<tr><th>x</th><th>sin(x)</th><th>cos(x)</th><th>记忆</th></tr>
-<tr><td>0</td><td>0</td><td>1</td><td>起点</td></tr>
-<tr><td>π/2 (90°)</td><td>1</td><td>0</td><td>sin 到顶</td></tr>
-<tr><td>π (180°)</td><td>0</td><td>-1</td><td>半程</td></tr>
-<tr><td>3π/2 (270°)</td><td>-1</td><td>0</td><td>sin 到底</td></tr>
-<tr><td>2π (360°)</td><td>0</td><td>1</td><td>一个完整周期</td></tr>
-</table>
+  <script>
+    function drawWave(id, fn, opts = {}) {
+      const c = document.getElementById(id);
+      const ctx = c.getContext('2d');
+      c.width = c.offsetWidth * 2; c.height = c.offsetHeight * 2;
+      const W = c.width, H = c.height;
+      ctx.clearRect(0, 0, W, H);
+      ctx.strokeStyle = 'rgba(255,255,255,.06)'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(0, H / 2); ctx.lineTo(W, H / 2); ctx.stroke();
+      ctx.beginPath(); ctx.strokeStyle = opts.color || '#58a6ff'; ctx.lineWidth = 3;
+      for (let px = 0; px < W; px++) {
+        const x = (px / W) * Math.PI * 4; const y = fn(x);
+        const cy = H / 2 - y * H * 0.4;
+        if (px === 0) ctx.moveTo(px, cy); else ctx.lineTo(px, cy);
+      }
+      ctx.stroke();
+    }
+    drawWave('c-sin', x => Math.sin(x), { color: '#58a6ff' });
+    drawWave('c-cos', x => Math.cos(x), { color: '#f778ba' });
 
-<h2>五、Shader 中的典型用法</h2>
-<div class="tip">
-  <strong>🌊 水波</strong>: <code>sin(uv.x * 10.0 + u_time)</code> — 空间做 x，时间做相位<br>
-  <strong>💓 脉动</strong>: <code>0.5 + 0.5 * sin(u_time * 3.0)</code> — 输出映射到 [0,1]<br>
-  <strong>🔄 旋转</strong>: <code>vec2(cos(θ)*x - sin(θ)*y, sin(θ)*x + cos(θ)*y)</code><br>
-  <strong>⭕ 画圆</strong>: <code>vec2(cos(t), sin(t)) * r</code> — 参数方程
-</div>
-
-<div class="memory">
-  <div>y = A × sin(F × x + P)</div>
-  <div class="sub">A 控高 | F 控密 | P 控偏移 | u_time 放 P → 动画</div>
-</div>
-</div>
-
-<script>
-function drawWave(id, fn, opts = {}) {
-  const c = document.getElementById(id);
-  const ctx = c.getContext('2d');
-  c.width = c.offsetWidth * 2; c.height = c.offsetHeight * 2;
-  const W = c.width, H = c.height;
-  ctx.clearRect(0, 0, W, H);
-  ctx.strokeStyle = 'rgba(255,255,255,.06)'; ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(0, H/2); ctx.lineTo(W, H/2); ctx.stroke();
-  ctx.beginPath(); ctx.strokeStyle = opts.color || '#58a6ff'; ctx.lineWidth = 3;
-  for (let px = 0; px < W; px++) {
-    const x = (px / W) * Math.PI * 4; const y = fn(x);
-    const cy = H/2 - y * H * 0.4;
-    if (px === 0) ctx.moveTo(px, cy); else ctx.lineTo(px, cy);
-  }
-  ctx.stroke();
-}
-drawWave('c-sin', x => Math.sin(x), { color: '#58a6ff' });
-drawWave('c-cos', x => Math.cos(x), { color: '#f778ba' });
-
-const sA = document.getElementById('s-a'), sF = document.getElementById('s-f'), sP = document.getElementById('s-p');
-const vA = document.getElementById('v-a'), vF = document.getElementById('v-f'), vP = document.getElementById('v-p');
-function updateWave() {
-  const A = sA.value / 100, F = sF.value / 5, P = sP.value / 100;
-  vA.textContent = A.toFixed(2); vF.textContent = F.toFixed(1); vP.textContent = P.toFixed(2);
-  drawWave('wave-canvas', x => A * Math.sin(F * x + P), { color: '#39d2c0' });
-}
-[sA, sF, sP].forEach(s => s.addEventListener('input', updateWave));
-updateWave();
-window.addEventListener('resize', () => { drawWave('c-sin', x => Math.sin(x), {color:'#58a6ff'}); drawWave('c-cos', x => Math.cos(x), {color:'#f778ba'}); updateWave(); });
-</script>
+    const sA = document.getElementById('s-a'), sF = document.getElementById('s-f'), sP = document.getElementById('s-p');
+    const vA = document.getElementById('v-a'), vF = document.getElementById('v-f'), vP = document.getElementById('v-p');
+    function updateWave() {
+      const A = sA.value / 100, F = sF.value / 5, P = sP.value / 100;
+      vA.textContent = A.toFixed(2); vF.textContent = F.toFixed(1); vP.textContent = P.toFixed(2);
+      drawWave('wave-canvas', x => A * Math.sin(F * x + P), { color: '#39d2c0' });
+    }
+    [sA, sF, sP].forEach(s => s.addEventListener('input', updateWave));
+    updateWave();
+    window.addEventListener('resize', () => { drawWave('c-sin', x => Math.sin(x), { color: '#58a6ff' }); drawWave('c-cos', x => Math.cos(x), { color: '#f778ba' }); updateWave(); });
+  </script>
 </body>
+
 </html>

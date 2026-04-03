@@ -3,155 +3,160 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🔘 dot 点积运算 — 知识点</title>
+<title>🔘 dot 点积运算：底层原理</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0d1117;color:#e6edf3;font-family:'Inter',-apple-system,sans-serif;line-height:1.8;padding:40px 24px}
-.container{max-width:880px;margin:0 auto}
-h1{font-size:2rem;margin-bottom:.3em;background:linear-gradient(135deg,#58a6ff,#f778ba);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-h2{font-size:1.3rem;color:#58a6ff;margin:2rem 0 .8rem;padding-left:12px;border-left:3px solid #58a6ff}
-p{color:#8b949e;margin-bottom:.8rem}
+body{background:#0d1117;color:#e6edf3;font-family:'Inter',-apple-system,sans-serif;line-height:1.7;padding:40px 24px;padding-bottom:80px}
+.container{max-width:820px;margin:0 auto}
+h1{font-size:1.8rem;margin-bottom:0.5rem;color:#58a6ff;}
+h2{font-size:1.3rem;color:#58a6ff;margin:2.5rem 0 1rem;padding-left:12px;border-left:3px solid #58a6ff}
+p, li{color:#8b949e;margin-bottom:.8rem; font-size: 0.95rem;}
 strong{color:#e6edf3}
-code{font-family:'JetBrains Mono',monospace;background:rgba(255,255,255,.06);padding:2px 6px;border-radius:4px;color:#58a6ff;font-size:.85rem}
-.formula{text-align:center;color:#58a6ff;background:rgba(88,166,255,.06);border:1px solid rgba(88,166,255,.15);border-radius:8px;padding:14px;margin:1rem 0;font-family:'JetBrains Mono',monospace;font-size:1.05rem;line-height:2}
-table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.85rem}
-th{background:rgba(255,255,255,.04);color:#58a6ff;padding:8px 12px;text-align:center}
-td{padding:8px 12px;text-align:center;color:#8b949e;border-top:1px solid rgba(255,255,255,.06)}
-canvas{width:100%;height:320px;border-radius:8px;display:block;margin:1rem 0;cursor:crosshair}
-.info-bar{display:flex;gap:16px;flex-wrap:wrap;margin:8px 0;font-size:.85rem}
-.info-item{background:rgba(255,255,255,.04);padding:6px 12px;border-radius:6px;font-family:'JetBrains Mono',monospace}
-.info-item span{color:#58a6ff}
-.tip{background:rgba(63,185,80,.06);border:1px solid rgba(63,185,80,.15);border-radius:8px;padding:12px 16px;margin:1rem 0;font-size:.88rem;color:#8b949e}
-.tip strong{color:#3fb950}
-.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:1rem 0}
-.zone{border-radius:10px;padding:16px;text-align:center}
-.zone h4{font-size:1rem;margin-bottom:4px}
-.zone p{font-size:.8rem;margin:0}
-.memory{text-align:center;font-size:1.4rem;color:#bc8cff;margin:2rem 0;padding:20px;background:rgba(188,140,255,.06);border:1px solid rgba(188,140,255,.15);border-radius:10px}
-.memory .sub{font-size:.85rem;color:#8b949e;margin-top:8px}
+code{font-family:'JetBrains Mono',monospace;background:rgba(255,255,255,.06);padding:2px 6px;border-radius:4px;color:#58a6ff;font-size:0.9rem}
+canvas{border-radius:8px;display:block;margin:1rem auto;background:#000; border: 1px solid rgba(255,255,255,0.1);}
+.card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:24px; margin-bottom:20px;}
+.card h4{color:#39d2c0;margin-bottom:12px;font-size:1.05rem;}
+.tip-box{background:rgba(88,166,255,0.08);border:1px solid rgba(88,166,255,0.2);padding:16px 20px;border-radius:8px;font-size:0.9rem;margin:15px 0;}
+hr{border:0;border-top:1px solid rgba(255,255,255,0.1);margin:30px 0;}
+table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:0.9rem;}
+th{background:rgba(255,255,255,.04);color:#58a6ff;padding:8px 12px;text-align:center;border:1px solid rgba(255,255,255,0.06);}
+td{padding:8px 12px;text-align:center;color:#8b949e;border:1px solid rgba(255,255,255,0.06);}
 </style>
 </head>
 <body>
 <div class="container">
-<h1>🔘 dot 点积运算</h1>
-<p>衡量两个向量"方向一致性"的核心工具 — 光照计算的基石。</p>
+  <h1>🔘 dot 点积："两个向量有多一致？"</h1>
+  <p style="font-size:1.05rem;">点积(dot product)是整个 Shader 光照系统的心脏。它本质上回答了一个简单的问题：<strong>两个方向是不是朝着同一边走？</strong></p>
 
-<h2>一、数学定义</h2>
-<div class="formula">
-dot(A, B) = A.x × B.x + A.y × B.y<br>
-= |A| × |B| × cos(θ)
-</div>
-<p>两个公式等价。第一行是<strong>计算方法</strong>，第二行揭示<strong>几何意义</strong>：结果与两向量夹角 θ 的余弦成正比。</p>
+  <hr>
 
-<h2>二、夹角 → 值</h2>
-<div class="grid3">
-  <div class="zone" style="background:rgba(63,185,80,.1);border:1px solid rgba(63,185,80,.2)">
-    <h4 style="color:#3fb950">同向 (0°)</h4>
-    <p style="color:#3fb950">dot = +1</p>
+  <h2>一、先用手电筒理解</h2>
+  <p>你拿着一支<strong>手电筒🔦</strong>照向一面<strong>墙壁🧱</strong>。手电筒有一个照射方向，墙壁有一个法线方向（"正脸朝哪"）：</p>
+  <ul>
+    <li>手电筒<strong>正对墙壁</strong>（两个方向完全平行<strong>且互相朝向</strong>）→ 墙壁被照得最亮 → dot = <strong>1.0</strong></li>
+    <li>手电筒与墙壁呈<strong>90° 直角</strong>（光几乎擦边而过）→ 墙壁几乎没光 → dot = <strong>0.0</strong></li>
+    <li>手电筒在墙壁<strong>背面</strong>（光朝反方向打）→ 完全没有光 → dot = <strong>-1.0</strong>（负数！）</li>
+  </ul>
+  <p>所以 <code>dot()</code> 输出的就是一个 <strong>-1 到 1</strong> 之间的"一致性评分"。越接近 1 越同向，越接近 -1 越反向，0 就是完全无关。</p>
+
+  <hr>
+
+  <h2>二、数学其实超级简单</h2>
+  <div class="tip-box">
+    <code>dot(A, B) = A.x × B.x + A.y × B.y</code><br><br>
+    就是把两个向量的 x 分量相乘、y 分量相乘，然后加起来。三维空间再加一个 z。
   </div>
-  <div class="zone" style="background:rgba(210,153,34,.1);border:1px solid rgba(210,153,34,.2)">
-    <h4 style="color:#d29922">垂直 (90°)</h4>
-    <p style="color:#d29922">dot = 0</p>
+  <p>如果两个向量都是<strong>单位长度（归一化后 length = 1）</strong>，那么 dot 的结果就等于<strong>两个方向之间夹角的余弦值 cos(θ)</strong>。这就是它被用来做光照的原因！</p>
+
+  <table>
+    <tr><th>夹角 θ</th><th>cos(θ) = dot</th><th>含义</th><th>Shader 用途</th></tr>
+    <tr><td>0°</td><td style="color:#3fb950"><strong>1.0</strong></td><td>完全同向</td><td>正面光照最强</td></tr>
+    <tr><td>45°</td><td>0.707</td><td>略微偏斜</td><td>稍弱但还算明亮</td></tr>
+    <tr><td>90°</td><td style="color:#ffd700"><strong>0.0</strong></td><td>垂直擦边</td><td>侧面光/掠射边缘</td></tr>
+    <tr><td>135°</td><td>-0.707</td><td>偏向背面</td><td>几乎无光</td></tr>
+    <tr><td>180°</td><td style="color:#f85149"><strong>-1.0</strong></td><td>完全反向</td><td>背面完全黑暗</td></tr>
+  </table>
+
+  <hr>
+
+  <h2>三、互动实验：拖动向量看 dot 值变化</h2>
+  <p>在下面的画布中拖动鼠标，改变蓝色向量 B 的方向。红色向量 A 固定朝右。观察底部的 dot 值和颜色如何随夹角变化：</p>
+
+  <canvas id="c-dot" width="400" height="400" style="width:400px;height:400px;cursor:crosshair;"></canvas>
+  <div style="text-align:center;font-family:monospace;font-size:1.1rem;color:#58a6ff;margin-top:10px;" id="dot-info">移动鼠标到画布上</div>
+
+  <hr>
+
+  <h2>四、Shader 中的典型用法</h2>
+
+  <div class="card" style="border-top: 4px solid #ffd700;">
+    <h4 style="color:#ffd700;">☀️ 用法 ① 朗伯光照 (Lambertian Diffuse)</h4>
+    <p><code>float brightness = max(0.0, dot(normal, lightDir));</code></p>
+    <p>表面法线和光线方向越一致（dot 越大），表面越亮。用 <code>max(0, ...)</code> 防止背面产生负数亮度。这三行就是所有 3D 游戏光照的原点！</p>
   </div>
-  <div class="zone" style="background:rgba(248,81,73,.1);border:1px solid rgba(248,81,73,.2)">
-    <h4 style="color:#f85149">反向 (180°)</h4>
-    <p style="color:#f85149">dot = -1</p>
+
+  <div class="card" style="border-top: 4px solid #3fb950;">
+    <h4 style="color:#3fb950;">🎭 用法 ② 边缘光 (Fresnel / Rim Light)</h4>
+    <p><code>float rim = 1.0 - dot(normal, viewDir);</code></p>
+    <p>当视线与表面越接近平行（dot 趋近 0），1-dot 趋近 1，边缘就越亮。这就是轮廓光/菲涅尔效应的秘密！</p>
   </div>
-</div>
-<p><em>（以上值基于两个单位向量 |A| = |B| = 1）</em></p>
 
-<h2>三、交互可视化</h2>
-<p>🖱 移动鼠标改变蓝色向量方向，观察 dot 值变化：</p>
-<canvas id="dot-canvas"></canvas>
-<div class="info-bar">
-  <div class="info-item">dot = <span id="val-dot">0.00</span></div>
-  <div class="info-item">角度 = <span id="val-angle">90°</span></div>
-  <div class="info-item">关系 = <span id="val-relation">垂直</span></div>
-</div>
+  <div class="card" style="border-top: 4px solid #58a6ff;">
+    <h4 style="color:#58a6ff;">🗺️ 用法 ③ 方向选择（半球采样）</h4>
+    <p><code>float mask = step(0.0, dot(normal, direction));</code></p>
+    <p>dot > 0 意味着"这个方向面朝我"，可以用来决定哪些面应该被渲染、哪些应该被剔除。</p>
+  </div>
 
-<h2>四、Shader 中的用法</h2>
-<table>
-<tr><th>场景</th><th>代码</th><th>原理</th></tr>
-<tr><td>漫反射光照</td><td><code>max(0., dot(N, L))</code></td><td>法线与光线越对齐 → 越亮</td></tr>
-<tr><td>菲涅尔反射</td><td><code>1.0 - dot(N, V)</code></td><td>视线越平行边缘 → 反射越强</td></tr>
-<tr><td>投影长度</td><td><code>dot(p, axis)</code></td><td>点在轴上的投影</td></tr>
-<tr><td>方向判断</td><td><code>dot(dir1, dir2) > 0.0</code></td><td>> 0 同侧, < 0 对侧</td></tr>
-</table>
-
-<div class="tip">
-  <strong>💡 dot(v,v) = length²(v)</strong><br>
-  向量和自身点积 = 长度的平方。比 <code>length(v)</code> 快（避免 sqrt），常用于性能优化。
 </div>
-
-<div class="memory">
-  <div>dot = 方向一致性 = cos(夹角)</div>
-  <div class="sub">+1 同向 | 0 垂直 | -1 反向 | 光照 = dot(N,L)</div>
-</div>
-</div>
-
 <script>
-const canvas = document.getElementById('dot-canvas');
+const canvas = document.getElementById('c-dot');
 const ctx = canvas.getContext('2d');
-let mouseX = 0.7, mouseY = 0.3;
+const info = document.getElementById('dot-info');
+const dpr = window.devicePixelRatio || 1;
+canvas.width = 400 * dpr; canvas.height = 400 * dpr;
+ctx.scale(dpr, dpr);
+const W = 400, H = 400;
+const cx = W/2, cy = H/2;
+const vecLen = 120;
+// Fixed vector A: pointing right
+const ax = 1, ay = 0;
+let bx = 0.7, by = -0.7;
 
-function render() {
-  canvas.width = canvas.offsetWidth * 2; canvas.height = canvas.offsetHeight * 2;
-  const W = canvas.width, H = canvas.height, cx = W/2, cy = H/2, len = Math.min(W,H)*0.35;
-  ctx.clearRect(0, 0, W, H);
+function draw() {
+  ctx.fillStyle = '#080c14'; ctx.fillRect(0,0,W,H);
   // Grid
-  ctx.strokeStyle = 'rgba(255,255,255,.04)'; ctx.lineWidth = 1;
-  for (let i = -5; i <= 5; i++) { const x = cx + i*len/3; ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); const y = cy + i*len/3; ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
-  // Reference vector (red, pointing right)
-  const ax = 1, ay = 0;
-  drawArrow(cx, cy, cx + ax*len, cy - ay*len, '#f85149', 'A (固定)');
-  // User vector (blue)
-  const dx = mouseX - 0.5, dy = 0.5 - mouseY;
-  const mag = Math.sqrt(dx*dx+dy*dy) || 0.001;
-  const bx = dx/mag, by = dy/mag;
-  drawArrow(cx, cy, cx + bx*len, cy - by*len, '#58a6ff', 'B (拖动)');
-  // Angle arc
-  const angle = Math.atan2(by, bx);
-  ctx.beginPath(); ctx.strokeStyle = 'rgba(255,255,255,.15)'; ctx.lineWidth = 2;
-  ctx.arc(cx, cy, len*0.3, -angle, 0, angle > 0 ? false : true); ctx.stroke();
-  // Dot value
-  const dotVal = ax*bx + ay*by;
+  ctx.strokeStyle = 'rgba(255,255,255,0.05)'; ctx.lineWidth = 1;
+  for(let i=0;i<=10;i++){const p=W*i/10;ctx.beginPath();ctx.moveTo(p,0);ctx.lineTo(p,H);ctx.stroke();ctx.beginPath();ctx.moveTo(0,p);ctx.lineTo(W,p);ctx.stroke();}
+  // Axes
+  ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.lineWidth = 1;
+  ctx.beginPath();ctx.moveTo(cx,0);ctx.lineTo(cx,H);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(0,cy);ctx.lineTo(W,cy);ctx.stroke();
+  
+  // Normalize B
+  const bLen = Math.sqrt(bx*bx + by*by) || 1;
+  const bnx = bx/bLen, bny = by/bLen;
+  const dotVal = ax * bnx + ay * bny;
+  
+  // Draw arc showing angle
+  const angle = Math.atan2(-bny, bnx);
+  ctx.beginPath();
+  ctx.strokeStyle = 'rgba(255,215,0,0.3)'; ctx.lineWidth = 2;
+  ctx.arc(cx, cy, 40, Math.min(0, angle), Math.max(0, angle));
+  ctx.stroke();
+  
+  // Vector A (red)
+  ctx.beginPath(); ctx.strokeStyle = '#f85149'; ctx.lineWidth = 3;
+  ctx.moveTo(cx, cy); ctx.lineTo(cx + ax * vecLen, cy - ay * vecLen); ctx.stroke();
+  ctx.fillStyle = '#f85149'; ctx.beginPath(); ctx.arc(cx + ax * vecLen, cy, 6, 0, Math.PI*2); ctx.fill();
+  ctx.font = '14px monospace'; ctx.fillText('A', cx + ax * vecLen + 10, cy - 5);
+  
+  // Vector B (blue)
+  ctx.beginPath(); ctx.strokeStyle = '#58a6ff'; ctx.lineWidth = 3;
+  ctx.moveTo(cx, cy); ctx.lineTo(cx + bnx * vecLen, cy - bny * vecLen); ctx.stroke();
+  ctx.fillStyle = '#58a6ff'; ctx.beginPath(); ctx.arc(cx + bnx * vecLen, cy - bny * vecLen, 6, 0, Math.PI*2); ctx.fill();
+  ctx.fillText('B', cx + bnx * vecLen + 10, cy - bny * vecLen - 8);
+  
+  // Color indicator based on dot
+  const r = dotVal < 0 ? Math.round(-dotVal * 255) : 0;
+  const g = dotVal > 0 ? Math.round(dotVal * 255) : 0;
+  ctx.fillStyle = `rgb(${r}, ${g}, 40)`;
+  ctx.fillRect(20, 20, 80, 30);
+  ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.strokeRect(20, 20, 80, 30);
+  ctx.fillStyle = '#fff'; ctx.font = 'bold 13px monospace';
+  ctx.fillText(dotVal.toFixed(2), 35, 40);
+  
+  // Angle text
   const angleDeg = Math.acos(Math.max(-1, Math.min(1, dotVal))) * 180 / Math.PI;
-  document.getElementById('val-dot').textContent = dotVal.toFixed(3);
-  document.getElementById('val-angle').textContent = angleDeg.toFixed(0) + '°';
-  document.getElementById('val-relation').textContent = dotVal > 0.1 ? '同向' : dotVal < -0.1 ? '反向' : '接近垂直';
-  // Color bg based on dot
-  const t = (dotVal + 1) / 2; // 0..1
-  const r = lerp(248, 63, t), g = lerp(81, 185, t), b = lerp(73, 80, t);
-  ctx.fillStyle = `rgba(${r},${g},${b},0.05)`;
-  ctx.fillRect(0, 0, W, H);
-}
-
-function lerp(a,b,t) { return Math.round(a*(1-t)+b*t); }
-
-function drawArrow(x1,y1,x2,y2,color,label) {
-  const dx = x2-x1, dy = y2-y1, len = Math.sqrt(dx*dx+dy*dy);
-  ctx.beginPath(); ctx.strokeStyle = color; ctx.lineWidth = 4;
-  ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
-  // Arrowhead
-  const ax = dx/len, ay = dy/len;
-  const sz = 16;
-  ctx.beginPath(); ctx.fillStyle = color;
-  ctx.moveTo(x2, y2);
-  ctx.lineTo(x2 - ax*sz - ay*sz*0.5, y2 - ay*sz + ax*sz*0.5);
-  ctx.lineTo(x2 - ax*sz + ay*sz*0.5, y2 - ay*sz - ax*sz*0.5);
-  ctx.fill();
-  ctx.fillStyle = color; ctx.font = `${Math.max(18, canvas.width/40)}px sans-serif`;
-  ctx.fillText(label, x2 + 10, y2 - 10);
+  info.textContent = `dot(A, B) = ${dotVal.toFixed(3)}  |  夹角 θ = ${angleDeg.toFixed(1)}°  |  ${dotVal > 0.5 ? '☀️ 正面亮' : dotVal > 0 ? '🌤 侧面暗' : '🌑 背面黑'}`;
 }
 
 canvas.addEventListener('mousemove', e => {
   const rect = canvas.getBoundingClientRect();
-  mouseX = (e.clientX - rect.left) / rect.width;
-  mouseY = (e.clientY - rect.top) / rect.height;
-  render();
+  bx = (e.clientX - rect.left - W/2) / vecLen;
+  by = -(e.clientY - rect.top - H/2) / vecLen;
+  draw();
 });
-render();
-window.addEventListener('resize', render);
+draw();
 </script>
 </body>
 </html>

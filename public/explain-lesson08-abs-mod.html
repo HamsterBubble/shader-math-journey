@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>❓ 第七课代码拆解：abs() 与 mod()</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0d1117;color:#e6edf3;font-family:'Inter',-apple-system,sans-serif;line-height:1.7;padding:40px 24px;padding-bottom:80px;}
+.container{max-width:820px;margin:0 auto}
+h1{font-size:1.6rem;margin-bottom:0.5rem;color:#58a6ff;}
+h2{font-size:1.2rem;color:#58a6ff;margin:2rem 0 1rem;padding-left:12px;border-left:3px solid #58a6ff}
+p, li{color:#8b949e;margin-bottom:.8rem; font-size: 0.95rem;}
+strong{color:#e6edf3}
+code{font-family:'JetBrains Mono',monospace;background:rgba(255,255,255,.06);padding:2px 6px;border-radius:4px;color:#58a6ff;font-size:0.9rem}
+canvas{width:100%;border-radius:8px;display:block;margin:1rem 0;background:#000; border: 1px solid rgba(255,255,255,0.1);}
+.card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:24px; margin-bottom:20px;}
+.card h4{color:#39d2c0;margin-bottom:12px;font-size:1.05rem;}
+.tip-box{background:rgba(88,166,255,0.08);border:1px solid rgba(88,166,255,0.2);padding:16px 20px;border-radius:8px;font-size:0.9rem;margin:15px 0;}
+hr{border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 30px 0;}
+.slider-container{margin-top:15px;background:rgba(255,255,255,.02);padding:15px;border-radius:8px; border:1px solid rgba(255,255,255,.05);}
+.slider-row{display:flex;align-items:center;gap:12px;margin-bottom:8px;}
+.slider-row label{width:140px;font-size:0.85rem;color:#bc8cff;}
+input[type=range]{flex:1;accent-color:#58a6ff;}
+.val{font-family:monospace;font-size:0.85rem;color:#58a6ff;width:60px;}
+table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:0.9rem;}
+th{background:rgba(255,255,255,.04);color:#58a6ff;padding:8px 12px;text-align:center;border:1px solid rgba(255,255,255,0.06);}
+td{padding:8px 12px;text-align:center;color:#8b949e;border:1px solid rgba(255,255,255,0.06);}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>❓ 代码彻底拆解：abs() 与 mod()</h1>
+  <p style="font-size:1rem;">这节课引入了两个看似简单的数学函数——<code>abs()</code> 和 <code>mod()</code>——但它们在 Shader 的空间操作中有着令人震撼的几何意义：一个是<strong>折叠纸张</strong>，一个是<strong>无限复印</strong>。</p>
+
+  <hr>
+
+  <h2>第一步：坐标中心化</h2>
+  <div class="tip-box">
+    <code>uv = uv * 2.0 - 1.0;</code><br>
+    <code>uv.x *= u_resolution.x / u_resolution.y;</code>
+  </div>
+  <p>把 uv 从 [0,1] 变成 [-1,1]，让屏幕中心变成 (0,0)。第二行修正宽高比，防止画面被挤压。</p>
+  <p>这是 SDF 和几何操作的标准起手式，我们在第五课（画圆）已经学过。</p>
+
+  <hr>
+
+  <h2>第二步：abs() — 折纸术</h2>
+  <div class="tip-box">
+    <code>vec2 mirror = abs(uv);</code>
+  </div>
+  <p><code>abs()</code> 做了什么？它把所有负数变成正数。在二维坐标系中，这意味着：</p>
+  <ul>
+    <li>左半边（uv.x < 0）翻折到右半边</li>
+    <li>下半边（uv.y < 0）翻折到上半边</li>
+    <li>四个象限的坐标全部<strong>挤进了第一象限</strong>（右上角）</li>
+  </ul>
+
+  <div class="card" style="border-color: rgba(247, 120, 186, 0.4);">
+    <h4 style="color:#f778ba">🔍 静态检查器：abs() 的折叠效果</h4>
+    <p style="font-size:0.85rem;">鼠标在左图悬停查看<strong>原始 uv</strong> 坐标，右图展示 <code>abs(uv)</code> 后的结果。注意四个象限怎样"折叠"成一个。</p>
+    <div class="grid-2">
+      <div style="position:relative;">
+        <canvas id="c-abs-before" width="300" height="300" style="cursor:crosshair;margin:0;"></canvas>
+        <div style="text-align:center;font-size:0.8rem;color:#6e7681;margin-top:4px;">原始 uv 坐标（中心=原点）</div>
+      </div>
+      <div>
+        <canvas id="c-abs-after" width="300" height="300" style="margin:0;"></canvas>
+        <div style="text-align:center;font-size:0.8rem;color:#6e7681;margin-top:4px;">abs(uv) 后（四象限折入右上）</div>
+      </div>
+    </div>
+    <div id="abs-info" style="font-family:monospace;font-size:0.85rem;color:#8b949e;margin-top:10px;min-height:2.5em;"></div>
+  </div>
+
+  <hr>
+
+  <h2>第三步：用 mirror 坐标画 V 形线</h2>
+  <div class="tip-box">
+    <code>float v_shape = smoothstep(0.02, 0.0, abs(mirror.y - mirror.x * 0.8) - 0.01);</code>
+  </div>
+  <p>这行代码看起来很复杂，我们把它拆成 <strong>5 个子步骤</strong>，每步配一张图。鼠标悬停可以检查每个像素在这一步的值。</p>
+
+  <!-- Sub-step 3.1 -->
+  <div class="card" style="border-color: rgba(0, 204, 153, 0.3);">
+    <h4 style="color:#00cc99">3.1 — <code>mirror.x * 0.8</code> → 一条直线的方程</h4>
+    <p style="font-size:0.9rem;">在数学中，<code>y = 0.8x</code> 定义了一条从原点出发、斜率为 0.8 的直线。<br>
+    因为我们用的是 <code>mirror</code>（经过 abs 折叠的坐标，x 和 y 都在 [0,1] 范围内），所以这条线只存在于<strong>右上角</strong>。</p>
+    <div class="grid-2">
+      <div>
+        <canvas id="c-step31" width="300" height="300" style="cursor:crosshair;margin:0;"></canvas>
+        <div style="text-align:center;font-size:0.78rem;color:#6e7681;margin-top:4px;">绿线 = y=0.8x（在 mirror 空间里）</div>
+      </div>
+      <div style="display:flex;flex-direction:column;justify-content:center;">
+        <p style="font-size:0.85rem;"><strong>为什么选 0.8？</strong></p>
+        <ul style="font-size:0.85rem;">
+          <li>斜率 0.8 表示"x 走 1 单位，y 走 0.8 单位"</li>
+          <li>斜率 1.0 → 45° 对角线</li>
+          <li>斜率 0.8 → 比 45° 稍平一些，视觉上更像一个"V"而不是"X"</li>
+        </ul>
+        <div id="step31-info" style="font-family:monospace;font-size:0.82rem;color:#8b949e;margin-top:8px;min-height:1.5em;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sub-step 3.2 -->
+  <div class="card" style="border-color: rgba(88, 166, 255, 0.3);">
+    <h4 style="color:#58a6ff">3.2 — <code>mirror.y - mirror.x * 0.8</code> → 带符号的"距离"</h4>
+    <p style="font-size:0.9rem;">对每个像素，用它的 y 坐标减去"直线上同 x 位置的 y 值"：</p>
+    <ul style="font-size:0.85rem;">
+      <li>结果 <span style="color:#3fb950;">> 0</span> → 这个点在直线<strong>上方</strong>（y 比直线的 y 大）</li>
+      <li>结果 <span style="color:#ff4c7f;">< 0</span> → 这个点在直线<strong>下方</strong></li>
+      <li>结果 <span style="color:#fff;">= 0</span> → 恰好<strong>在直线上</strong></li>
+    </ul>
+    <canvas id="c-step32" width="300" height="300" style="width:60%;cursor:crosshair;margin:8px auto;"></canvas>
+    <p style="font-size:0.82rem;color:#6e7681;text-align:center;">绿色=正值（线上方），红色=负值（线下方），黑色分界线=直线本身</p>
+    <div id="step32-info" style="font-family:monospace;font-size:0.82rem;color:#8b949e;text-align:center;min-height:1.5em;"></div>
+  </div>
+
+  <!-- Sub-step 3.3 -->
+  <div class="card" style="border-color: rgba(247, 120, 186, 0.3);">
+    <h4 style="color:#f778ba">3.3 — <code>abs(mirror.y - mirror.x * 0.8)</code> → 无符号距离</h4>
+    <p style="font-size:0.9rem;"><code>abs()</code> 把负值翻正，现在<strong>上方和下方统一变成"到直线的距离"</strong>：</p>
+    <ul style="font-size:0.85rem;">
+      <li>直线上 → 距离 = 0（最亮/最近）</li>
+      <li>离直线越远 → 距离越大（越暗/越远）</li>
+      <li>不再区分上方还是下方 → 直线两侧<strong>对称</strong></li>
+    </ul>
+    <canvas id="c-step33" width="300" height="300" style="width:60%;cursor:crosshair;margin:8px auto;"></canvas>
+    <p style="font-size:0.82rem;color:#6e7681;text-align:center;">亮度 = 距离。越靠近直线越亮，两侧完全对称</p>
+    <div id="step33-info" style="font-family:monospace;font-size:0.82rem;color:#8b949e;text-align:center;min-height:1.5em;"></div>
+  </div>
+
+  <!-- Sub-step 3.4 -->
+  <div class="card" style="border-color: rgba(255, 152, 0, 0.3);">
+    <h4 style="color:#ff9800">3.4 — <code>abs(...) - 0.01</code> → 挖出一条"沟"</h4>
+    <p style="font-size:0.9rem;">减去 0.01 意味着：</p>
+    <ul style="font-size:0.85rem;">
+      <li>距离 < 0.01 的像素 → 减后变<strong>负数</strong>（在线条内部，沟底）</li>
+      <li>距离 = 0.01 的像素 → 减后刚好 = 0（线条边缘）</li>
+      <li>距离 > 0.01 的像素 → 减后仍为正（在线条外部）</li>
+    </ul>
+    <p style="font-size:0.9rem;">0.01 就是这条线的<strong>半宽</strong>。全宽 = 0.02 个坐标单位。</p>
+    <canvas id="c-step34" width="300" height="300" style="width:60%;cursor:crosshair;margin:8px auto;"></canvas>
+    <p style="font-size:0.82rem;color:#6e7681;text-align:center;">青色区域 = 值 ≤ 0（线条内部及附近），暗色 = 值 > 0（线条外部）</p>
+    <div id="step34-info" style="font-family:monospace;font-size:0.82rem;color:#8b949e;text-align:center;min-height:1.5em;"></div>
+  </div>
+
+  <!-- Sub-step 3.5 -->
+  <div class="card" style="border-color: rgba(247, 120, 186, 0.4);">
+    <h4 style="color:#f778ba">3.5 — <code>smoothstep(0.02, 0.0, ...)</code> → 柔化边缘出最终线条</h4>
+    <p style="font-size:0.9rem;"><code>smoothstep(0.02, 0.0, x)</code> 的含义是：</p>
+    <ul style="font-size:0.85rem;">
+      <li>当 x ≤ 0.0 → 输出 <strong>1.0</strong>（全亮，在线条核心）</li>
+      <li>当 x ≥ 0.02 → 输出 <strong>0.0</strong>（全暗，远离线条）</li>
+      <li>当 0.0 < x < 0.02 → 平滑过渡（柔和边缘，anti-aliasing）</li>
+    </ul>
+    <p style="font-size:0.9rem;">注意参数是<strong>反向</strong>的（0.02 → 0.0），所以是"越小越亮"。这正好利用了 step 3.4 中"负值/小值=在线条内"的特征。</p>
+    <p style="font-size:0.9rem; margin-top:8px;">最后，因为生活在 <code>mirror</code> 空间中，右上角的<strong>一条线</strong>通过 abs 镜像成了<strong>四条线</strong>，组成 X / V 形。</p>
+    <canvas id="c-step35" width="300" height="300" style="width:60%;cursor:crosshair;margin:8px auto;"></canvas>
+    <p style="font-size:0.82rem;color:#6e7681;text-align:center;">最终 v_shape 值：粉色亮线 = 值接近 1，黑色 = 值为 0</p>
+    <div id="step35-info" style="font-family:monospace;font-size:0.82rem;color:#8b949e;text-align:center;min-height:1.5em;"></div>
+  </div>
+
+  <div class="tip-box" style="border-color:rgba(188,140,255,0.3);background:rgba(188,140,255,0.06);">
+    <strong style="color:#bc8cff;">💡 整条流水线总结</strong><br>
+    <span style="color:#8b949e;">
+      <code>mirror.x * 0.8</code> → 定义一条斜线<br>
+      <code>mirror.y - ...</code> → 计算到斜线的带符号距离<br>
+      <code>abs(...)</code> → 去掉符号，两侧对称<br>
+      <code>... - 0.01</code> → 给线条设置宽度（0.01 = 半宽）<br>
+      <code>smoothstep(0.02, 0.0, ...)</code> → 把距离转化为亮度（近=亮；远=暗）<br>
+      <code>abs(uv)</code>（第二步的 mirror） → 一条线自动变成四条线！
+    </span>
+  </div>
+
+  <hr>
+
+  <h2>第四步：mod() — 复印机</h2>
+  <div class="tip-box">
+    <code>float stripes = mod(uv.x * 8.0 + u_time, 2.0);</code><br>
+    <code>float stripe_mask = step(1.0, stripes);</code>
+  </div>
+  <p><code>mod(x, 2.0)</code> 让 x 每走过 2 就归零重来。搭配 <code>step(1.0, ...)</code> 变成 0/1 交替的方波：</p>
+
+  <div class="card" style="border-color: rgba(88, 166, 255, 0.4);">
+    <h4 style="color:#58a6ff">🔍 mod + step = 奇偶条纹</h4>
+    <canvas id="c-mod-graph" style="height:140px;border-radius:6px;border:1px solid rgba(88,166,255,0.3);"></canvas>
+    <div class="slider-container" style="border-color:rgba(88,166,255,0.2);">
+      <div class="slider-row">
+        <label style="color:#58a6ff;">条纹密度 (×N)</label>
+        <input type="range" id="sl-stripe-freq" min="1" max="20" value="8">
+        <span class="val" id="vl-stripe-freq" style="color:#58a6ff;">8</span>
+      </div>
+      <div class="slider-row" style="margin-bottom:0;">
+        <label style="color:#58a6ff;">mod 的模数</label>
+        <input type="range" id="sl-mod-val" min="10" max="50" value="20">
+        <span class="val" id="vl-mod-val" style="color:#58a6ff;">2.0</span>
+      </div>
+    </div>
+    <p style="font-size:0.85rem;margin-top:10px;"><strong>背后原理：</strong><code>uv.x * 8</code> 把坐标从 0~1 放大到 0~8。<code>mod(..., 2.0)</code> 让它在 0~2 之间循环 4 次。<code>step(1.0, ...)</code> 在值 ≥1 时输出 1，<1 时输出 0 → 黑白交替条纹！</p>
+  </div>
+
+  <hr>
+
+  <h2>第五步：棋盘格 — mod 的二维经典</h2>
+  <div class="tip-box">
+    <code>vec2 grid = floor((uv + 1.0) * 4.0);</code><br>
+    <code>float checker = mod(grid.x + grid.y, 2.0);</code>
+  </div>
+
+  <div class="card" style="border-color: rgba(63, 185, 80, 0.4);">
+    <h4 style="color:#3fb950">棋盘格原理拆解</h4>
+    <ul>
+      <li><strong>① <code>(uv + 1.0)</code></strong> — uv 是 [-1,1]，加 1 变成 [0,2]（全正数）</li>
+      <li><strong>② <code>* 4.0</code></strong> — 放大到 [0,8]，屏幕被分成 8×8 = 64 格</li>
+      <li><strong>③ <code>floor(...)</code></strong> — 取整，给每格一个整数编号 (col, row)</li>
+      <li><strong>④ <code>mod(col + row, 2.0)</code></strong> — 列号+行号的奇偶性：奇数格=1，偶数格=0</li>
+    </ul>
+    <p style="margin-top:10px;">就像国际象棋：<strong>行列编号之和为奇数就是黑格，偶数就是白格</strong>。</p>
+    <canvas id="c-checker" width="300" height="300" style="width:60%;margin:10px auto;cursor:crosshair;"></canvas>
+    <div class="slider-container" style="border-color:rgba(63,185,80,0.2);">
+      <div class="slider-row" style="margin-bottom:0;">
+        <label style="color:#3fb950;">网格密度</label>
+        <input type="range" id="sl-grid" min="2" max="12" value="4">
+        <span class="val" id="vl-grid" style="color:#3fb950;">4</span>
+      </div>
+    </div>
+    <div id="checker-info" style="font-family:monospace;font-size:0.85rem;color:#8b949e;text-align:center;margin-top:6px;min-height:1.5em;"></div>
+  </div>
+
+  <hr>
+
+  <h2>第六步：三层叠加合成</h2>
+  <div class="tip-box">
+    <code>color = mix(color, vec3(0.15, 0.05, 0.2) + vec3(0.2) * checker, 0.5);</code><br>
+    <code>color = mix(color, vec3(0.3, 0.6, 1.0) * stripe_mask, 0.3);</code><br>
+    <code>color += vec3(0.9, 0.3, 0.5) * v_shape;</code>
+  </div>
+  <p>三层从底到上：</p>
+  <table>
+    <tr><th>层级</th><th>内容</th><th>混合方式</th><th>比例</th></tr>
+    <tr><td style="color:#bc8cff;">① 底层</td><td>棋盘格（暗紫+亮紫交替）</td><td><code>mix(..., 0.5)</code></td><td>50%</td></tr>
+    <tr><td style="color:#58a6ff;">② 中层</td><td>蓝色条纹（随时间滚动）</td><td><code>mix(..., 0.3)</code></td><td>30%</td></tr>
+    <tr><td style="color:#f778ba;">③ 顶层</td><td>粉色 V 形线（abs 镜像）</td><td><code>color +=</code></td><td>叠加发光</td></tr>
+  </table>
+  <p>注意第三层用的是 <code>+=</code>（加法叠加）而不是 <code>mix</code> → 这让 V 形线像<strong>发光体</strong>一样明亮地叠在画面上，而不是温和地"混入"。</p>
+
+  <hr>
+
+  <h2>⚡ 完整效果模拟器</h2>
+  <p>下方模拟了完整的三层叠加效果，可以单独开关每一层：</p>
+  <div class="card" style="border-color: rgba(188, 140, 255, 0.5);">
+    <canvas id="c-final" width="400" height="400" style="width:100%;height:auto;cursor:crosshair;"></canvas>
+    <div class="slider-container" style="border-color:rgba(188,140,255,0.2);">
+      <div class="slider-row">
+        <label style="color:#bc8cff;">① 棋盘格</label>
+        <input type="range" id="sl-l1" min="0" max="100" value="50">
+        <span class="val" id="vl-l1" style="color:#bc8cff;">0.50</span>
+      </div>
+      <div class="slider-row">
+        <label style="color:#58a6ff;">② 蓝色条纹</label>
+        <input type="range" id="sl-l2" min="0" max="100" value="30">
+        <span class="val" id="vl-l2" style="color:#58a6ff;">0.30</span>
+      </div>
+      <div class="slider-row" style="margin-bottom:0;">
+        <label style="color:#f778ba;">③ V 形发光</label>
+        <input type="range" id="sl-l3" min="0" max="100" value="100">
+        <span class="val" id="vl-l3" style="color:#f778ba;">1.00</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function lerp3(a, b, t) { return [a[0]*(1-t)+b[0]*t, a[1]*(1-t)+b[1]*t, a[2]*(1-t)+b[2]*t]; }
+function clamp01(v) { return Math.max(0, Math.min(1, v)); }
+function smoothstep(e0, e1, x) {
+  const t = clamp01((x - e0) / (e1 - e0));
+  return t * t * (3 - 2 * t);
+}
+
+// ---- abs() inspection ----
+function renderAbsCanvases(mouseUV) {
+  const cB = document.getElementById('c-abs-before');
+  const cA = document.getElementById('c-abs-after');
+  if (!cB || !cA) return;
+  const ctxB = cB.getContext('2d'), ctxA = cA.getContext('2d');
+  const W = cB.width, H = cB.height;
+
+  const imgB = ctxB.createImageData(W, H);
+  const imgA = ctxA.createImageData(W, H);
+  for (let py = 0; py < H; py++) {
+    for (let px = 0; px < W; px++) {
+      const uvx = (px / W) * 2.0 - 1.0;
+      const uvy = 1.0 - (py / H) * 2.0; // flip Y
+      const ax = Math.abs(uvx), ay = Math.abs(uvy);
+
+      // Before: encode x→red, y→green
+      const rB = (uvx * 0.5 + 0.5) * 255;
+      const gB = (uvy * 0.5 + 0.5) * 255;
+      // After: encode abs
+      const rA = ax * 255;
+      const gA = ay * 255;
+
+      const i = (py * W + px) * 4;
+      imgB.data[i] = rB; imgB.data[i+1] = gB; imgB.data[i+2] = 80; imgB.data[i+3] = 255;
+      imgA.data[i] = rA; imgA.data[i+1] = gA; imgA.data[i+2] = 80; imgA.data[i+3] = 255;
+    }
+  }
+  ctxB.putImageData(imgB, 0, 0);
+  ctxA.putImageData(imgA, 0, 0);
+
+  // Axes
+  [ctxB, ctxA].forEach(ctx => {
+    ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(W/2, 0); ctx.lineTo(W/2, H); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, H/2); ctx.lineTo(W, H/2); ctx.stroke();
+  });
+
+  // Labels
+  ctxB.fillStyle = 'rgba(255,255,255,0.4)'; ctxB.font = '14px monospace';
+  ctxB.textAlign = 'center';
+  ctxB.fillText('(0,0)', W/2+20, H/2+14);
+  ctxA.fillStyle = 'rgba(255,255,255,0.4)'; ctxA.font = '14px monospace';
+  ctxA.textAlign = 'center';
+  ctxA.fillText('(0,0)', W/2+20, H/2+14);
+
+  if (mouseUV) {
+    const [mx, my] = mouseUV;
+    const pxX = (mx * 0.5 + 0.5) * W, pxY = (1.0 - (my * 0.5 + 0.5)) * H;
+    // Crosshair on before
+    ctxB.strokeStyle = '#fff'; ctxB.lineWidth = 1; ctxB.setLineDash([3,3]);
+    ctxB.beginPath(); ctxB.moveTo(pxX, 0); ctxB.lineTo(pxX, H); ctxB.stroke();
+    ctxB.beginPath(); ctxB.moveTo(0, pxY); ctxB.lineTo(W, pxY); ctxB.stroke();
+    ctxB.setLineDash([]);
+    ctxB.fillStyle = '#fff'; ctxB.beginPath(); ctxB.arc(pxX, pxY, 4, 0, Math.PI*2); ctxB.fill();
+
+    // Mirror point on after
+    const amx = Math.abs(mx), amy = Math.abs(my);
+    const apxX = amx * W, apxY = (1.0 - amy) * H;
+    ctxA.strokeStyle = '#ff0'; ctxA.lineWidth = 1; ctxA.setLineDash([3,3]);
+    ctxA.beginPath(); ctxA.moveTo(apxX, 0); ctxA.lineTo(apxX, H); ctxA.stroke();
+    ctxA.beginPath(); ctxA.moveTo(0, apxY); ctxA.lineTo(W, apxY); ctxA.stroke();
+    ctxA.setLineDash([]);
+    ctxA.fillStyle = '#ff0'; ctxA.beginPath(); ctxA.arc(apxX, apxY, 5, 0, Math.PI*2); ctxA.fill();
+
+    document.getElementById('abs-info').innerHTML =
+      `原始 uv = (<span style="color:#f778ba">${mx.toFixed(3)}, ${my.toFixed(3)}</span>)　→　` +
+      `abs(uv) = (<span style="color:#ff0">${amx.toFixed(3)}, ${amy.toFixed(3)}</span>)　` +
+      (mx < 0 || my < 0 ? `<span style="color:#ff9800;">← 负坐标被折到正区间！</span>` : `<span style="color:#3fb950;">√ 已经在正区间</span>`);
+  }
+}
+renderAbsCanvases(null);
+document.getElementById('c-abs-before').addEventListener('mousemove', (e) => {
+  const rect = e.target.getBoundingClientRect();
+  const mx = ((e.clientX - rect.left) / rect.width) * 2.0 - 1.0;
+  const my = 1.0 - ((e.clientY - rect.top) / rect.height) * 2.0;
+  renderAbsCanvases([mx, my]);
+});
+document.getElementById('c-abs-before').addEventListener('mouseleave', () => {
+  document.getElementById('abs-info').innerHTML = '';
+  renderAbsCanvases(null);
+});
+
+// ---- V-shape sub-steps ----
+function uvFromMouse(canvasEl, e) {
+  const rect = canvasEl.getBoundingClientRect();
+  const mx = ((e.clientX - rect.left) / rect.width) * 2.0 - 1.0;
+  const my = 1.0 - ((e.clientY - rect.top) / rect.height) * 2.0;
+  return [mx, my];
+}
+
+function makeHoverHandler(canvasId, renderFn, infoId) {
+  const c = document.getElementById(canvasId);
+  if (!c) return;
+  renderFn(null);
+  c.addEventListener('mousemove', (e) => renderFn(uvFromMouse(c, e)));
+  c.addEventListener('mouseleave', () => {
+    if (infoId) document.getElementById(infoId).innerHTML = '';
+    renderFn(null);
+  });
+}
+
+// Step 3.1: y = 0.8x line on mirror space
+function renderStep31(mouseUV) {
+  const c = document.getElementById('c-step31');
+  if (!c) return;
+  const ctx = c.getContext('2d'); const W = c.width, H = c.height;
+  // Dark bg
+  ctx.fillStyle = '#080c14'; ctx.fillRect(0,0,W,H);
+  // Axes (only first quadrant matters for mirror)
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(0, H); ctx.lineTo(W, H); ctx.stroke(); // x-axis at bottom
+  ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(0, H); ctx.stroke(); // y-axis at left
+  // Grid
+  for (let i = 1; i <= 4; i++) {
+    const frac = i / 5;
+    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+    ctx.beginPath(); ctx.moveTo(frac*W, 0); ctx.lineTo(frac*W, H); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, H-frac*H); ctx.lineTo(W, H-frac*H); ctx.stroke();
+  }
+  // Draw line y = 0.8x (in mirror space: [0,1] x [0,1])
+  ctx.beginPath(); ctx.strokeStyle = '#00cc99'; ctx.lineWidth = 3;
+  ctx.moveTo(0, H); // (0,0) → bottom-left
+  ctx.lineTo(W, H - 0.8 * H); // (1, 0.8) → right side
+  ctx.stroke();
+  // Labels
+  ctx.fillStyle = 'rgba(255,255,255,0.35)'; ctx.font = '14px monospace';
+  ctx.fillText('(0,0)', 4, H-4);
+  ctx.fillText('(1,0.8)', W-60, H-0.8*H-8);
+  ctx.fillText('y = 0.8x', W*0.3, H-0.55*H);
+
+  if (mouseUV) {
+    const [ux, uy] = mouseUV;
+    const mx = Math.abs(ux), my = Math.abs(uy);
+    // Hover point in mirror space
+    const px = mx * W, py = H - my * H;
+    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(px, py, 4, 0, Math.PI*2); ctx.fill();
+    // Point on line at same x
+    const lineY = mx * 0.8;
+    const lpx = px, lpy = H - lineY * H;
+    ctx.fillStyle = '#00cc99'; ctx.beginPath(); ctx.arc(lpx, lpy, 4, 0, Math.PI*2); ctx.fill();
+    // Distance line
+    ctx.strokeStyle = 'rgba(255,255,0,0.6)'; ctx.lineWidth = 1; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(lpx, lpy); ctx.stroke();
+    ctx.setLineDash([]);
+    document.getElementById('step31-info').innerHTML =
+      `mirror=(${mx.toFixed(2)}, ${my.toFixed(2)})　线上y=${lineY.toFixed(3)}`;
+  }
+}
+makeHoverHandler('c-step31', renderStep31, 'step31-info');
+
+// Step 3.2: mirror.y - mirror.x * 0.8 (signed distance)
+function renderStep32(mouseUV) {
+  const c = document.getElementById('c-step32');
+  if (!c) return;
+  const ctx = c.getContext('2d'); const W = c.width, H = c.height;
+  const img = ctx.createImageData(W, H);
+  for (let py = 0; py < H; py++) {
+    for (let px = 0; px < W; px++) {
+      const uvx = (px / W) * 2.0 - 1.0;
+      const uvy = 1.0 - (py / H) * 2.0;
+      const mx = Math.abs(uvx), my = Math.abs(uvy);
+      const signed = my - mx * 0.8;
+      const r = signed < 0 ? Math.min(255, -signed * 500) : 0;
+      const g = signed > 0 ? Math.min(255, signed * 500) : 0;
+      const i = (py * W + px) * 4;
+      img.data[i] = r; img.data[i+1] = g; img.data[i+2] = 0; img.data[i+3] = 255;
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+  if (mouseUV) {
+    const [ux, uy] = mouseUV;
+    const mx = Math.abs(ux), my = Math.abs(uy);
+    const signed = my - mx * 0.8;
+    const pxX = (ux*0.5+0.5)*W, pxY = (1-(uy*0.5+0.5))*H;
+    ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(pxX,0); ctx.lineTo(pxX,H); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0,pxY); ctx.lineTo(W,pxY); ctx.stroke();
+    ctx.setLineDash([]);
+    const label = signed > 0.001 ? '上方 ✓' : signed < -0.001 ? '下方 ✗' : '在线上 ●';
+    document.getElementById('step32-info').innerHTML =
+      `mirror=(${mx.toFixed(2)}, ${my.toFixed(2)})　y - 0.8x = <span style="color:${signed>=0?'#3fb950':'#ff4c7f'}">${signed.toFixed(4)}</span>　${label}`;
+  }
+}
+makeHoverHandler('c-step32', renderStep32, 'step32-info');
+
+// Step 3.3: abs(mirror.y - mirror.x * 0.8) (unsigned distance)
+function renderStep33(mouseUV) {
+  const c = document.getElementById('c-step33');
+  if (!c) return;
+  const ctx = c.getContext('2d'); const W = c.width, H = c.height;
+  const img = ctx.createImageData(W, H);
+  for (let py = 0; py < H; py++) {
+    for (let px = 0; px < W; px++) {
+      const uvx = (px / W) * 2.0 - 1.0;
+      const uvy = 1.0 - (py / H) * 2.0;
+      const mx = Math.abs(uvx), my = Math.abs(uvy);
+      const dist = Math.abs(my - mx * 0.8);
+      const brightness = Math.max(0, 1.0 - dist * 5);
+      const i = (py * W + px) * 4;
+      img.data[i] = brightness * 255; img.data[i+1] = brightness * 200;
+      img.data[i+2] = brightness * 255; img.data[i+3] = 255;
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+  if (mouseUV) {
+    const [ux, uy] = mouseUV;
+    const mx = Math.abs(ux), my = Math.abs(uy);
+    const dist = Math.abs(my - mx * 0.8);
+    const pxX = (ux*0.5+0.5)*W, pxY = (1-(uy*0.5+0.5))*H;
+    ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(pxX,0); ctx.lineTo(pxX,H); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0,pxY); ctx.lineTo(W,pxY); ctx.stroke();
+    ctx.setLineDash([]);
+    document.getElementById('step33-info').innerHTML =
+      `mirror=(${mx.toFixed(2)}, ${my.toFixed(2)})　abs(距离) = <span style="color:#f778ba">${dist.toFixed(4)}</span>`;
+  }
+}
+makeHoverHandler('c-step33', renderStep33, 'step33-info');
+
+// Step 3.4: abs(...) - 0.01 (with thickness)
+function renderStep34(mouseUV) {
+  const c = document.getElementById('c-step34');
+  if (!c) return;
+  const ctx = c.getContext('2d'); const W = c.width, H = c.height;
+  const img = ctx.createImageData(W, H);
+  for (let py = 0; py < H; py++) {
+    for (let px = 0; px < W; px++) {
+      const uvx = (px / W) * 2.0 - 1.0;
+      const uvy = 1.0 - (py / H) * 2.0;
+      const mx = Math.abs(uvx), my = Math.abs(uvy);
+      const val = Math.abs(my - mx * 0.8) - 0.01;
+      const i = (py * W + px) * 4;
+      if (val <= 0) {
+        // Inside the band: cyan, brighter toward center
+        const bright = Math.min(1.0, (1.0 - val / -0.01) * 0.8 + 0.2);
+        img.data[i] = 0; img.data[i+1] = bright*220; img.data[i+2] = bright*200; img.data[i+3] = 255;
+      } else {
+        // Outside: dark, fade
+        const dim = Math.max(0, 0.08 - val * 2) * 255;
+        img.data[i] = dim*0.3; img.data[i+1] = dim*0.3; img.data[i+2] = dim*0.5; img.data[i+3] = 255;
+      }
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+  if (mouseUV) {
+    const [ux, uy] = mouseUV;
+    const mx = Math.abs(ux), my = Math.abs(uy);
+    const val = Math.abs(my - mx * 0.8) - 0.01;
+    const pxX = (ux*0.5+0.5)*W, pxY = (1-(uy*0.5+0.5))*H;
+    ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(pxX,0); ctx.lineTo(pxX,H); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0,pxY); ctx.lineTo(W,pxY); ctx.stroke();
+    ctx.setLineDash([]);
+    const label = val <= 0 ? '<span style="color:#00cc99">≤ 0 在线条内！</span>' : '<span style="color:#8b949e">> 0 线条外</span>';
+    document.getElementById('step34-info').innerHTML =
+      `abs距离-0.01 = <span style="color:#ff9800">${val.toFixed(4)}</span>　${label}`;
+  }
+}
+makeHoverHandler('c-step34', renderStep34, 'step34-info');
+
+// Step 3.5: smoothstep(0.02, 0.0, ...) → final v_shape
+function renderStep35(mouseUV) {
+  const c = document.getElementById('c-step35');
+  if (!c) return;
+  const ctx = c.getContext('2d'); const W = c.width, H = c.height;
+  const img = ctx.createImageData(W, H);
+  for (let py = 0; py < H; py++) {
+    for (let px = 0; px < W; px++) {
+      const uvx = (px / W) * 2.0 - 1.0;
+      const uvy = 1.0 - (py / H) * 2.0;
+      const mx = Math.abs(uvx), my = Math.abs(uvy);
+      const dist = Math.abs(my - mx * 0.8) - 0.01;
+      const v = smoothstep(0.02, 0.0, dist);
+      const i = (py * W + px) * 4;
+      img.data[i] = Math.min(255, v * 230); img.data[i+1] = Math.min(255, v * 76);
+      img.data[i+2] = Math.min(255, v * 127 + 8); img.data[i+3] = 255;
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+  if (mouseUV) {
+    const [ux, uy] = mouseUV;
+    const mx = Math.abs(ux), my = Math.abs(uy);
+    const dist = Math.abs(my - mx * 0.8) - 0.01;
+    const v = smoothstep(0.02, 0.0, dist);
+    const pxX = (ux*0.5+0.5)*W, pxY = (1-(uy*0.5+0.5))*H;
+    ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(pxX,0); ctx.lineTo(pxX,H); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0,pxY); ctx.lineTo(W,pxY); ctx.stroke();
+    ctx.setLineDash([]);
+    document.getElementById('step35-info').innerHTML =
+      `输入值=${dist.toFixed(4)}　smoothstep → v_shape=<span style="color:${v > 0.1 ? '#f778ba' : '#8b949e'};font-weight:bold;">${v.toFixed(3)}</span>` +
+      (v > 0.99 ? ' ← 核心亮线' : v > 0.01 ? ' ← 柔化过渡区' : ' ← 线条外部');
+  }
+}
+makeHoverHandler('c-step35', renderStep35, 'step35-info');
+
+// ---- mod() graph ----
+function drawModGraph() {
+  const c = document.getElementById('c-mod-graph');
+  if (!c) return;
+  const ctx = c.getContext('2d');
+  c.width = c.offsetWidth * 2; c.height = c.offsetHeight * 2;
+  const W = c.width, H = c.height, pad = 30;
+  const pW = W - pad*2, pH = H - pad*2;
+
+  const freq = parseFloat(document.getElementById('sl-stripe-freq').value);
+  const modVal = parseFloat(document.getElementById('sl-mod-val').value) / 10;
+  document.getElementById('vl-stripe-freq').textContent = freq;
+  document.getElementById('vl-mod-val').textContent = modVal.toFixed(1);
+
+  ctx.fillStyle = '#080c14'; ctx.fillRect(0,0,W,H);
+
+  // Axes
+  ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(pad, pad); ctx.lineTo(pad, pad+pH); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(pad, pad+pH); ctx.lineTo(pad+pW, pad+pH); ctx.stroke();
+
+  // Labels
+  ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.font = `${Math.max(16, H*0.05)}px monospace`;
+  ctx.textAlign = 'right';
+  ctx.fillText(modVal.toFixed(1), pad-4, pad+6);
+  ctx.fillText('0', pad-4, pad+pH+4);
+  ctx.textAlign = 'center';
+  ctx.fillText('uv.x=0', pad, pad+pH+20);
+  ctx.fillText('uv.x=1', pad+pW, pad+pH+20);
+
+  // Draw mod(uv.x * freq, modVal) — sawtooth
+  ctx.beginPath(); ctx.strokeStyle = '#58a6ff'; ctx.lineWidth = 2;
+  for (let px = 0; px <= pW; px++) {
+    const uvx = px / pW;
+    const val = ((uvx * freq) % modVal + modVal) % modVal;
+    const norm = val / modVal;
+    const y = pad + pH - norm * pH;
+    if(px===0) ctx.moveTo(pad+px, y); else ctx.lineTo(pad+px, y);
+  }
+  ctx.stroke();
+
+  // Draw step(1.0, mod(...)) — square wave
+  ctx.beginPath(); ctx.strokeStyle = '#3fb950'; ctx.lineWidth = 2;
+  for (let px = 0; px <= pW; px++) {
+    const uvx = px / pW;
+    const val = ((uvx * freq) % modVal + modVal) % modVal;
+    const stepped = val >= 1.0 ? 1 : 0;
+    const y = pad + pH - stepped * pH * (1.0 / modVal);
+    if(px===0) ctx.moveTo(pad+px, y); else ctx.lineTo(pad+px, y);
+  }
+  ctx.stroke();
+
+  // Legend
+  ctx.fillStyle = '#58a6ff'; ctx.font = `bold ${Math.max(16, H*0.05)}px sans-serif`; ctx.textAlign = 'left';
+  ctx.fillText('— mod() 锯齿', pad+10, pad+20);
+  ctx.fillStyle = '#3fb950';
+  ctx.fillText('— step() 方波', pad+10, pad+42);
+}
+drawModGraph();
+document.getElementById('sl-stripe-freq').addEventListener('input', drawModGraph);
+document.getElementById('sl-mod-val').addEventListener('input', drawModGraph);
+
+// ---- Checkerboard ----
+function renderChecker(mouseUV) {
+  const c = document.getElementById('c-checker');
+  if (!c) return;
+  const ctx = c.getContext('2d');
+  const W = c.width, H = c.height;
+  const gridN = parseFloat(document.getElementById('sl-grid').value);
+  document.getElementById('vl-grid').textContent = gridN;
+
+  const img = ctx.createImageData(W, H);
+  for (let py = 0; py < H; py++) {
+    for (let px = 0; px < W; px++) {
+      const uvx = (px / W) * 2.0 - 1.0;
+      const uvy = 1.0 - (py / H) * 2.0;
+      const gx = Math.floor((uvx + 1.0) * gridN);
+      const gy = Math.floor((uvy + 1.0) * gridN);
+      const checker = ((gx + gy) % 2 + 2) % 2;
+      const r = 38 + checker * 51, g = 13 + checker * 51, b = 51 + checker * 51;
+      const i = (py * W + px) * 4;
+      img.data[i] = r; img.data[i+1] = g; img.data[i+2] = b; img.data[i+3] = 255;
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+
+  // Grid lines
+  ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.lineWidth = 1;
+  for (let i = 0; i <= gridN * 2; i++) {
+    const x = (i / (gridN*2)) * W;
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, x); ctx.lineTo(W, x); ctx.stroke();
+  }
+
+  if (mouseUV) {
+    const [ux, uy] = mouseUV;
+    const gx = Math.floor((ux + 1.0) * gridN);
+    const gy = Math.floor((uy + 1.0) * gridN);
+    const checker = ((gx + gy) % 2 + 2) % 2;
+    document.getElementById('checker-info').innerHTML =
+      `uv=(${ux.toFixed(2)}, ${uy.toFixed(2)})　grid=(${gx}, ${gy})　` +
+      `${gx}+${gy}=${gx+gy}　mod(${gx+gy}, 2)=<span style="color:${checker?'#3fb950':'#bc8cff'}">${checker}</span> → ` +
+      (checker ? `<span style="color:#3fb950">亮格</span>` : `<span style="color:#bc8cff">暗格</span>`);
+  }
+}
+renderChecker(null);
+document.getElementById('sl-grid').addEventListener('input', () => renderChecker(null));
+document.getElementById('c-checker').addEventListener('mousemove', (e) => {
+  const rect = e.target.getBoundingClientRect();
+  const mx = ((e.clientX - rect.left) / rect.width) * 2.0 - 1.0;
+  const my = 1.0 - ((e.clientY - rect.top) / rect.height) * 2.0;
+  renderChecker([mx, my]);
+});
+document.getElementById('c-checker').addEventListener('mouseleave', () => {
+  document.getElementById('checker-info').innerHTML = '';
+  renderChecker(null);
+});
+
+// ---- Final composite ----
+const startTime = performance.now();
+function renderFinal() {
+  const c = document.getElementById('c-final');
+  if (!c) return;
+  const ctx = c.getContext('2d');
+  const W = c.width, H = c.height;
+  const t = (performance.now() - startTime) / 1000;
+
+  const l1 = parseFloat(document.getElementById('sl-l1').value) / 100;
+  const l2 = parseFloat(document.getElementById('sl-l2').value) / 100;
+  const l3 = parseFloat(document.getElementById('sl-l3').value) / 100;
+  document.getElementById('vl-l1').textContent = l1.toFixed(2);
+  document.getElementById('vl-l2').textContent = l2.toFixed(2);
+  document.getElementById('vl-l3').textContent = l3.toFixed(2);
+
+  const img = ctx.createImageData(W, H);
+  for (let py = 0; py < H; py++) {
+    for (let px = 0; px < W; px++) {
+      const uvx = (px / W) * 2.0 - 1.0;
+      const uvy = 1.0 - (py / H) * 2.0;
+      const aspect = 1.0; // square canvas
+      const ux = uvx * aspect;
+
+      // abs mirror
+      const mx = Math.abs(ux), my = Math.abs(uvy);
+      // V shape
+      const vDist = Math.abs(my - mx * 0.8) - 0.01;
+      const vShape = smoothstep(0.02, 0.0, vDist);
+      // Stripes
+      const stripes = ((ux * 8.0 + t) % 2.0 + 2.0) % 2.0;
+      const stripeMask = stripes >= 1.0 ? 1 : 0;
+      // Checker
+      const gx = Math.floor((ux + 1.0) * 4.0);
+      const gy = Math.floor((uvy + 1.0) * 4.0);
+      const checker = ((gx + gy) % 2 + 2) % 2;
+
+      let r = 7.65, g = 7.65, b = 7.65; // vec3(0.03)
+      // Layer 1: checker
+      const cr = 38.25 + 51 * checker, cg = 12.75 + 51 * checker, cb = 51 + 51 * checker;
+      r = r * (1-l1) + cr * l1;
+      g = g * (1-l1) + cg * l1;
+      b = b * (1-l1) + cb * l1;
+      // Layer 2: stripes
+      const sr = 76.5 * stripeMask, sg = 153 * stripeMask, sb = 255 * stripeMask;
+      r = r * (1-l2) + sr * l2;
+      g = g * (1-l2) + sg * l2;
+      b = b * (1-l2) + sb * l2;
+      // Layer 3: V shape (additive)
+      r += 229.5 * vShape * l3;
+      g += 76.5 * vShape * l3;
+      b += 127.5 * vShape * l3;
+
+      const i = (py * W + px) * 4;
+      img.data[i] = Math.min(255, r);
+      img.data[i+1] = Math.min(255, g);
+      img.data[i+2] = Math.min(255, b);
+      img.data[i+3] = 255;
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+  requestAnimationFrame(renderFinal);
+}
+renderFinal();
+</script>
+</body>
+</html>

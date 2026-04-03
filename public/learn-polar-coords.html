@@ -3,166 +3,182 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🎯 极坐标 — 知识点</title>
+<title>🌀 极坐标：底层原理</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0d1117;color:#e6edf3;font-family:'Inter',-apple-system,sans-serif;line-height:1.8;padding:40px 24px}
-.container{max-width:880px;margin:0 auto}
-h1{font-size:2rem;margin-bottom:.3em;background:linear-gradient(135deg,#d29922,#f85149,#bc8cff,#58a6ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-h2{font-size:1.3rem;color:#58a6ff;margin:2rem 0 .8rem;padding-left:12px;border-left:3px solid #58a6ff}
-p{color:#8b949e;margin-bottom:.8rem}
+body{background:#0d1117;color:#e6edf3;font-family:'Inter',-apple-system,sans-serif;line-height:1.7;padding:40px 24px;padding-bottom:80px}
+.container{max-width:820px;margin:0 auto}
+h1{font-size:1.8rem;margin-bottom:0.5rem;color:#58a6ff;}
+h2{font-size:1.3rem;color:#58a6ff;margin:2.5rem 0 1rem;padding-left:12px;border-left:3px solid #58a6ff}
+p, li{color:#8b949e;margin-bottom:.8rem; font-size: 0.95rem;}
 strong{color:#e6edf3}
-code{font-family:'JetBrains Mono',monospace;background:rgba(255,255,255,.06);padding:2px 6px;border-radius:4px;color:#58a6ff;font-size:.85rem}
-.formula{text-align:center;color:#58a6ff;background:rgba(88,166,255,.06);border:1px solid rgba(88,166,255,.15);border-radius:8px;padding:14px;margin:1rem 0;font-family:'JetBrains Mono',monospace;font-size:1.05rem;line-height:2}
-canvas{width:100%;height:350px;border-radius:8px;display:block;margin:1rem 0;cursor:crosshair}
-.info-bar{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:#8b949e;margin:8px 0}
-.info-bar span{color:#58a6ff}
-table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.85rem}
-th{background:rgba(255,255,255,.04);color:#58a6ff;padding:8px 12px;text-align:center}
-td{padding:8px 12px;text-align:center;color:#8b949e;border-top:1px solid rgba(255,255,255,.06)}
-.comparison{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:1rem 0}
-.card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:16px}
-.card h4{font-size:.85rem;color:#bc8cff;margin-bottom:8px}
-.tip{background:rgba(63,185,80,.06);border:1px solid rgba(63,185,80,.15);border-radius:8px;padding:12px 16px;margin:1rem 0;font-size:.88rem;color:#8b949e}
-.tip strong{color:#3fb950}
-.memory{text-align:center;font-size:1.3rem;color:#bc8cff;margin:2rem 0;padding:20px;background:rgba(188,140,255,.06);border:1px solid rgba(188,140,255,.15);border-radius:10px}
-.memory .sub{font-size:.85rem;color:#8b949e;margin-top:8px}
+code{font-family:'JetBrains Mono',monospace;background:rgba(255,255,255,.06);padding:2px 6px;border-radius:4px;color:#58a6ff;font-size:0.9rem}
+canvas{width:100%;border-radius:8px;display:block;margin:1rem 0;background:#000;border:1px solid rgba(255,255,255,0.1);cursor:crosshair;}
+.card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:24px; margin-bottom:20px;}
+.card h4{color:#39d2c0;margin-bottom:12px;font-size:1.05rem;}
+.tip-box{background:rgba(88,166,255,0.08);border:1px solid rgba(88,166,255,0.2);padding:16px 20px;border-radius:8px;font-size:0.9rem;margin:15px 0;}
+hr{border:0;border-top:1px solid rgba(255,255,255,0.1);margin:30px 0;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:0.9rem;}
+th{background:rgba(255,255,255,.04);color:#58a6ff;padding:8px 12px;text-align:center;border:1px solid rgba(255,255,255,0.06);}
+td{padding:8px 12px;text-align:center;color:#8b949e;border:1px solid rgba(255,255,255,0.06);}
+.info-line{text-align:center;margin:8px 0;color:#8b949e;font-family:monospace;font-size:0.9rem;min-height:1.5em;}
 </style>
 </head>
 <body>
 <div class="container">
-<h1>🎯 极坐标系</h1>
-<p>用<strong>角度 + 距离</strong>描述位置 — 径向图案和旋转的神器。</p>
+  <h1>🌀 极坐标 — 用"距离+角度"重新看世界</h1>
+  <p style="font-size:1.05rem;">在直角坐标系(x, y)中，每个点的身份证号码是<strong>"向右走多少、向上走多少"</strong>。但在极坐标中，身份证变成了<strong>"离中心多远(r)、在哪个钟点方向(θ)"</strong>。这种坐标系对于画旋涡、放射线、花瓣等圆形对称图案有着统治级的优势。</p>
 
-<h2>一、从笛卡尔到极坐标</h2>
-<div class="formula">
-笛卡尔 (x, y) → 极坐标 (r, θ)<br><br>
-r = length(uv) = √(x² + y²)<br>
-θ = atan(y, x)&nbsp;&nbsp;&nbsp;// 范围 [-π, π]
-</div>
-<p><code>r</code> 是到原点的距离，<code>θ</code> 是与 X 轴正方向的夹角。</p>
+  <hr>
 
-<h2>二、交互可视化</h2>
-<p>🖱 移动鼠标，观察 (x,y) ↔ (r,θ) 的对应关系：</p>
-<canvas id="polar-canvas"></canvas>
-<div class="info-bar" id="polar-info">移动鼠标到画布上...</div>
-
-<h2>三、对比两种坐标</h2>
-<div class="comparison">
-  <div class="card">
-    <h4>笛卡尔坐标 (x, y)</h4>
-    <p style="font-size:.82rem;color:#8b949e">✅ 方格、条纹<br>✅ 水平/垂直运动<br>❌ 圆形不方便</p>
+  <h2>一、从直角坐标到极坐标</h2>
+  <div class="tip-box">
+    <code>float r = length(uv);</code> → 到中心的距离<br><br>
+    <code>float theta = atan(uv.y, uv.x);</code> → 从 3 点钟方向逆时针转了多少角度
   </div>
-  <div class="card">
-    <h4>极坐标 (r, θ)</h4>
-    <p style="font-size:.82rem;color:#8b949e">✅ 圆、扇形、螺旋<br>✅ 径向渐变/重复<br>❌ 直线不方便</p>
+  <p>就像你站在一个圆形大厅的正中间 🏛️，有人问你："小明在哪？"</p>
+  <ul>
+    <li>直角坐标的回答："往东走3米，往北走4米"→ <code>(3, 4)</code></li>
+    <li>极坐标的回答："离你5米远，在你的1点钟方向"→ <code>(r=5, θ=53°)</code></li>
+  </ul>
+  <p>两种回答描述的是同一个位置！只是看问题的方式不同。</p>
+
+  <hr>
+
+  <h2>二、互动地图：鼠标探索两种坐标</h2>
+  <p>左边是正常的直角坐标网格，右边是极坐标视角。移动鼠标同时观察两种坐标系的读数变化：</p>
+  <div class="grid-2">
+    <div>
+      <p style="text-align:center;color:#f778ba;font-weight:bold;">直角坐标 (x, y)</p>
+      <canvas id="c-cart" height="250"></canvas>
+    </div>
+    <div>
+      <p style="text-align:center;color:#58a6ff;font-weight:bold;">极坐标 (r, θ)</p>
+      <canvas id="c-polar" height="250"></canvas>
+    </div>
   </div>
-</div>
+  <div class="info-line" id="coord-info">🖱 移动鼠标到画布上…</div>
 
-<h2>四、GLSL 写法</h2>
-<table>
-<tr><th>操作</th><th>代码</th><th>效果</th></tr>
-<tr><td>求角度</td><td><code>float angle = atan(uv.y, uv.x);</code></td><td>-π ~ π</td></tr>
-<tr><td>求距离</td><td><code>float r = length(uv);</code></td><td>0 ~ ∞</td></tr>
-<tr><td>极→笛</td><td><code>vec2 p = vec2(cos(θ), sin(θ)) * r;</code></td><td>还原回 xy</td></tr>
-<tr><td>角度归一化</td><td><code>(atan(y,x) + PI) / (2.0*PI)</code></td><td>0 ~ 1</td></tr>
-</table>
+  <hr>
 
-<h2>五、典型应用</h2>
-<div class="tip">
-  <strong>🌸 花朵图案</strong><br>
-  <code>r = cos(θ * N)</code> — N 控制花瓣数量
-</div>
-<div class="tip">
-  <strong>🌀 螺旋</strong><br>
-  <code>fract(θ/(2π) - r * twist)</code> — 角度与距离混合产生螺旋
-</div>
-<div class="tip">
-  <strong>🎨 径向渐变/分区</strong><br>
-  <code>color = palette(θ / (2*π))</code> — 用角度驱动颜色，形成色轮
-</div>
+  <h2>三、极坐标的超能力</h2>
 
-<div class="memory">
-  <div>r = length(uv)，θ = atan(y, x)</div>
-  <div class="sub">距离 r → 圆环效果 | 角度 θ → 扇形/花瓣 | 混合 → 螺旋</div>
-</div>
-</div>
+  <div class="card" style="border-top: 4px solid #f778ba;">
+    <h4 style="color:#f778ba;">🌊 超能力 ① 放射线只需一行</h4>
+    <p>在直角坐标中画放射状线条超级复杂。但在极坐标中：</p>
+    <p><code>float rays = sin(theta * 8.0);</code></p>
+    <p>一行代码！因为 θ 天然地绕着中心扫一圈，sin(θ*N) 就产生了 N 条等分的放射线。</p>
+  </div>
 
+  <div class="card" style="border-top: 4px solid #3fb950;">
+    <h4 style="color:#3fb950;">🌸 超能力 ② 花瓣/齿轮/星形</h4>
+    <p>圆的 SDF 是 <code>r - radius</code>。如果让 radius 随 θ 变化呢？</p>
+    <p><code>float radius = 0.3 + 0.1 * sin(theta * 5.0);</code></p>
+    <p>半径随角度呈正弦波抖动 → 5 片花瓣！改 5 为 6 就是 6 角星。这就是极坐标的魅力——<strong>角度就是天然的形状参数</strong>。</p>
+  </div>
+
+  <div class="card" style="border-top: 4px solid #58a6ff;">
+    <h4 style="color:#58a6ff;">🌀 超能力 ③ 旋涡</h4>
+    <p><code>float spiral = fract(r * 5.0 - theta / 6.28);</code></p>
+    <p>让 r 和 θ 互相纠缠！距离越远角度偏移也越大，于是螺旋线自然诞生。</p>
+  </div>
+
+  <hr>
+
+  <h2>四、坐标转换速查</h2>
+  <table>
+    <tr><th>方向</th><th>公式</th><th>GLSL 写法</th></tr>
+    <tr><td>直角 → 极坐标</td><td>r = √(x²+y²)<br>θ = arctan(y/x)</td><td><code>r = length(uv);</code><br><code>theta = atan(uv.y, uv.x);</code></td></tr>
+    <tr><td>极坐标 → 直角</td><td>x = r × cos(θ)<br>y = r × sin(θ)</td><td><code>uv = vec2(cos(theta), sin(theta)) * r;</code></td></tr>
+  </table>
+  <p>注意 <code>atan(y, x)</code> 的取值范围是 <strong>[-π, π]</strong>（约 -3.14 到 3.14）。如果想映射到 [0, 1]，可以做 <code>(theta / 6.2832) + 0.5</code>。</p>
+
+</div>
 <script>
-const canvas = document.getElementById('polar-canvas');
-const ctx = canvas.getContext('2d');
-const info = document.getElementById('polar-info');
+const cCart = document.getElementById('c-cart');
+const cPolar = document.getElementById('c-polar');
+const coordInfo = document.getElementById('coord-info');
 
-function render() {
-  canvas.width = canvas.offsetWidth * 2; canvas.height = canvas.offsetHeight * 2;
-  const W = canvas.width, H = canvas.height, cx = W/2, cy = H/2, unit = Math.min(W,H)*0.4;
-  ctx.clearRect(0,0,W,H);
-  // Polar grid
-  ctx.strokeStyle = 'rgba(255,255,255,.06)'; ctx.lineWidth = 1;
-  for (let r = 1; r <= 5; r++) { ctx.beginPath(); ctx.arc(cx, cy, unit*r/4, 0, Math.PI*2); ctx.stroke(); }
-  for (let a = 0; a < 12; a++) { const th = a*Math.PI/6; ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+Math.cos(th)*unit*1.4, cy-Math.sin(th)*unit*1.4); ctx.stroke(); }
+function setupHiDpi(c) {
+  const ctx = c.getContext('2d');
+  const w = c.offsetWidth, h = c.offsetHeight;
+  c.width = w * 2; c.height = h * 2;
+  ctx.scale(2, 2);
+  return { ctx, w, h };
+}
+
+let mouseUV = {x: 0.3, y: 0.4};
+
+function drawCartesian() {
+  const {ctx, w, h} = setupHiDpi(cCart);
+  ctx.fillStyle = '#080c14'; ctx.fillRect(0,0,w,h);
+  const pad = 30; const gw = w-pad*2, gh = h-pad*2;
+  // Grid
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.lineWidth = 1;
+  for(let i=0;i<=10;i++){const x=pad+gw*i/10,y=pad+gh*i/10;ctx.beginPath();ctx.moveTo(x,pad);ctx.lineTo(x,pad+gh);ctx.stroke();ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(pad+gw,y);ctx.stroke();}
   // Axes
-  ctx.strokeStyle='rgba(255,255,255,.12)'; ctx.lineWidth=2;
-  ctx.beginPath(); ctx.moveTo(0,cy); ctx.lineTo(W,cy); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(cx,0); ctx.lineTo(cx,H); ctx.stroke();
+  const cx = pad+gw/2, cy = pad+gh/2;
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 1;
+  ctx.beginPath();ctx.moveTo(cx,pad);ctx.lineTo(cx,pad+gh);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(pad,cy);ctx.lineTo(pad+gw,cy);ctx.stroke();
+  // Point
+  const px = cx + mouseUV.x * gw/2, py = cy - mouseUV.y * gh/2;
+  ctx.fillStyle = '#f778ba'; ctx.beginPath(); ctx.arc(px, py, 6, 0, Math.PI*2); ctx.fill();
+  // Line from origin
+  ctx.setLineDash([4,4]); ctx.strokeStyle = 'rgba(247,120,186,0.4)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(px, py); ctx.stroke(); ctx.setLineDash([]);
   // Labels
-  ctx.fillStyle='rgba(255,255,255,.2)'; ctx.font=`${Math.max(14,W/50)}px monospace`;
-  ctx.fillText('0°', cx+unit*1.1+5, cy-5);
-  ctx.fillText('90°', cx+5, cy-unit*1.1);
-  ctx.fillText('180°', cx-unit*1.1-40, cy-5);
-  ctx.fillText('270°', cx+5, cy+unit*1.1+15);
-  // Color fill to show angle as hue
-  const img = ctx.createImageData(W, H);
-  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
-    const ux = (x - cx) / unit, uy = (cy - y) / unit;
-    const r = Math.sqrt(ux*ux+uy*uy);
-    const th = Math.atan2(uy, ux);
-    const hue = (th + Math.PI) / (Math.PI * 2);
-    const sat = Math.min(1, r / 1.2);
-    const [cr,cg,cb] = hsl2rgb(hue, sat * 0.6, 0.15 + sat * 0.1);
-    const alpha = Math.max(0, 80 - r * 30);
-    const i = (y*W+x)*4;
-    img.data[i]=cr; img.data[i+1]=cg; img.data[i+2]=cb; img.data[i+3]=alpha;
-  }
-  ctx.putImageData(img, 0, 0);
+  ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.font = '11px monospace'; ctx.textAlign = 'center';
+  ctx.fillText('-1', pad, pad+gh+14); ctx.fillText('0', cx, pad+gh+14); ctx.fillText('1', pad+gw, pad+gh+14);
+  ctx.textAlign = 'right'; ctx.fillText('-1', pad-4, pad+gh+4); ctx.fillText('1', pad-4, pad+6);
 }
 
-function hsl2rgb(h,s,l) {
-  let r,g,b;
-  if (s===0) { r=g=b=l; } else {
-    const hue2rgb = (p,q,t) => { if(t<0)t+=1; if(t>1)t-=1; if(t<1/6)return p+(q-p)*6*t; if(t<1/2)return q; if(t<2/3)return p+(q-p)*(2/3-t)*6; return p; };
-    const q = l<0.5 ? l*(1+s) : l+s-l*s, p = 2*l-q;
-    r=hue2rgb(p,q,h+1/3); g=hue2rgb(p,q,h); b=hue2rgb(p,q,h-1/3);
-  }
-  return [Math.round(r*255), Math.round(g*255), Math.round(b*255)];
+function drawPolar() {
+  const {ctx, w, h} = setupHiDpi(cPolar);
+  ctx.fillStyle = '#080c14'; ctx.fillRect(0,0,w,h);
+  const cx = w/2, cy = h/2;
+  const maxR = Math.min(w,h)/2 - 20;
+  // Concentric circles
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.lineWidth = 1;
+  for(let i=1;i<=5;i++){ctx.beginPath();ctx.arc(cx,cy,maxR*i/5,0,Math.PI*2);ctx.stroke();}
+  // Radial lines
+  for(let i=0;i<12;i++){const a=Math.PI*2*i/12;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(a)*maxR,cy-Math.sin(a)*maxR);ctx.stroke();}
+  // Mouse point in polar
+  const r = Math.sqrt(mouseUV.x*mouseUV.x + mouseUV.y*mouseUV.y);
+  const theta = Math.atan2(mouseUV.y, mouseUV.x);
+  const px = cx + Math.cos(theta) * r * maxR;
+  const py = cy - Math.sin(theta) * r * maxR;
+  // Radius line
+  ctx.setLineDash([4,4]); ctx.strokeStyle = 'rgba(88,166,255,0.5)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(px, py); ctx.stroke(); ctx.setLineDash([]);
+  // Angle arc
+  ctx.beginPath(); ctx.strokeStyle = 'rgba(255,215,0,0.4)'; ctx.lineWidth = 2;
+  ctx.arc(cx, cy, 25, Math.min(0,-theta), Math.max(0,-theta)); ctx.stroke();
+  // Point
+  ctx.fillStyle = '#58a6ff'; ctx.beginPath(); ctx.arc(px, py, 6, 0, Math.PI*2); ctx.fill();
+  // Labels
+  ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.font = '11px monospace'; ctx.textAlign = 'center';
+  ctx.fillText('r', cx + Math.cos(theta)*r*maxR/2 + 10, cy - Math.sin(theta)*r*maxR/2);
+  ctx.fillStyle='rgba(255,215,0,0.5)'; ctx.fillText('θ', cx+35, cy-5);
 }
 
-canvas.addEventListener('mousemove', e => {
-  const rect = canvas.getBoundingClientRect();
-  const W = canvas.width, H = canvas.height, cx = W/2, cy = H/2, unit = Math.min(W,H)*0.4;
-  const mx = (e.clientX - rect.left) / rect.width * W;
-  const my = (e.clientY - rect.top) / rect.height * H;
-  const ux = (mx - cx) / unit, uy = (cy - my) / unit;
-  const r = Math.sqrt(ux*ux+uy*uy);
-  const th = Math.atan2(uy, ux);
-  const deg = th * 180 / Math.PI;
-  info.textContent = `笛卡尔 (${ux.toFixed(2)}, ${uy.toFixed(2)})  →  极坐标 (r=${r.toFixed(2)}, θ=${deg.toFixed(0)}° = ${th.toFixed(2)} rad)`;
-  render();
-  // Draw marker
-  const ctx2 = ctx;
-  ctx2.beginPath(); ctx2.arc(mx, my, 8, 0, Math.PI*2); ctx2.fillStyle='#fff'; ctx2.fill();
-  ctx2.strokeStyle='#000'; ctx2.lineWidth=2; ctx2.stroke();
-  // Draw r line
-  ctx2.setLineDash([4,4]); ctx2.strokeStyle='#58a6ff'; ctx2.lineWidth=2;
-  ctx2.beginPath(); ctx2.moveTo(cx,cy); ctx2.lineTo(mx,my); ctx2.stroke();
-  ctx2.setLineDash([]);
-  // Draw angle arc
-  ctx2.beginPath(); ctx2.strokeStyle='#f778ba'; ctx2.lineWidth=2;
-  const arcR = Math.min(40, r*unit*0.3);
-  ctx2.arc(cx, cy, arcR, th > 0 ? -th : 0, th > 0 ? 0 : -th, th > 0); ctx2.stroke();
+function update() { drawCartesian(); drawPolar(); }
+
+cCart.addEventListener('mousemove', e => {
+  const rect = cCart.getBoundingClientRect();
+  const mx = (e.clientX - rect.left) / rect.width;
+  const my = (e.clientY - rect.top) / rect.height;
+  mouseUV.x = (mx - 0.5) * 2;
+  mouseUV.y = -(my - 0.5) * 2;
+  const r = Math.sqrt(mouseUV.x*mouseUV.x + mouseUV.y*mouseUV.y);
+  const theta = Math.atan2(mouseUV.y, mouseUV.x);
+  coordInfo.textContent = `直角: (${mouseUV.x.toFixed(2)}, ${mouseUV.y.toFixed(2)})  →  极坐标: r = ${r.toFixed(3)}, θ = ${(theta*180/Math.PI).toFixed(1)}° (${theta.toFixed(2)} rad)`;
+  update();
 });
-render();
-window.addEventListener('resize', render);
+
+update();
+window.addEventListener('resize', update);
 </script>
 </body>
 </html>

@@ -1,19 +1,21 @@
 import React, { memo, useMemo } from 'react';
-import { Palette } from 'lucide-react';
+import { Palette, Check } from 'lucide-react';
 
-const LessonItem = memo(function LessonItem({ lesson, index, isActive, onSelect }) {
+const LessonItem = memo(function LessonItem({ lesson, index, isActive, isCompleted, onSelect }) {
   return (
     <div
-      className={`lesson-item${isActive ? ' active' : ''}`}
+      className={`lesson-item${isActive ? ' active' : ''}${isCompleted ? ' completed-item' : ''}`}
       onClick={() => onSelect(index)}
     >
-      <div className="lesson-num">{index + 1}</div>
+      <div className={`lesson-num${isCompleted ? ' is-completed' : ''}`}>
+        {isCompleted ? <Check size={14} strokeWidth={3} /> : index + 1}
+      </div>
       <div className="lesson-title">{lesson.title}</div>
     </div>
   );
 });
 
-const StageGroup = memo(function StageGroup({ stage, items, currentIndex, onSelectLesson }) {
+const StageGroup = memo(function StageGroup({ stage, items, currentIndex, completedLessons, onSelectLesson }) {
   return (
     <div className="stage-group">
       <div className="stage-label">
@@ -26,6 +28,7 @@ const StageGroup = memo(function StageGroup({ stage, items, currentIndex, onSele
           lesson={item}
           index={item._index}
           isActive={item._index === currentIndex}
+          isCompleted={completedLessons?.includes(item.id)}
           onSelect={onSelectLesson}
         />
       ))}
@@ -33,7 +36,7 @@ const StageGroup = memo(function StageGroup({ stage, items, currentIndex, onSele
   );
 });
 
-function Sidebar({ stages, lessons, currentIndex, onSelectLesson }) {
+function Sidebar({ stages, lessons, currentIndex, completedLessons = [], onSelectLesson }) {
   const grouped = useMemo(() => {
     const groups = {};
     lessons.forEach((l, i) => {
@@ -42,7 +45,7 @@ function Sidebar({ stages, lessons, currentIndex, onSelectLesson }) {
     return groups;
   }, [lessons]);
 
-  const pct = ((currentIndex + 1) / lessons.length * 100).toFixed(0);
+  const pct = lessons.length > 0 ? ((completedLessons.length / lessons.length) * 100).toFixed(0) : 0;
 
   return (
     <aside className="sidebar">
@@ -59,6 +62,7 @@ function Sidebar({ stages, lessons, currentIndex, onSelectLesson }) {
               stage={stage}
               items={items}
               currentIndex={currentIndex}
+              completedLessons={completedLessons}
               onSelectLesson={onSelectLesson}
             />
           );
@@ -68,7 +72,7 @@ function Sidebar({ stages, lessons, currentIndex, onSelectLesson }) {
         <div className="prog-bar">
           <div className="prog-fill" style={{ width: `${pct}%` }} />
         </div>
-        <span className="prog-text">{currentIndex + 1} / {lessons.length} 课</span>
+        <span className="prog-text">{completedLessons.length} / {lessons.length} 已完成</span>
       </div>
     </aside>
   );

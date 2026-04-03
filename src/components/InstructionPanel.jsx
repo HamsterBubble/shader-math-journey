@@ -1,6 +1,5 @@
-import React, { memo, useRef, useEffect, useState, useCallback } from 'react';
+import React, { memo, useRef, useEffect, useCallback } from 'react';
 import { ShaderRenderer } from '../core/shader-renderer.js';
-import KnowledgeModal from './KnowledgeModal.jsx';
 
 /**
  * InstructionPanel renders lesson instructions (HTML string) and
@@ -10,10 +9,9 @@ import KnowledgeModal from './KnowledgeModal.jsx';
  *   <a class="knowledge-link" data-page="/learn-uv-remap.html" data-title="UV 坐标变换">📖 知识点</a>
  * Clicking opens a modal with the corresponding page.
  */
-function InstructionPanel({ lesson }) {
+function InstructionPanel({ lesson, onOpenKnowledge }) {
   const containerRef = useRef(null);
   const goalRendererRef = useRef(null);
-  const [knowledgeModal, setKnowledgeModal] = useState(null);
 
   // Scroll to top when lesson changes
   useEffect(() => {
@@ -56,30 +54,19 @@ function InstructionPanel({ lesson }) {
       e.preventDefault();
       const page = link.dataset.page;
       const title = link.dataset.title || '知识点';
-      if (page) {
-        setKnowledgeModal({ src: page, title });
+      if (page && onOpenKnowledge) {
+        onOpenKnowledge({ src: page, title });
       }
     }
-  }, []);
-
-  const closeModal = useCallback(() => setKnowledgeModal(null), []);
+  }, [onOpenKnowledge]);
 
   return (
-    <>
-      <div
-        className="instructions"
-        ref={containerRef}
-        dangerouslySetInnerHTML={{ __html: lesson.instructions }}
-        onClick={handleClick}
-      />
-      {knowledgeModal && (
-        <KnowledgeModal
-          src={knowledgeModal.src}
-          title={knowledgeModal.title}
-          onClose={closeModal}
-        />
-      )}
-    </>
+    <div
+      className="instructions"
+      ref={containerRef}
+      dangerouslySetInnerHTML={{ __html: lesson.instructions }}
+      onClick={handleClick}
+    />
   );
 }
 

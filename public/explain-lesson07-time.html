@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>❓ 第六课代码拆解：u_time 波浪动画</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0d1117;color:#e6edf3;font-family:'Inter',-apple-system,sans-serif;line-height:1.7;padding:40px 24px;padding-bottom:80px;}
+.container{max-width:820px;margin:0 auto}
+h1{font-size:1.6rem;margin-bottom:0.5rem;color:#58a6ff;}
+h2{font-size:1.2rem;color:#58a6ff;margin:2rem 0 1rem;padding-left:12px;border-left:3px solid #58a6ff}
+p, li{color:#8b949e;margin-bottom:.8rem; font-size: 0.95rem;}
+strong{color:#e6edf3}
+code{font-family:'JetBrains Mono',monospace;background:rgba(255,255,255,.06);padding:2px 6px;border-radius:4px;color:#58a6ff;font-size:0.9rem}
+canvas{width:100%;border-radius:8px;display:block;margin:1rem 0;background:#000; border: 1px solid rgba(255,255,255,0.1);}
+.card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:24px; margin-bottom:20px;}
+.card h4{color:#39d2c0;margin-bottom:12px;font-size:1.05rem;}
+.tip-box{background:rgba(88,166,255,0.08);border:1px solid rgba(88,166,255,0.2);padding:16px 20px;border-radius:8px;font-size:0.9rem;margin:15px 0;}
+hr{border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 30px 0;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.slider-container{margin-top:15px;background:rgba(255,255,255,.02);padding:15px;border-radius:8px; border:1px solid rgba(255,255,255,.05);}
+.slider-row{display:flex;align-items:center;gap:12px;margin-bottom:8px;}
+.slider-row label{width:140px;font-size:0.85rem;color:#bc8cff;}
+input[type=range]{flex:1;accent-color:#58a6ff;}
+.val{font-family:monospace;font-size:0.85rem;color:#58a6ff;width:50px;}
+table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:0.9rem;}
+th{background:rgba(255,255,255,.04);color:#58a6ff;padding:8px 12px;text-align:center;border:1px solid rgba(255,255,255,0.06);}
+td{padding:8px 12px;text-align:center;color:#8b949e;border:1px solid rgba(255,255,255,0.06);}
+.anim-canvas{border-radius:8px;display:block;margin:0 auto;background:#000;border:1px solid rgba(255,255,255,0.1);}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>❓ 代码彻底拆解：u_time 波浪动画</h1>
+  <p style="font-size:1rem;">这节课终于让画面<strong>动起来了</strong>！核心武器就是 <code>u_time</code>——一个从 0 开始不停地增长的数字（单位：秒）。配合 <code>sin()</code> 的永不停歇的震荡，我们能让颜色像海浪一样来回翻滚。</p>
+
+  <hr>
+
+  <h2>第一步：时间是什么？</h2>
+  <div class="tip-box">
+    <code>uniform float u_time;</code>
+  </div>
+  <p>这行声明了一个叫 <code>u_time</code> 的变量。它不是我们自己写死的数字，而是<strong>外部程序每帧自动更新</strong>传进来的"秒表读数"。</p>
+  <table>
+    <tr><th>程序运行时间</th><th>u_time 值</th><th>大白话</th></tr>
+    <tr><td>刚启动</td><td>0.0</td><td>秒表归零</td></tr>
+    <tr><td>1 秒后</td><td>1.0</td><td>指针走了一格</td></tr>
+    <tr><td>3.5 秒后</td><td>3.5</td><td>一直在涨…</td></tr>
+    <tr><td>100 秒后</td><td>100.0</td><td>永远不停！</td></tr>
+  </table>
+  <p><strong>关键理解</strong>：GPU 不是在"播放动画"。它每一帧都完全从零开始重新计算整幅画面，只不过 u_time 的值比上一帧大了那么一丁点（比如 0.016 秒），所以画面看起来就在"动"。</p>
+
+  <hr>
+
+  <h2>第二步：sin 把永恒增长变成永恒震荡</h2>
+  <div class="tip-box">
+    <code>float wave = sin(uv.x * 10.0 + u_time * 2.0) * 0.5 + 0.5;</code>
+  </div>
+  <p>这行是整节课的灵魂！让我们拆成四个齿轮：</p>
+
+  <div class="card" style="border-color: rgba(247, 120, 186, 0.4);">
+    <h4 style="color:#f778ba">齿轮 ① <code>uv.x * 10.0</code> — 空间频率</h4>
+    <p><code>uv.x</code> 从屏幕左边的 0 到右边的 1。乘以一个数字（频率）后，决定了屏幕上能装下几个正弦波。</p>
+    <canvas id="c-gear1" style="height:120px;margin-top:10px;border-radius:6px;border:1px solid rgba(247,120,186,0.2);"></canvas>
+    <div class="slider-container" style="margin-top:10px; margin-bottom: 0; border-color:rgba(247, 120, 186, 0.2);">
+      <div class="slider-row" style="margin-bottom:0;">
+        <label style="color:#f778ba;width:80px;">频率 (*N)</label>
+        <input type="range" id="sl-g1-freq" min="1" max="50" value="10">
+        <span class="val" id="vl-g1-freq" style="color:#f778ba;">10.0</span>
+      </div>
+      <p style="font-size:0.85rem;color:#8b949e;margin-top:8px;margin-bottom:0;"><strong>背后原理：</strong>乘的数字越大，相当于把空间坐标压缩得越厉害，所以屏幕里能塞进更多个周期。波纹变得更密集。</p>
+    </div>
+  </div>
+
+  <div class="card" style="border-color: rgba(88, 166, 255, 0.4);">
+    <h4 style="color:#58a6ff">齿轮 ② <code>+ u_time * 2.0</code> — 时间驱动滚动</h4>
+    <p>这是让波浪"动起来"的关键！sin 函数里加上一个不断变大的数字，就等于把整个波形不断往左推。</p>
+    <canvas id="c-gear2" style="height:120px;margin-top:10px;margin-bottom:15px;border-radius:6px;border:1px solid rgba(88,166,255,0.2);"></canvas>
+    <div class="slider-container" style="margin-top:0; margin-bottom: 0; border-color:rgba(88, 166, 255, 0.2);">
+      <div class="slider-row" style="margin-bottom:0;">
+        <label style="color:#58a6ff;width:80px;">速度 (*S)</label>
+        <input type="range" id="sl-g2-speed" min="0" max="100" value="20">
+        <span class="val" id="vl-g2-speed" style="color:#58a6ff;">2.0</span>
+      </div>
+      <p style="font-size:0.85rem;color:#8b949e;margin-top:8px;margin-bottom:0;"><strong>背后原理：</strong><code>u_time</code> 本质就像秒表一样均匀增加。比如它每秒涨 1，如果乘 2.0，每秒就涨 2。加在参数里面，会让图像整体产生一种源源不断向左滑动的视觉效果。</p>
+    </div>
+  </div>
+
+  <div class="card" style="border-color: rgba(63, 185, 80, 0.4);">
+    <h4 style="color:#3fb950">齿轮 ③ <code>* 0.5 + 0.5</code> — 范围映射</h4>
+    <p><code>sin()</code> 的原始输出在 <strong>-1 到 1</strong> 之间。对于颜色来说，负数没意义（纯黑），所以必须做缩放和偏移，挤进 <strong>0 到 1</strong> 的区间。</p>
+    <canvas id="c-gear3" style="height:120px;margin-top:10px;margin-bottom:15px;border-radius:6px;border:1px solid rgba(63,185,80,0.2);"></canvas>
+    <div class="slider-container" style="margin-top:0; margin-bottom: 0; border-color:rgba(63, 185, 80, 0.2);">
+      <div class="slider-row">
+        <label style="color:#3fb950;width:80px;">振幅 (*A)</label>
+        <input type="range" id="sl-g3-amp" min="1" max="100" value="50">
+        <span class="val" id="vl-g3-amp" style="color:#3fb950;">0.50</span>
+      </div>
+      <div class="slider-row" style="margin-bottom:0;">
+        <label style="color:#3fb950;width:80px;">偏移 (+B)</label>
+        <input type="range" id="sl-g3-offset" min="-100" max="100" value="50">
+        <span class="val" id="vl-g3-offset" style="color:#3fb950;">0.50</span>
+      </div>
+      <p style="font-size:0.85rem;color:#8b949e;margin-top:8px;margin-bottom:0;"><strong>背后原理：</strong>乘法改变<strong>振幅</strong>（把波浪拍扁或者拉大），加法改变<strong>位移</strong>（整体上移下压）。著名的 <code>* 0.5 + 0.5</code> 恰好能把波谷从 -1 抬到 0，波峰压到 1，实现完美的归一化。</p>
+    </div>
+  </div>
+
+  <div class="card" style="border-color: rgba(188, 140, 255, 0.4);">
+    <h4 style="color:#bc8cff">齿轮 ④ 组装后的效果</h4>
+    <p>四个齿轮组装后，<code>wave</code> 是一个 0~1 的值，在空间上形成横向条纹（因为用了 uv.x），并且随时间不断向左滚动（因为加了 u_time）。</p>
+  </div>
+
+  <hr>
+
+  <h2>第三步：用波浪值驱动颜色混合</h2>
+  <div class="tip-box">
+    <code>vec3 color = mix(colorA, colorB, wave);</code>
+  </div>
+  <p>我们已经知道 <code>mix(A, B, t)</code> 是按比例混合两种颜色。现在 t 不再是固定数字，而是那个在 0~1 之间不停跳动的 <code>wave</code>！</p>
+  <ul>
+    <li>wave = 0 的地方 → 显示深蓝色 colorA <code>(0.1, 0.1, 0.3)</code></li>
+    <li>wave = 1 的地方 → 显示青绿色 colorB <code>(0.0, 0.8, 0.6)</code></li>
+    <li>wave 在 0~1 之间的地方 → 两种颜色按比例混合！</li>
+    <li>因为 wave 随时间不断变化，所以颜色也在不断涌动 🌊</li>
+  </ul>
+
+  <hr>
+
+  <h2>第四步：叠加第二层波浪（更丰富）</h2>
+  <div class="tip-box">
+    <code>float wave2 = sin(uv.y * 8.0 - u_time * 1.5) * 0.5 + 0.5;</code><br><br>
+    <code>color = mix(color, colorC, wave2 * 0.4);</code>
+  </div>
+  <p>第二层波浪的巧妙设计：</p>
+
+  <h2 style="border-left-color:#00cc99;">🔍 静态检查器：鼠标悬停查看坐标与 sin 值</h2>
+  <p>下面两张图是<strong>冻结在 u_time=0 的静态快照</strong>。把鼠标移上去，可以精确检查每一个像素的 UV 坐标和 sin 运算结果。</p>
+
+  <div class="card" style="border-color: rgba(0, 204, 153, 0.4); margin-bottom: 16px;">
+    <h4 style="color:#00cc99">横向检查器：<code>sin(uv.x * 10.0)</code> — 变化沿 X 轴</h4>
+    <p style="font-size: 0.85rem;">鼠标左右移动 → <code>uv.x</code> 变化 → sin 值跟着变。上下移动时 sin 值<strong>不变</strong>（因为公式里没有 uv.y）。</p>
+    <div style="position:relative;">
+      <canvas id="c-inspect-x" width="700" height="280" style="width:100%;height:auto;cursor:crosshair;border-radius:6px;border:1px solid rgba(0,204,153,0.3);"></canvas>
+      <div id="tooltip-x" style="position:absolute;top:10px;right:10px;background:rgba(0,0,0,0.85);border:1px solid rgba(0,204,153,0.5);padding:10px 14px;border-radius:8px;font-family:monospace;font-size:0.82rem;pointer-events:none;line-height:1.8;color:#e6edf3;display:none;">
+        <div>📍 uv = (<span id="tip-x-uvx" style="color:#00cc99;">-</span>, <span id="tip-x-uvy" style="color:#8b949e;">-</span>)</div>
+        <div>📐 uv.x × 10 = <span id="tip-x-input" style="color:#f0e68c;">-</span></div>
+        <div>🌊 sin(<span id="tip-x-input2" style="color:#f0e68c;">-</span>) = <span id="tip-x-raw" style="color:#ff9800;">-</span></div>
+        <div>🎯 × 0.5 + 0.5 = <span id="tip-x-mapped" style="color:#3fb950;">-</span></div>
+        <div>🎨 颜色 = <span id="tip-x-color" style="display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:middle;margin-right:4px;"></span><span id="tip-x-rgb">-</span></div>
+      </div>
+    </div>
+    <p style="font-size:0.82rem;color:#6e7681;margin-top:6px;">↑ 同一列（同一个 uv.x）的颜色完全相同 → 形成<strong>竖条纹</strong>。横轴下方的曲线就是这一行的 sin 波形。</p>
+  </div>
+
+  <div class="card" style="border-color: rgba(255, 76, 127, 0.4); margin-bottom: 16px;">
+    <h4 style="color:#ff4c7f">纵向检查器：<code>sin(uv.y * 8.0)</code> — 变化沿 Y 轴</h4>
+    <p style="font-size: 0.85rem;">鼠标上下移动 → <code>uv.y</code> 变化 → sin 值跟着变。左右移动时 sin 值<strong>不变</strong>（因为公式里没有 uv.x）。</p>
+    <div style="position:relative;">
+      <canvas id="c-inspect-y" width="700" height="280" style="width:100%;height:auto;cursor:crosshair;border-radius:6px;border:1px solid rgba(255,76,127,0.3);"></canvas>
+      <div id="tooltip-y" style="position:absolute;top:10px;right:10px;background:rgba(0,0,0,0.85);border:1px solid rgba(255,76,127,0.5);padding:10px 14px;border-radius:8px;font-family:monospace;font-size:0.82rem;pointer-events:none;line-height:1.8;color:#e6edf3;display:none;">
+        <div>📍 uv = (<span id="tip-y-uvx" style="color:#8b949e;">-</span>, <span id="tip-y-uvy" style="color:#ff4c7f;">-</span>)</div>
+        <div>📐 uv.y × 8 = <span id="tip-y-input" style="color:#f0e68c;">-</span></div>
+        <div>🌊 sin(<span id="tip-y-input2" style="color:#f0e68c;">-</span>) = <span id="tip-y-raw" style="color:#ff9800;">-</span></div>
+        <div>🎯 × 0.5 + 0.5 = <span id="tip-y-mapped" style="color:#3fb950;">-</span></div>
+        <div>🎨 颜色 = <span id="tip-y-color" style="display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:middle;margin-right:4px;"></span><span id="tip-y-rgb">-</span></div>
+      </div>
+    </div>
+    <p style="font-size:0.82rem;color:#6e7681;margin-top:6px;">↑ 同一行（同一个 uv.y）的颜色完全相同 → 形成<strong>横条纹</strong>。左侧的曲线就是这一列的 sin 波形。</p>
+  </div>
+
+  <div class="tip-box" style="border-color:rgba(188,140,255,0.3);background:rgba(188,140,255,0.06);">
+    <strong style="color:#bc8cff;">💡 关键对比</strong><br>
+    <span style="color:#8b949e;">第一层用 <code>uv.x</code> → 波浪沿水平方向变化 → 画面呈<strong>竖条纹</strong>（同列同色）<br>
+    第二层用 <code>uv.y</code> → 波浪沿垂直方向变化 → 画面呈<strong>横条纹</strong>（同行同色）<br>
+    两层叠加后，一横一竖交织出复杂的网格涌动效果。<code>wave2 * 0.4</code> 让第二层只有 40% 的影响力，像一层半透明滤镜。</span>
+  </div>
+
+  <h2 style="border-left-color:#ff9800;">🧩 进阶追问：为什么混合强度 1.0 时粉色带宽度不均匀？</h2>
+  <p>当你把 <code>wave2 * 0.4</code> 改成 <code>wave2 * 1.0</code>（满强度），会发现粉色带在某些列看起来<strong>更宽</strong>，某些列<strong>更窄</strong>。但数学上，wave2 只和 uv.y 有关，和 uv.x 完全无关！宽度应该完全一样才对啊？</p>
+
+  <div class="card" style="border-color: rgba(255, 152, 0, 0.4); margin-bottom: 16px;">
+    <h4 style="color:#ff9800">答案：数学宽度相同，感知宽度不同</h4>
+    <p>这是一个<strong>视觉感知错觉</strong>（Mach Band 效应的近亲）。让我们看看 wave2 = 0.5（过渡区中间）时发生了什么：</p>
+
+    <table>
+      <tr>
+        <th>底色列</th>
+        <th>底色 RGB</th>
+        <th>mix(底色, 粉色, 0.5) 结果</th>
+        <th>人眼感知</th>
+      </tr>
+      <tr>
+        <td style="color:#00cc99">青绿列</td>
+        <td><code>(0, 204, 153)</code></td>
+        <td style="background:rgb(127,139,140);color:#000;font-weight:bold;">(127, 139, 140)</td>
+        <td>灰雾色，不太像粉色</td>
+      </tr>
+      <tr>
+        <td style="color:#58a6ff">深蓝列</td>
+        <td><code>(25, 25, 76)</code></td>
+        <td style="background:rgb(140,52,89);color:#fff;font-weight:bold;">(140, 52, 89)</td>
+        <td>暗红/粉色，明显是粉！</td>
+      </tr>
+    </table>
+
+    <p style="margin-top:15px;"><strong>本质原因：</strong></p>
+    <ul>
+      <li><strong>深蓝底色</strong>亮度很低 → 只需要一点点粉色混入，整体亮度就会被粉色主导 → 粉色"提前显现"</li>
+      <li><strong>青绿底色</strong>亮度很高 → 需要更多粉色才能在视觉上"盖过"底色的光谱 → 粉色"延迟显现"</li>
+    </ul>
+
+    <p>所以看起来：深蓝区域的粉色带<strong>更宽</strong>（粉色早出现晚消失），青绿区域<strong>更窄</strong>（粉色晚出现早消失）。</p>
+  </div>
+
+  <div class="card" style="border-color: rgba(255, 152, 0, 0.4); margin-bottom: 16px;">
+    <h4 style="color:#ff9800">🔬 对比实验：同一个 wave2 值，不同底色</h4>
+    <p>下方两条渐变对比了<strong>相同的 wave2 从 0→1</strong>，但底色不同。注意粉色"开始显眼"的位置差异：</p>
+    <canvas id="c-contrast" width="700" height="200" style="width:100%;height:auto;border-radius:6px;border:1px solid rgba(255,152,0,0.3);cursor:crosshair;"></canvas>
+    <div style="display:flex;justify-content:space-between;font-size:0.8rem;color:#6e7681;margin-top:4px;">
+      <span>← wave2 = 0（纯底色）</span>
+      <span>wave2 = 1（纯粉色）→</span>
+    </div>
+    <div id="contrast-info" style="font-family:monospace;font-size:0.85rem;color:#8b949e;margin-top:10px;min-height:1.5em;"></div>
+  </div>
+
+  <div class="tip-box" style="border-color:rgba(255,152,0,0.3);background:rgba(255,152,0,0.06);">
+    <strong style="color:#ff9800;">💡 Shader 实战意义</strong><br>
+    <span style="color:#8b949e;">这就是为什么代码用 <code>wave2 * 0.4</code> 而不是 <code>wave2 * 1.0</code>：<br>
+    ① 低强度混合让两层波浪的"叠加"更均匀，不会出现明显的宽度差异<br>
+    ② 保留底层颜色的辨识度，让画面层次更丰富<br>
+    ③ 避免第二层完全覆盖第一层导致信息丢失<br><br>
+    这是 Shader 中<strong>alpha blending</strong>的核心哲学：不是"覆盖"，而是"叠加"。</span>
+  </div>
+
+  <hr>
+
+  <h2>⚡ 实时动画实验室</h2>
+  <p>下方模拟了这节课的完整效果。拖动滑块调整波浪的空间频率和时间速度：</p>
+
+  <div class="card" style="border-color: rgba(88, 166, 255, 0.5);">
+    <canvas id="c-anim" class="anim-canvas" width="600" height="300" style="width:100%;height:auto;"></canvas>
+    <div class="slider-container">
+      <div class="slider-row">
+        <label>波浪频率 (空间)</label>
+        <input type="range" id="sl-freq" min="2" max="30" value="10">
+        <span class="val" id="vl-freq">10</span>
+      </div>
+      <div class="slider-row">
+        <label>滚动速度 (时间)</label>
+        <input type="range" id="sl-speed" min="0" max="100" value="40">
+        <span class="val" id="vl-speed">2.0</span>
+      </div>
+      <div class="slider-row">
+        <label>第二层强度</label>
+        <input type="range" id="sl-mix2" min="0" max="100" value="40">
+        <span class="val" id="vl-mix2">0.40</span>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <h2>🧮 sin 曲线实时追踪器</h2>
+  <p>下方绿色竖线代表当前 u_time 的位置在 sin 曲线上的哪个点。观察它如何永不停歇地在 0~1 之间来回震荡：</p>
+  <canvas id="c-sine" height="120" style="width:100%;"></canvas>
+
+</div>
+<script>
+const cAnim = document.getElementById('c-anim');
+const ctxAnim = cAnim.getContext('2d');
+const cSine = document.getElementById('c-sine');
+
+let startTime = performance.now();
+
+function lerp3(a, b, t) { return [a[0]*(1-t)+b[0]*t, a[1]*(1-t)+b[1]*t, a[2]*(1-t)+b[2]*t]; }
+
+function drawSineWave(canvasId, t, fn, color, yRange) {
+  const c = document.getElementById(canvasId);
+  if (!c) return;
+  const ctx = c.getContext('2d');
+  c.width = c.offsetWidth * 2;
+  c.height = c.offsetHeight * 2;
+  const W = c.width, H = c.height, pad = 24;
+  
+  ctx.fillStyle = '#080c14'; ctx.fillRect(0,0,W,H);
+  const pW = W-pad*2, pH = H-pad*2;
+  
+  const yMin = yRange[0], yMax = yRange[1];
+  const midY = pad + pH - (0 - yMin) / (yMax - yMin) * pH;
+  
+  // Axes
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(pad, pad); ctx.lineTo(pad, pad+pH); ctx.stroke();
+  if(midY >= pad && midY <= pad+pH) {
+    ctx.beginPath(); ctx.moveTo(pad, midY); ctx.lineTo(pad+pW, midY); ctx.stroke();
+  } else {
+    ctx.beginPath(); ctx.moveTo(pad, pad+pH); ctx.lineTo(pad+pW, pad+pH); ctx.stroke();
+  }
+  
+  // Curve
+  ctx.beginPath(); ctx.strokeStyle = color; ctx.lineWidth = 3;
+  for(let px = 0; px <= pW; px++) {
+    const uvx = px / pW;
+    const val = fn(uvx, t);
+    const norm = (val - yMin) / (yMax - yMin);
+    const plotY = pad + pH - norm * pH;
+    if(px===0) ctx.moveTo(pad+px, plotY); else ctx.lineTo(pad+px, plotY);
+  }
+  ctx.stroke();
+  
+  // Labels
+  ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.font = `${Math.max(16, H*0.08)}px monospace`; ctx.textAlign = 'right';
+  ctx.fillText(yMax.toFixed(1), pad-6, pad+8);
+  ctx.fillText(yMin.toFixed(1), pad-6, pad+pH+4);
+  // Zero line label if it's visible
+  if(yMin < 0 && yMax > 0) {
+    ctx.fillText('0.0', pad-6, midY+4);
+  }
+}
+
+function drawVerticalSineWave(canvasId, t, fn, color, xRange) {
+  const c = document.getElementById(canvasId);
+  if (!c) return;
+  const ctx = c.getContext('2d');
+  c.width = c.offsetWidth * 2;
+  c.height = c.offsetHeight * 2;
+  const W = c.width, H = c.height, pad = 16;
+
+  ctx.fillStyle = '#080c14'; ctx.fillRect(0,0,W,H);
+  const pW = W-pad*2, pH = H-pad*2;
+
+  const xMin = xRange[0], xMax = xRange[1];
+  const midX = pad + ((0 - xMin) / (xMax - xMin)) * pW;
+
+  // Axes
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(pad, pad+pH); ctx.lineTo(pad+pW, pad+pH); ctx.stroke();
+  if(midX >= pad && midX <= pad+pW) {
+    ctx.beginPath(); ctx.moveTo(midX, pad); ctx.lineTo(midX, pad+pH); ctx.stroke();
+  }
+
+  // Curve (vertical: y-axis is uv.y from bottom=0 to top=1)
+  ctx.beginPath(); ctx.strokeStyle = color; ctx.lineWidth = 3;
+  for(let py = 0; py <= pH; py++) {
+    const uvy = 1.0 - py / pH; // top of canvas = uv.y=1, bottom = uv.y=0
+    const val = fn(uvy, t);
+    const norm = (val - xMin) / (xMax - xMin);
+    const plotX = pad + norm * pW;
+    if(py===0) ctx.moveTo(plotX, pad+py); else ctx.lineTo(plotX, pad+py);
+  }
+  ctx.stroke();
+
+  // Labels
+  ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.font = `${Math.max(14, H*0.05)}px monospace`; ctx.textAlign = 'center';
+  ctx.fillText('1', pad + pW + 2, pad + 4); // top label (uv.y=1)
+  ctx.fillText('0', pad + pW + 2, pad + pH); // bottom label (uv.y=0)
+}
+
+function animate() {
+  const t = (performance.now() - startTime) / 1000;
+  const freq = parseFloat(document.getElementById('sl-freq').value);
+  const speed = parseFloat(document.getElementById('sl-speed').value) / 20;
+  const mix2Str = parseFloat(document.getElementById('sl-mix2').value) / 100;
+  document.getElementById('vl-freq').textContent = freq;
+  document.getElementById('vl-speed').textContent = speed.toFixed(1);
+  document.getElementById('vl-mix2').textContent = mix2Str.toFixed(2);
+
+  // -- Read gear sliders --
+  const g1f = parseFloat(document.getElementById('sl-g1-freq').value);
+  document.getElementById('vl-g1-freq').textContent = g1f.toFixed(1);
+
+  const g2s = parseFloat(document.getElementById('sl-g2-speed').value) / 10;
+  document.getElementById('vl-g2-speed').textContent = g2s.toFixed(1);
+
+  const g3a = parseFloat(document.getElementById('sl-g3-amp').value) / 100;
+  const g3b = parseFloat(document.getElementById('sl-g3-offset').value) / 100;
+  document.getElementById('vl-g3-amp').textContent = g3a.toFixed(2);
+  document.getElementById('vl-g3-offset').textContent = g3b.toFixed(2);
+
+  // -- Render gears --
+  drawSineWave('c-gear1', t, (uvx, _t) => Math.sin(uvx * g1f), '#f778ba', [-1.2, 1.2]);
+  drawSineWave('c-gear2', t, (uvx, _t) => Math.sin(uvx * 10.0 + _t * g2s), '#58a6ff', [-1.2, 1.2]);
+  drawSineWave('c-gear3', t, (uvx, _t) => Math.sin(uvx * 10.0 + _t * 2.0) * g3a + g3b, '#3fb950', [-0.5, 1.5]);
+
+  // -- Render final animation canvas --
+  const cA = [25, 25, 76], cB = [0, 204, 153], cC = [255, 76, 127];
+  const W = cAnim.width, H = cAnim.height;
+  const imgA = ctxAnim.createImageData(W, H);
+  for (let py = 0; py < H; py++) {
+    for (let px = 0; px < W; px++) {
+      const uvx = px / W, uvy = 1.0 - py / H;
+      const wave = Math.sin(uvx * freq + t * speed) * 0.5 + 0.5;
+      let col = lerp3(cA, cB, wave);
+      const wave2 = Math.sin(uvy * 8.0 - t * speed * 0.75) * 0.5 + 0.5;
+      col = lerp3(col, cC, wave2 * mix2Str);
+      const i = (py * W + px) * 4;
+      imgA.data[i]=Math.min(255,col[0]); imgA.data[i+1]=Math.min(255,col[1]);
+      imgA.data[i+2]=Math.min(255,col[2]); imgA.data[i+3]=255;
+    }
+  }
+  ctxAnim.putImageData(imgA, 0, 0);
+
+  // -- Render sine tracker --
+  const ctxS = cSine.getContext('2d');
+  cSine.width = cSine.offsetWidth * 2;
+  cSine.height = cSine.offsetHeight * 2;
+  const sW = cSine.width, sH = cSine.height;
+  const pad = 25;
+  const plotW = sW - pad*2, plotH = sH - pad*2;
+
+  ctxS.fillStyle = '#080c14'; ctxS.fillRect(0,0,sW,sH);
+  // Grid
+  ctxS.strokeStyle = 'rgba(255,255,255,0.06)'; ctxS.lineWidth = 1;
+  const midY = pad + plotH / 2;
+  ctxS.beginPath(); ctxS.moveTo(pad, midY); ctxS.lineTo(pad+plotW, midY); ctxS.stroke();
+  ctxS.beginPath(); ctxS.moveTo(pad, pad); ctxS.lineTo(pad, pad+plotH); ctxS.stroke();
+  // Labels
+  ctxS.fillStyle = 'rgba(255,255,255,0.25)'; ctxS.font = `${Math.round(sH*0.08)}px monospace`; ctxS.textAlign = 'right';
+  ctxS.fillText('1.0', pad-4, pad+6);
+  ctxS.fillText('0.5', pad-4, midY+4);
+  ctxS.fillText('0.0', pad-4, pad+plotH+4);
+
+  // Draw sin*0.5+0.5 curve
+  const visibleDuration = 8; // seconds visible
+  ctxS.beginPath(); ctxS.strokeStyle = '#58a6ff'; ctxS.lineWidth = 2;
+  for(let px = 0; px <= plotW; px++) {
+    const tLocal = t - visibleDuration + (px / plotW) * visibleDuration;
+    const val = Math.sin(tLocal * speed) * 0.5 + 0.5;
+    const x = pad + px;
+    const y = pad + plotH - val * plotH;
+    if(px===0) ctxS.moveTo(x,y); else ctxS.lineTo(x,y);
+  }
+  ctxS.stroke();
+
+  // Current position dot
+  const curVal = Math.sin(t * speed) * 0.5 + 0.5;
+  const dotX = pad + plotW; // right edge = now
+  const dotY = pad + plotH - curVal * plotH;
+  ctxS.fillStyle = '#3fb950'; ctxS.beginPath(); ctxS.arc(dotX, dotY, 7, 0, Math.PI*2); ctxS.fill();
+  ctxS.fillStyle = '#3fb950'; ctxS.font = `bold ${Math.round(sH*0.09)}px monospace`; ctxS.textAlign = 'left';
+  ctxS.fillText(curVal.toFixed(2), dotX - 50, dotY - 12);
+
+  requestAnimationFrame(animate);
+}
+
+animate();
+
+// ============================================================
+// Static Inspection Canvases (u_time = 0, hover to inspect)
+// ============================================================
+function renderInspectX(mouseUVX, mouseUVY) {
+  const c = document.getElementById('c-inspect-x');
+  if (!c) return;
+  const ctx = c.getContext('2d');
+  const cW = c.width, cH = c.height;
+  const sineCurveH = 50; // height reserved for sin curve at bottom
+  const renderH = cH - sineCurveH;
+
+  // Colors
+  const colA = [25, 25, 76], colB = [0, 204, 153];
+
+  // Render 2D color field (static: u_time=0)
+  const img = ctx.createImageData(cW, renderH);
+  for (let py = 0; py < renderH; py++) {
+    for (let px = 0; px < cW; px++) {
+      const uvx = px / cW;
+      const sinInput = uvx * 10.0;
+      const sinRaw = Math.sin(sinInput);
+      const mapped = sinRaw * 0.5 + 0.5;
+      const col = lerp3(colA, colB, mapped);
+      const i = (py * cW + px) * 4;
+      img.data[i] = col[0]; img.data[i+1] = col[1]; img.data[i+2] = col[2]; img.data[i+3] = 255;
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+
+  // Sin curve area background
+  ctx.fillStyle = '#0a0e17';
+  ctx.fillRect(0, renderH, cW, sineCurveH);
+
+  // Draw sin curve
+  const curveTop = renderH + 5, curveBot = cH - 5, curveH = curveBot - curveTop;
+  ctx.beginPath(); ctx.strokeStyle = '#00cc99'; ctx.lineWidth = 2;
+  for (let px = 0; px < cW; px++) {
+    const uvx = px / cW;
+    const val = Math.sin(uvx * 10.0) * 0.5 + 0.5;
+    const y = curveBot - val * curveH;
+    if (px === 0) ctx.moveTo(px, y); else ctx.lineTo(px, y);
+  }
+  ctx.stroke();
+  // Zero line
+  ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.lineWidth = 1;
+  const zeroY = curveBot - 0.5 * curveH;
+  ctx.beginPath(); ctx.moveTo(0, zeroY); ctx.lineTo(cW, zeroY); ctx.stroke();
+
+  // Axis labels
+  ctx.fillStyle = 'rgba(255,255,255,0.25)'; ctx.font = '16px monospace'; ctx.textAlign = 'left';
+  ctx.fillText('uv.x=0', 4, renderH - 6);
+  ctx.textAlign = 'right';
+  ctx.fillText('uv.x=1', cW - 4, renderH - 6);
+  ctx.textAlign = 'left';
+  ctx.fillText('1.0', 4, curveTop + 10);
+  ctx.fillText('0.0', 4, curveBot - 2);
+
+  // --- Mouse hover ---
+  if (mouseUVX !== null) {
+    const cursorX = mouseUVX * cW;
+    // Vertical line across entire canvas
+    ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 1; ctx.setLineDash([4,4]);
+    ctx.beginPath(); ctx.moveTo(cursorX, 0); ctx.lineTo(cursorX, cH); ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Horizontal line at mouse Y
+    if (mouseUVY !== null) {
+      const cursorY = (1.0 - mouseUVY) * renderH;
+      ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.setLineDash([4,4]);
+      ctx.beginPath(); ctx.moveTo(0, cursorY); ctx.lineTo(cW, cursorY); ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    // Dot on sin curve
+    const sinInput = mouseUVX * 10.0;
+    const sinRaw = Math.sin(sinInput);
+    const mapped = sinRaw * 0.5 + 0.5;
+    const dotY = curveBot - mapped * curveH;
+    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(cursorX, dotY, 5, 0, Math.PI*2); ctx.fill();
+
+    // Update tooltip
+    const col = lerp3(colA, colB, mapped);
+    document.getElementById('tip-x-uvx').textContent = mouseUVX.toFixed(3);
+    document.getElementById('tip-x-uvy').textContent = mouseUVY !== null ? mouseUVY.toFixed(3) : '-';
+    document.getElementById('tip-x-input').textContent = sinInput.toFixed(3);
+    document.getElementById('tip-x-input2').textContent = sinInput.toFixed(3);
+    document.getElementById('tip-x-raw').textContent = sinRaw.toFixed(4);
+    document.getElementById('tip-x-mapped').textContent = mapped.toFixed(4);
+    document.getElementById('tip-x-rgb').textContent = `rgb(${Math.round(col[0])}, ${Math.round(col[1])}, ${Math.round(col[2])})`;
+    document.getElementById('tip-x-color').style.background = `rgb(${Math.round(col[0])},${Math.round(col[1])},${Math.round(col[2])})`;
+  }
+}
+
+function renderInspectY(mouseUVX, mouseUVY) {
+  const c = document.getElementById('c-inspect-y');
+  if (!c) return;
+  const ctx = c.getContext('2d');
+  const cW = c.width, cH = c.height;
+  const sineCurveW = 60; // width reserved for sin curve on left
+  const renderX0 = sineCurveW;
+  const renderW = cW - sineCurveW;
+
+  const colC = [255, 76, 127];
+
+  // Render 2D color field (static: u_time=0)
+  const img = ctx.createImageData(cW, cH);
+  for (let py = 0; py < cH; py++) {
+    for (let px = 0; px < cW; px++) {
+      const i = (py * cW + px) * 4;
+      if (px < sineCurveW) {
+        img.data[i] = 10; img.data[i+1] = 14; img.data[i+2] = 23; img.data[i+3] = 255;
+        continue;
+      }
+      const uvy = 1.0 - py / cH;
+      const sinInput = uvy * 8.0;
+      const sinRaw = Math.sin(sinInput);
+      const mapped = sinRaw * 0.5 + 0.5;
+      const intensity = mapped * 0.4; // wave2 * 0.4
+      const col = lerp3([0,0,0], colC, intensity);
+      img.data[i] = col[0]; img.data[i+1] = col[1]; img.data[i+2] = col[2]; img.data[i+3] = 255;
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+
+  // Separator line
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(sineCurveW, 0); ctx.lineTo(sineCurveW, cH); ctx.stroke();
+
+  // Draw vertical sin curve in left strip
+  const curveLeft = 5, curveRight = sineCurveW - 5, curveCW = curveRight - curveLeft;
+  ctx.beginPath(); ctx.strokeStyle = '#ff4c7f'; ctx.lineWidth = 2;
+  for (let py = 0; py < cH; py++) {
+    const uvy = 1.0 - py / cH;
+    const val = Math.sin(uvy * 8.0) * 0.5 + 0.5;
+    const x = curveLeft + val * curveCW;
+    if (py === 0) ctx.moveTo(x, py); else ctx.lineTo(x, py);
+  }
+  ctx.stroke();
+  // Zero line
+  ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+  const zeroX = curveLeft + 0.5 * curveCW;
+  ctx.beginPath(); ctx.moveTo(zeroX, 0); ctx.lineTo(zeroX, cH); ctx.stroke();
+
+  // Axis labels
+  ctx.fillStyle = 'rgba(255,255,255,0.25)'; ctx.font = '16px monospace';
+  ctx.textAlign = 'center';
+  ctx.save(); ctx.translate(sineCurveW + 20, cH - 6); ctx.fillText('uv.y=0', 0, 0); ctx.restore();
+  ctx.save(); ctx.translate(sineCurveW + 20, 14); ctx.fillText('uv.y=1', 0, 0); ctx.restore();
+
+  // --- Mouse hover ---
+  if (mouseUVY !== null) {
+    const cursorY = (1.0 - mouseUVY) * cH;
+    // Horizontal line across entire canvas
+    ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 1; ctx.setLineDash([4,4]);
+    ctx.beginPath(); ctx.moveTo(0, cursorY); ctx.lineTo(cW, cursorY); ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Vertical line at mouse X (within render area)
+    if (mouseUVX !== null) {
+      const cursorX = sineCurveW + mouseUVX * renderW;
+      ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.setLineDash([4,4]);
+      ctx.beginPath(); ctx.moveTo(cursorX, 0); ctx.lineTo(cursorX, cH); ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    // Dot on sin curve
+    const sinInput = mouseUVY * 8.0;
+    const sinRaw = Math.sin(sinInput);
+    const mapped = sinRaw * 0.5 + 0.5;
+    const dotX = curveLeft + mapped * curveCW;
+    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(dotX, cursorY, 5, 0, Math.PI*2); ctx.fill();
+
+    // Update tooltip
+    const intensity = mapped * 0.4;
+    const col = lerp3([0,0,0], colC, intensity);
+    document.getElementById('tip-y-uvx').textContent = mouseUVX !== null ? mouseUVX.toFixed(3) : '-';
+    document.getElementById('tip-y-uvy').textContent = mouseUVY.toFixed(3);
+    document.getElementById('tip-y-input').textContent = sinInput.toFixed(3);
+    document.getElementById('tip-y-input2').textContent = sinInput.toFixed(3);
+    document.getElementById('tip-y-raw').textContent = sinRaw.toFixed(4);
+    document.getElementById('tip-y-mapped').textContent = mapped.toFixed(4) + ' → ×0.4 = ' + intensity.toFixed(4);
+    document.getElementById('tip-y-rgb').textContent = `rgb(${Math.round(col[0])}, ${Math.round(col[1])}, ${Math.round(col[2])})`;
+    document.getElementById('tip-y-color').style.background = `rgb(${Math.round(col[0])},${Math.round(col[1])},${Math.round(col[2])})`;
+  }
+}
+
+// Initial static render
+renderInspectX(null, null);
+renderInspectY(null, null);
+
+// Mouse events for inspection X
+const cIX = document.getElementById('c-inspect-x');
+cIX.addEventListener('mousemove', (e) => {
+  const rect = cIX.getBoundingClientRect();
+  const mx = (e.clientX - rect.left) / rect.width;
+  const my = 1.0 - (e.clientY - rect.top) / rect.height;
+  document.getElementById('tooltip-x').style.display = 'block';
+  renderInspectX(Math.max(0, Math.min(1, mx)), Math.max(0, Math.min(1, my)));
+});
+cIX.addEventListener('mouseleave', () => {
+  document.getElementById('tooltip-x').style.display = 'none';
+  renderInspectX(null, null);
+});
+
+// Mouse events for inspection Y
+const cIY = document.getElementById('c-inspect-y');
+cIY.addEventListener('mousemove', (e) => {
+  const rect = cIY.getBoundingClientRect();
+  const sineCurveW = 60;
+  const renderW = cIY.width - sineCurveW;
+  const rawX = e.clientX - rect.left;
+  const scaledX = rawX / rect.width * cIY.width;
+  const mx = Math.max(0, Math.min(1, (scaledX - sineCurveW) / renderW));
+  const my = 1.0 - (e.clientY - rect.top) / rect.height;
+  document.getElementById('tooltip-y').style.display = 'block';
+  renderInspectY(mx, Math.max(0, Math.min(1, my)));
+});
+cIY.addEventListener('mouseleave', () => {
+  document.getElementById('tooltip-y').style.display = 'none';
+  renderInspectY(null, null);
+});
+
+// ============================================================
+// Contrast Comparison Canvas
+// ============================================================
+function renderContrast(mouseX) {
+  const c = document.getElementById('c-contrast');
+  if (!c) return;
+  const ctx = c.getContext('2d');
+  const cW = c.width, cH = c.height;
+  const halfH = Math.floor(cH / 2);
+  const gap = 2; // gap between strips
+  const pink = [255, 76, 127];
+  const darkBlue = [25, 25, 76];
+  const brightCyan = [0, 204, 153];
+
+  const img = ctx.createImageData(cW, cH);
+  for (let px = 0; px < cW; px++) {
+    const wave2 = px / cW; // 0 → 1 across width
+    // Top strip: dark blue base
+    const colTop = lerp3(darkBlue, pink, wave2);
+    // Bottom strip: bright cyan base
+    const colBot = lerp3(brightCyan, pink, wave2);
+
+    for (let py = 0; py < halfH - gap; py++) {
+      const i = (py * cW + px) * 4;
+      img.data[i] = colTop[0]; img.data[i+1] = colTop[1]; img.data[i+2] = colTop[2]; img.data[i+3] = 255;
+    }
+    // Gap
+    for (let py = halfH - gap; py < halfH + gap; py++) {
+      const i = (py * cW + px) * 4;
+      img.data[i] = 13; img.data[i+1] = 17; img.data[i+2] = 23; img.data[i+3] = 255;
+    }
+    for (let py = halfH + gap; py < cH; py++) {
+      const i = (py * cW + px) * 4;
+      img.data[i] = colBot[0]; img.data[i+1] = colBot[1]; img.data[i+2] = colBot[2]; img.data[i+3] = 255;
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+
+  // Labels
+  ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.font = 'bold 16px sans-serif'; ctx.textAlign = 'left';
+  ctx.fillText('深蓝底 → 粉色', 8, 22);
+  ctx.fillText('青绿底 → 粉色', 8, halfH + gap + 18);
+
+  // Mouse cursor
+  if (mouseX !== null) {
+    const cursorPx = mouseX * cW;
+    ctx.strokeStyle = 'rgba(255,255,255,0.7)'; ctx.lineWidth = 2; ctx.setLineDash([6,4]);
+    ctx.beginPath(); ctx.moveTo(cursorPx, 0); ctx.lineTo(cursorPx, cH); ctx.stroke();
+    ctx.setLineDash([]);
+
+    const w2 = mouseX;
+    const colTop = lerp3(darkBlue, pink, w2);
+    const colBot = lerp3(brightCyan, pink, w2);
+    const info = document.getElementById('contrast-info');
+    info.innerHTML =
+      `wave2 = <span style="color:#ff9800;font-weight:bold;">${w2.toFixed(3)}</span>　` +
+      `深蓝底结果: <span style="display:inline-block;width:14px;height:14px;border-radius:3px;vertical-align:middle;background:rgb(${Math.round(colTop[0])},${Math.round(colTop[1])},${Math.round(colTop[2])})"></span> ` +
+      `<span style="color:#bc8cff;">rgb(${Math.round(colTop[0])}, ${Math.round(colTop[1])}, ${Math.round(colTop[2])})</span>　` +
+      `青绿底结果: <span style="display:inline-block;width:14px;height:14px;border-radius:3px;vertical-align:middle;background:rgb(${Math.round(colBot[0])},${Math.round(colBot[1])},${Math.round(colBot[2])})"></span> ` +
+      `<span style="color:#00cc99;">rgb(${Math.round(colBot[0])}, ${Math.round(colBot[1])}, ${Math.round(colBot[2])})</span>`;
+  }
+}
+
+renderContrast(null);
+
+const cCon = document.getElementById('c-contrast');
+cCon.addEventListener('mousemove', (e) => {
+  const rect = cCon.getBoundingClientRect();
+  const mx = (e.clientX - rect.left) / rect.width;
+  renderContrast(Math.max(0, Math.min(1, mx)));
+});
+cCon.addEventListener('mouseleave', () => {
+  document.getElementById('contrast-info').innerHTML = '';
+  renderContrast(null);
+});
+</script>
+</body>
+</html>
