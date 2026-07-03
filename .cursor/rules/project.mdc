@@ -1,0 +1,26 @@
+---
+description: Shader Math Journey — AI 代理入口与约束
+alwaysApply: true
+---
+
+# Shader Math Journey
+
+开始任务前读 [AGENTS.md](../../AGENTS.md)，术语见 [CONTEXT.md](../../CONTEXT.md)。
+
+## 禁止
+
+- 不要扫描整个 `src/lessons/` — 课程清单用 `docs/CURRICULUM.md`
+- 不要编造案例 UI 行为 — 以 [case-schema.md](../../docs/specs/case-schema.md) 与 [CONTEXT.md](../../CONTEXT.md) 为准
+- 不要假设有后端、测试、路由库
+
+## 常见任务
+
+| 任务 | 读 |
+|------|-----|
+| 改一节课 | `src/lessons/stageN/XX-slug/` + `docs/LESSON-CONVENTIONS.md` |
+| 查课程列表 | `docs/CURRICULUM.md` |
+| 改渲染器 | `src/core/shader-renderer.js` + `docs/specs/renderer.md` |
+| 改知识点 | `src/config/knowledge.js` + `docs/specs/knowledge-system.md` |
+| 改案例 | `src/cases/` + `docs/specs/case-schema.md` |
+
+新增/删除课后运行 `npm run docs:curriculum`。
