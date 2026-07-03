@@ -63,10 +63,40 @@ import lesson14Instructions from './14-challenge-galaxy/instructions.html?raw';
 import lesson14Code from './14-challenge-galaxy/code.glsl?raw';
 import lesson14Goal from './14-challenge-galaxy/goal.glsl?raw';
 
+import { meta as lesson15Meta } from './15-texture-sample/meta.js';
+import lesson15Instructions from './15-texture-sample/instructions.html?raw';
+import lesson15Code from './15-texture-sample/code.glsl?raw';
+
+import { meta as lesson16Meta } from './16-particle-life/meta.js';
+import lesson16Instructions from './16-particle-life/instructions.html?raw';
+import lesson16Code from './16-particle-life/code.glsl?raw';
+
+import { meta as lesson17Meta } from './17-noise-texture/meta.js';
+import lesson17Instructions from './17-noise-texture/instructions.html?raw';
+import lesson17Code from './17-noise-texture/code.glsl?raw';
+
+import { meta as lesson18Meta } from './18-render-to-texture/meta.js';
+import lesson18Instructions from './18-render-to-texture/instructions.html?raw';
+import lesson18Code from './18-render-to-texture/code.glsl?raw';
+
+import { meta as lesson19Meta } from './19-challenge-particle-fog/meta.js';
+import lesson19Instructions from './19-challenge-particle-fog/instructions.html?raw';
+import lesson19Code from './19-challenge-particle-fog/code.glsl?raw';
+import lesson19Goal from './19-challenge-particle-fog/goal.glsl?raw';
+
+import { meta as lesson20Meta } from './20-challenge-dragon-flame/meta.js';
+import lesson20Instructions from './20-challenge-dragon-flame/instructions.html?raw';
+import lesson20Code from './20-challenge-dragon-flame/code.glsl?raw';
+import lesson20Goal from './20-challenge-dragon-flame/goal.glsl?raw';
+
 export const stage7 = [
   // ── 噪声基础 ──
   { ...lesson01Meta, instructions: lesson01Instructions, code: lesson01Code },       // 01 伪随机 & 噪声
-  { ...lesson02Meta, instructions: lesson02Instructions, code: lesson02Code },       // 02 FBM 分形噪声
+  { ...lesson18Meta, instructions: lesson18Instructions, code: lesson18Code },       // 02 渲染到纹理（概念）
+  { ...lesson15Meta, instructions: lesson15Instructions, code: lesson15Code },       // 03 纹理采样模拟
+  { ...lesson16Meta, instructions: lesson16Instructions, code: lesson16Code },       // 04 粒子生命衰减
+  { ...lesson02Meta, instructions: lesson02Instructions, code: lesson02Code },       // 05 FBM 分形噪声
+  { ...lesson17Meta, instructions: lesson17Instructions, code: lesson17Code },       // 06 噪声雾效
   // ── 颜色与光照 ──
   { ...lesson04Meta, instructions: lesson04Instructions, code: lesson04Code },       // 03 HSV 颜色空间
   { ...lesson03Meta, instructions: lesson03Instructions, code: lesson03Code },       // 04 Phong 光照模型
@@ -82,4 +112,6 @@ export const stage7 = [
   { ...lesson09Meta, instructions: lesson09Instructions, code: lesson09Code, goalCode: lesson09Goal },   // 12 🏆 星空隧道
   { ...lesson13Meta, instructions: lesson13Instructions, code: lesson13Code, goalCode: lesson13Goal },   // 13 🏆 程序化海洋
   { ...lesson14Meta, instructions: lesson14Instructions, code: lesson14Code, goalCode: lesson14Goal },   // 14 🏆 银河旋臂
+  { ...lesson19Meta, instructions: lesson19Instructions, code: lesson19Code, goalCode: lesson19Goal },   // 15 🏆 粒子雾场
+  { ...lesson20Meta, instructions: lesson20Instructions, code: lesson20Code, goalCode: lesson20Goal },   // 16 🏆 火焰粒子
 ];

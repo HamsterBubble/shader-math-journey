@@ -8,6 +8,7 @@ export class ShaderRenderer {
     this.canvas = canvas;
     this.gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
     if (!this.gl) throw new Error('WebGL not supported');
+    this.gl.getExtension('OES_standard_derivatives');
 
     this.program = null;
     this.uniformLocations = {};

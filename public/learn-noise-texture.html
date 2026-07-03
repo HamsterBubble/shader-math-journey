@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌫️ 噪声纹理采样</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0d1117;color:#e6edf3;font-family:'Inter',-apple-system,sans-serif;line-height:1.7;padding:40px 24px;padding-bottom:80px}
+.container{max-width:820px;margin:0 auto}
+h1{font-size:1.8rem;margin-bottom:0.5rem;color:#58a6ff}
+h2{font-size:1.3rem;color:#58a6ff;margin:2.5rem 0 1rem;padding-left:12px;border-left:3px solid #58a6ff}
+p,li{color:#8b949e;margin-bottom:.8rem;font-size:.95rem}
+strong{color:#e6edf3}
+code{font-family:'JetBrains Mono',monospace;background:rgba(255,255,255,.06);padding:2px 6px;border-radius:4px;color:#58a6ff;font-size:.9rem}
+pre{background:#161b22;border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:16px 20px;margin:1rem 0;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:.88rem;line-height:1.7;color:#c9d1d9}
+canvas{width:100%;border-radius:8px;display:block;margin:1rem 0;background:#000;border:1px solid rgba(255,255,255,.1)}
+.card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:24px;margin-bottom:20px}
+.card h4{color:#39d2c0;margin-bottom:12px;font-size:1.05rem}
+.tip-box{background:rgba(88,166,255,.08);border:1px solid rgba(88,166,255,.2);padding:16px 20px;border-radius:8px;font-size:.9rem;margin:15px 0}
+hr{border:0;border-top:1px solid rgba(255,255,255,.1);margin:30px 0}
+.slider-row{display:flex;align-items:center;gap:12px;margin:8px 0}
+.slider-row label{width:100px;font-size:.85rem;color:#bc8cff}
+input[type=range]{flex:1;accent-color:#58a6ff}
+.val{font-family:monospace;font-size:.85rem;color:#58a6ff;width:50px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:600px){.grid-2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🌫️ 噪声纹理 — 预烘焙的随机性</h1>
+  <p style="font-size:1.05rem;">Shader 里实时算 Perlin/FBM 噪声功能强大但昂贵。预先把噪声<strong>烘焙成纹理</strong>，运行时只需 <code>texture2D(noiseTex, uv + time)</code>——便宜、稳定，是全屏氛围效果的利器。</p>
+
+  <hr>
+
+  <h2>一、为什么用纹理而不是纯数学？</h2>
+  <div class="card" style="border-color:rgba(63,185,80,.4)">
+    <h4 style="color:#3fb950">纹理采样的优势</h4>
+    <ul>
+      <li><strong>性能</strong>：一次 texture2D vs 多层 sin/cos/dot 运算</li>
+      <li><strong>可控</strong>：美术可手绘或离线生成特定风格的噪声图</li>
+      <li><strong>多八度</strong>：FBM 可以预叠在 RGB 各通道，或分层多张图</li>
+      <li><strong>可平铺</strong>：Repeat 包裹实现无缝滚动雾效</li>
+    </ul>
+  </div>
+  <p>Dracarys 使用 <code>perlin.png</code>、<code>noise-fbm.png</code>、<code>fognoise.jpg</code> 等预烘焙资源。</p>
+
+  <hr>
+
+  <h2>二、典型采样模式</h2>
+  <div class="tip-box">
+<pre style="background:transparent;border:none;padding:0;margin:0;color:#c9d1d9">// 滚动雾效
+float fog = texture2D(uFogNoise, uv * 2.0 + vec2(time * 0.02, 0.0)).r;
+
+// 多层叠加（不同尺度 + 速度）
+float n1 = texture2D(uNoise, uv * 3.0 + time * 0.01).r;
+float n2 = texture2D(uNoise, uv * 8.0 - time * 0.02).r;
+float density = n1 * 0.6 + n2 * 0.4;
+
+// 距离衰减 × 噪声
+float fade = 1.0 - smoothstep(0.3, 1.0, length(uv - 0.5));
+color += vec3(fog) * fade * 0.5;</pre>
+  </div>
+
+  <hr>
+
+  <h2>三、交互演示：滚动噪声驱动雾效</h2>
+  <p>左：程序化噪声纹理（模拟预烘焙图）· 右：噪声 × 径向衰减 = 氛围雾。拖动速度和缩放滑块。</p>
+
+  <div class="card" style="border-color:rgba(88,166,255,.5)">
+    <div class="slider-row">
+      <label>滚动速度</label>
+      <input type="range" id="s-spd" min="0" max="100" value="30">
+      <span class="val" id="v-spd">0.30</span>
+    </div>
+    <div class="slider-row">
+      <label>UV 缩放</label>
+      <input type="range" id="s-scale" min="1" max="8" value="3">
+      <span class="val" id="v-scale">3.0</span>
+    </div>
+    <div class="grid-2">
+      <canvas id="c-noise" height="260"></canvas>
+      <canvas id="c-fog" height="260"></canvas>
+    </div>
+    <p style="text-align:center;font-size:.85rem;color:#8b949e;margin-top:8px">噪声纹理 · 噪声 × 距离衰减（Dracarys 氛围思路）</p>
+  </div>
+
+  <hr>
+
+  <h2>四、Dracarys 环境氛围（dracarys-08-atmosphere）</h2>
+  <div class="card" style="border-top:4px solid #bc8cff">
+    <h4 style="color:#bc8cff">雾 + 闪烁 + 距离衰减</h4>
+    <p>案例 Master Pass 组合多层噪声纹理，配合到龙/相机的距离做 fade，营造<strong>体积感</strong>而不需真实体积渲染。鼠标轨迹 noise 扰动则来自 NDC 坐标驱动的 UV 偏移。</p>
+<pre>vec2 noiseUV = uv * uNoiseScale + vec2(uTime * 0.015, uTime * 0.008);
+float n = texture2D(uFogNoise, noiseUV).r;
+float distFade = 1.0 - smoothstep(uFogNear, uFogFar, depth);
+atmosphere = n * distFade * uFogDensity;</pre>
+  </div>
+</div>
+<script>
+(function(){
+  const SIZE = 128;
+  // pre-generate seamless-ish noise texture
+  const noiseData = new Uint8Array(SIZE*SIZE);
+  for(let y=0;y<SIZE;y++) for(let x=0;x<SIZE;x++){
+    const v = fbm(x/SIZE*4, y/SIZE*4);
+    noiseData[y*SIZE+x] = Math.round(v*255);
+  }
+
+  function hash(x,y){ return Math.sin(x*127.1+y*311.7)*43758.5453%1; }
+  function smooth(a,b,t){ t=t*t*(3-2*t); return a+(b-a)*t; }
+  function noise(x,y){
+    const ix=Math.floor(x), iy=Math.floor(y);
+    const fx=x-ix, fy=y-iy;
+    return smooth(smooth(hash(ix,iy),hash(ix+1,iy),fx), smooth(hash(ix,iy+1),hash(ix+1,iy+1),fx), fy);
+  }
+  function fbm(x,y){
+    let v=0, a=0.5;
+    for(let i=0;i<4;i++){ v+=a*noise(x,y); x*=2; y*=2; a*=0.5; }
+    return v;
+  }
+
+  let speed = 0.3, scale = 3;
+  const sSpd = document.getElementById('s-spd');
+  const sScale = document.getElementById('s-scale');
+
+  function sampleNoise(u, v, t){
+    u = ((u*scale + t*speed*0.1)%1+1)%1;
+    v = ((v*scale + t*speed*0.05)%1+1)%1;
+    const x = Math.floor(u*(SIZE-1)), y = Math.floor(v*(SIZE-1));
+    return noiseData[y*SIZE+x]/255;
+  }
+
+  function draw(){
+    const cN = document.getElementById('c-noise');
+    const cF = document.getElementById('c-fog');
+    [cN,cF].forEach(c=>{ c.width=c.offsetWidth*2; c.height=c.offsetHeight*2; });
+    const W = cN.width, H = cN.height;
+    const t = performance.now()*0.001;
+
+    // noise texture view
+    const ctxN = cN.getContext('2d');
+    const imgN = ctxN.createImageData(W,H);
+    for(let py=0;py<H;py++) for(let px=0;px<W;px++){
+      const n = sampleNoise(px/W, py/H, t);
+      const i = (py*W+px)*4;
+      const c = n*255|0;
+      imgN.data[i]=c; imgN.data[i+1]=c; imgN.data[i+2]=c+20; imgN.data[i+3]=255;
+    }
+    ctxN.putImageData(imgN,0,0);
+    ctxN.fillStyle='#8b949e'; ctxN.font=`${Math.round(H*0.04)}px monospace`; ctxN.textAlign='center';
+    ctxN.fillText('texture2D(noise, uv×scale + time)', W/2, 24);
+
+    // fog application
+    const ctxF = cF.getContext('2d');
+    const imgF = ctxF.createImageData(W,H);
+    for(let py=0;py<H;py++) for(let px=0;px<W;px++){
+      const u=px/W, v=py/H;
+      const n = sampleNoise(u, v, t);
+      const cx=u-0.5, cy=v-0.5;
+      const dist = Math.sqrt(cx*cx+cy*cy);
+      const fade = Math.max(0, 1 - Math.max(0,(dist-0.15)/0.35));
+      const fog = n * fade;
+      const i = (py*W+px)*4;
+      imgF.data[i] = (8+fog*40)|0;
+      imgF.data[i+1] = (12+fog*60)|0;
+      imgF.data[i+2] = (25+fog*120)|0;
+      imgF.data[i+3] = 255;
+    }
+    ctxF.putImageData(imgF,0,0);
+    ctxF.fillStyle='#bc8cff'; ctxF.font=`${Math.round(H*0.04)}px monospace`; ctxF.textAlign='center';
+    ctxF.fillText('fog = noise × distFade', W/2, 24);
+  }
+
+  sSpd.addEventListener('input', ()=>{
+    speed = sSpd.value/100;
+    document.getElementById('v-spd').textContent = speed.toFixed(2);
+  });
+  sScale.addEventListener('input', ()=>{
+    scale = sScale.value;
+    document.getElementById('v-scale').textContent = scale.toFixed(1);
+  });
+
+  function loop(){ draw(); requestAnimationFrame(loop); }
+  loop();
+  window.addEventListener('resize', draw);
+})();
+</script>
+</body>
+</html>

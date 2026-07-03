@@ -1,0 +1,13 @@
+<h2>🏆 挑战：后处理合成</h2>
+<p class="knowledge-tags"><a class="knowledge-link" data-page="/learn-barrel-distortion.html" data-title="桶形畸变"><span class="kl-icon">🔭</span><span class="kl-text">桶形畸变</span></a> <a class="knowledge-link" data-page="/learn-blend-screen.html" data-title="Screen 混合"><span class="kl-icon">💡</span><span class="kl-text">Screen 混合</span></a></p>
+
+<p>Master pass 先对<strong>采样坐标</strong>做桶形畸变（画面向外膨胀弯曲），再用 <strong>Screen 滤色</strong>叠加光晕。本挑战用网格图案可视化畸变。</p>
+
+<div class="goal-preview"><div class="goal-label"><span class="dot"></span>目标效果</div><canvas class="goal-canvas"></canvas></div>
+
+<h3>要求</h3>
+<ul>
+  <li>补全 <code>distortedUv = barrelDistortion(uv, amt)</code>（<code>amt</code> 约 <code>-1.5</code>）</li>
+  <li>让网格线在靠近边缘处明显膨胀弯曲</li>
+  <li><code>screenBlend</code> 已实现，用于叠加光晕</li>
+</ul>

@@ -1,0 +1,13 @@
+<h2>🏆 挑战：水面反射</h2>
+<p class="knowledge-tags"><a class="knowledge-link" data-page="/learn-normal-map.html" data-title="法线贴图"><span class="kl-icon">🗺️</span><span class="kl-text">法线贴图</span></a></p>
+
+<p>镜面反射采样背景时，水面法线会<strong>偏移采样 UV</strong>产生扭曲倒影；法线与光线对齐处出现锐利<strong>波光高光</strong>，画面边缘有<strong>暗角衰减</strong>。</p>
+
+<div class="goal-preview"><div class="goal-label"><span class="dot"></span>目标效果</div><canvas class="goal-canvas"></canvas></div>
+
+<h3>要求</h3>
+<ul>
+  <li>法线扰动 UV 偏移已实现（<code>strength ≈ 0.035</code>）</li>
+  <li>补全 <code>highlight</code>：<code>pow(smoothstep(0.65, 0.95, alignment), 2.5)</code></li>
+  <li>左半屏为未扰动背景，右半屏为反射效果</li>
+</ul>

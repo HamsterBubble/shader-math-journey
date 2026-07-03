@@ -1,0 +1,24 @@
+<h2>🗂️ 纹理采样模拟</h2>
+<p class="knowledge-tags"><a class="knowledge-link" data-page="/learn-texture-sample.html" data-title="纹理采样 texture2D"><span class="kl-icon">🗂️</span><span class="kl-text">纹理采样 texture2D</span></a></p>
+
+<h3>单屏课 vs 多 Pass</h3>
+<p>真实 GPGPU / 水面管线用 <code>texture2D(sampler, uv)</code> 读取<strong>上一帧或邻域像素</strong>。本课用纯数学函数模拟「纹理」，练习<strong>偏移 UV 再采样</strong>的思维。</p>
+
+<h3>邻域采样</h3>
+<div class="formula-block">
+  center = sample(uv)<br>
+  north  = sample(uv + vec2(0, cell))<br>
+  east   = sample(uv + vec2(cell, 0))
+</div>
+
+<div class="info-box">
+  <strong>核心思想：</strong>采样坐标不必等于当前像素 UV。偏移 <code>uv ± cellSize</code> 就是在读「上一格的数据」——多 pass 管线里，那格数据来自纹理/FBO，逻辑完全一样。
+</div>
+
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 完善 <code>samplePattern</code>，得到彩色 procedural 纹理</p>
+  <p>2. 采样 north / east 偏移，用差分 <code>north - center</code> 可视化梯度</p>
+  <p>3. 计算四邻域平均 <code>(C+N+S+E)/4</code> 并显示</p>
+  <p>4. 改 <code>cellSize</code>，观察邻域采样范围变化</p>
+</div>

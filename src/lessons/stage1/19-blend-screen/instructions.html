@@ -1,0 +1,23 @@
+<h2>💡 Screen 滤色混合</h2>
+<p class="knowledge-tags"><a class="knowledge-link" data-page="/learn-blend-screen.html" data-title="Screen 滤色混合"><span class="kl-icon">💡</span><span class="kl-text">Screen 滤色混合</span></a></p>
+
+<h3>Normal vs Screen</h3>
+<p><code>mix(a, b, t)</code> 是线性插值；<strong>Screen</strong> 滤色让两色叠加强调亮部，适合光晕、火焰、高光。</p>
+
+<h3>公式</h3>
+<div class="formula-block">
+  screen(a, b) = 1 − (1 − a) × (1 − b)
+</div>
+<p>等价于「先反相、相乘、再反相」——只让亮部叠加，暗部保持。</p>
+
+<div class="info-box">
+  <strong>对比实验：</strong>左半用 <code>mix(base, glow, 0.5)</code>，右半用 <code>screen(base, glow)</code>，观察光晕层差异。
+</div>
+
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 实现 <code>screenBlend(a, b)</code></p>
+  <p>2. 画深色 base + 径向 glow 层</p>
+  <p>3. 左半 normal mix，右半 screen blend</p>
+  <p>4. 让 glow 跟随鼠标或随 u_time 脉动</p>
+</div>

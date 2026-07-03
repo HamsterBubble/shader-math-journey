@@ -23,10 +23,18 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg-primary);c
 .sidebar-logo-icon{color:var(--accent)}
 .sidebar-header h1{font-size:.9rem;font-weight:700;background:linear-gradient(135deg,var(--text-primary),var(--accent));background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 
+.sidebar-tabs{display:flex;padding:8px 8px 0;gap:4px;border-bottom:1px solid var(--border)}
+.sidebar-tab{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:8px 4px;border:none;border-radius:var(--radius-sm) var(--radius-sm) 0 0;background:transparent;color:var(--text-muted);font-size:.72rem;font-weight:600;cursor:pointer;transition:all .12s;font-family:inherit}
+.sidebar-tab:hover{color:var(--text-secondary);background:rgba(255,255,255,.03)}
+.sidebar-tab.active{color:var(--accent);background:var(--accent-glow);border-bottom:2px solid var(--accent)}
+.sidebar-tab svg{flex-shrink:0}
+
 .stage-list{flex:1;overflow-y:auto;padding:6px 8px}
-.stage-group{margin-bottom:4px}
-.stage-label{padding:10px 10px 4px;font-size:.68rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;display:flex;align-items:center;gap:6px}
-.stage-label .ico{font-size:.85rem}
+.stage-group{margin-bottom:6px;padding-top:6px;border-top:1px solid var(--border)}
+.stage-group:first-child{padding-top:0;border-top:none}
+.stage-label{display:flex;align-items:center;gap:9px;padding:6px 8px 8px}
+.stage-icon{width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:1rem;background:rgba(255,255,255,.06);border-radius:7px;flex-shrink:0;line-height:1}
+.stage-title{font-size:.82rem;font-weight:600;color:var(--text-primary);line-height:1.35;letter-spacing:.01em}
 
 .lesson-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--radius-sm);cursor:pointer;border:1px solid transparent;margin-bottom:1px;transition:all .12s}
 .lesson-item:hover{background:rgba(255,255,255,.04)}
@@ -40,6 +48,16 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg-primary);c
 .prog-bar{height:4px;background:var(--bg-tertiary);border-radius:2px;overflow:hidden;margin-bottom:5px}
 .prog-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--cyan));border-radius:2px;transition:width .4s}
 .prog-text{font-size:.72rem;color:var(--text-muted)}
+
+.view-challenges-btn{display:flex;align-items:center;gap:6px;width:100%;padding:8px 10px;margin:2px 0 6px;border:1px dashed rgba(210,153,34,.25);border-radius:var(--radius-sm);background:rgba(210,153,34,.06);color:var(--orange);font-size:.72rem;font-weight:600;cursor:pointer;transition:all .12s;font-family:inherit}
+.view-challenges-btn:hover{background:rgba(210,153,34,.12);border-color:rgba(210,153,34,.4)}
+.view-challenges-arrow{margin-left:auto;opacity:.6}
+.lesson-item.challenge-item .lesson-title{color:var(--text-secondary)}
+.lesson-num.challenge-num{font-size:.65rem;background:rgba(210,153,34,.12);color:var(--orange)}
+.lesson-item.active .lesson-num.challenge-num{background:var(--orange);color:var(--bg-primary)}
+.sidebar-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:40px 20px;color:var(--text-muted);text-align:center}
+.sidebar-empty p{font-size:.85rem;font-weight:600;color:var(--text-secondary)}
+.sidebar-empty span{font-size:.72rem}
 
 /* ═══ MAIN ═══ */
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden}
@@ -105,12 +123,34 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg-primary);c
 .editor-tab{padding:7px 14px;font-size:.75rem;font-weight:500;color:var(--text-primary);font-family:'JetBrains Mono',monospace;border-bottom:2px solid var(--accent)}
 .editor-container{flex:1;overflow:hidden}
 
+/* ═══ CASE WORKSPACE ═══ */
+.case-workspace .case-dual-preview{display:flex;height:45%;min-height:200px;border-bottom:1px solid var(--border)}
+.case-preview-pane{flex:1;display:flex;flex-direction:column;min-width:0;border-right:1px solid var(--border)}
+.case-preview-pane:last-child{border-right:none}
+.case-preview-label{padding:6px 12px;font-size:.72rem;font-weight:600;color:var(--text-muted);background:var(--bg-secondary);border-bottom:1px solid var(--border);letter-spacing:.3px}
+.case-preview-canvas{flex:1;position:relative;min-height:0;height:auto}
+.case-preview-canvas canvas{display:block;width:100%;height:100%}
+.case-desc{padding:0 14px 8px;font-size:.7rem;color:var(--text-muted);line-height:1.4}
+.case-step-item .lesson-num{background:rgba(88,166,255,.12);color:var(--accent)}
+.case-overview-item .case-overview-num{background:rgba(255,180,80,.15);color:#ffb84d;font-size:.65rem}
+.case-overview-item.active .case-overview-num{background:rgba(255,180,80,.3)}
+.case-full-preview .case-iframe-wrap{flex:1;display:flex;flex-direction:column;min-width:0;background:#000}
+.case-iframe-header{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:var(--bg-secondary);border-bottom:1px solid var(--border);font-size:.75rem;font-weight:600;color:var(--text-muted)}
+.case-iframe-popout{display:inline-flex;align-items:center;gap:5px;color:var(--accent);text-decoration:none;font-size:.72rem}
+.case-iframe-popout:hover{text-decoration:underline}
+.case-iframe{flex:1;width:100%;border:none;background:#000}
+.kp-list-highlight{border-bottom:1px solid var(--border);padding-bottom:6px;margin-bottom:4px}
+.kp-list-item-case{border-left:2px solid rgba(255,180,80,.45)}
+.kp-section-label{padding:8px 14px 4px;font-size:.68rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px}
+.instructions .tip-box{background:rgba(88,166,255,.08);border:1px solid rgba(88,166,255,.2);padding:12px 14px;border-radius:8px;font-size:.85rem;margin:12px 0;color:var(--text-secondary)}
+.toolbar-right a.btn{text-decoration:none;color:inherit}
+
 /* ═══ SCROLLBAR ═══ */
 ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--bg-tertiary);border-radius:3px}
 
 /* ═══ RESPONSIVE ═══ */
 @media(max-width:1100px){.instructions{width:360px;min-width:300px;padding:16px}}
-@media(max-width:900px){.sidebar{width:50px;min-width:50px}.sidebar-header h1,.lesson-title,.stage-label,.sidebar-footer{display:none}.instructions{width:280px;min-width:240px}}
+@media(max-width:900px){.sidebar{width:50px;min-width:50px}.sidebar-header h1,.sidebar-tab span,.lesson-title,.stage-label,.sidebar-footer,.view-challenges-btn span,.view-challenges-arrow,.sidebar-empty{display:none}.sidebar-tabs{flex-direction:column;padding:4px 4px 0;gap:2px}.sidebar-tab{padding:10px 4px;border-radius:var(--radius-sm)}.view-challenges-btn{justify-content:center;padding:8px 4px}.instructions{width:280px;min-width:240px}}
 
 /* ═══ KNOWLEDGE LINKS ═══ */
 .knowledge-tags{

@@ -1,0 +1,25 @@
+<h2>🖱️ NDC 鼠标映射</h2>
+<p class="knowledge-tags"><a class="knowledge-link" data-page="/learn-ndc-coords.html" data-title="NDC 标准化设备坐标"><span class="kl-icon">🖱️</span><span class="kl-text">NDC 标准化设备坐标</span></a></p>
+
+<h3>为什么需要 NDC？</h3>
+<p>浏览器鼠标事件给出的是<strong>屏幕像素坐标</strong>（原点在左上或左下）；Three.js Raycaster、后处理 pass 和许多交互 Shader 使用的是 <strong>NDC（Normalized Device Coordinates）</strong>，范围 [-1, 1]，原点在画面中心。</p>
+
+<h3>转换公式</h3>
+<div class="formula-block">
+  ndc.x = (mouse.x / resolution.x) × 2 − 1<br>
+  ndc.y = (mouse.y / resolution.y) × 2 − 1
+</div>
+<p>本项目的 <code>u_mouse</code> 已是<strong>左下原点</strong>的像素坐标，与 <code>gl_FragCoord</code> 一致，因此 Y 轴无需再取反。</p>
+
+<div class="info-box">
+  <strong>宽高比校正：</strong>若要与居中 UV 对齐，令 <code>ndc.x *= u_resolution.x / u_resolution.y</code>。<br>
+  Dracarys 中 <code>mouseNDC</code> 驱动龙身交互与后处理鼠标轨迹——先掌握映射，再读案例源码会轻松很多。
+</div>
+
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 完成 <code>mouseNDC</code> 转换，在鼠标位置画十字准星</p>
+  <p>2. 用 NDC 坐标给背景着色（红 = ndc.x，绿 = ndc.y）</p>
+  <p>3. 画 NDC 坐标轴（x=0、y=0 的参考线）</p>
+  <p>4. 在准星旁标注当前 NDC 数值（用距离环近似显示）</p>
+</div>

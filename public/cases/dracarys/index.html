@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Azeret+Mono:ital,wght@0,100..900;1,100..900&display=swap" />
+    <title>Dracarys — TS Rewrite</title>
+    <style>
+      :root {
+        --blur: 8px;
+        --color-white: #ffffff;
+        --color-yellow: #fffb91;
+      }
+      html, body {
+        margin: 0; padding: 0; height: 100%; background: #000; overflow: hidden;
+        font-family: 'Azeret Mono', ui-monospace, monospace;
+        color: var(--color-white);
+        -webkit-font-smoothing: antialiased;
+      }
+      .h-ttu { text-transform: uppercase; }
+
+      #app { position: fixed; inset: 0; width: 100%; height: 100%; overflow: hidden; touch-action: none; }
+      canvas { display: block; width: 100%; height: 100%; }
+
+      /* 镜像:开屏透明叠层,底部文案,可见背后冰封场景 */
+      .dr-opening {
+        position: fixed; inset: 0; z-index: 10;
+        display: flex; align-items: flex-end; justify-content: center;
+        color: #fff; pointer-events: auto;
+      }
+      .dr-opening__content {
+        position: relative; margin-bottom: 9rem; text-align: center;
+        opacity: 0; transition: opacity 2s ease;
+      }
+      .dr-opening__text {
+        font-size: clamp(12px, 2.5vw, 14px); letter-spacing: 0.2em; margin-bottom: 0;
+      }
+      .dr-opening__bar {
+        position: absolute; left: 0; right: 0; bottom: -0.2rem;
+        height: 0.2rem; background: #fff;
+        transform-origin: left center; transform: scaleX(0);
+      }
+
+      /* 镜像:HUD 叠在 canvas 上,intro 期间模糊 */
+      .dr-hud {
+        position: fixed; inset: 0; z-index: 5; pointer-events: none;
+        opacity: 0; transition: opacity 1.1s ease;
+        filter: blur(var(--blur));
+      }
+      .dr-hud--visible { opacity: 1; }
+      .dr-hud__grid {
+        display: grid; grid-template-columns: repeat(12, 1fr);
+        padding: 2.5rem 2rem 0;
+      }
+      .dr-hud__top-left { grid-column: 1 / span 4; }
+      .dr-hud__logo { width: 6rem; height: auto; opacity: 0.9; }
+      .dr-hud__top-right {
+        grid-column: 9 / span 4; text-align: right;
+        font-size: clamp(11px, 2vw, 13px); letter-spacing: 0.35em;
+      }
+      .dr-hud__bottom {
+        position: absolute; bottom: 2.5rem; left: 0; right: 0;
+        display: flex; justify-content: space-between; align-items: flex-end;
+        padding: 0 2rem;
+      }
+      .dr-hud__info-btn {
+        pointer-events: auto; width: 4rem; height: 4rem;
+        border: 1px solid rgba(255,255,255,0.35);
+        background: transparent; color: inherit; cursor: pointer; font-size: 12px;
+      }
+      .dr-hud__bottom-right { display: flex; align-items: center; gap: 2rem; }
+      .dr-hud__timer { font-size: 11px; letter-spacing: 0.15em; display: flex; }
+      .dr-hud__hint { display: flex; align-items: center; }
+      .dr-hud__hint-cube {
+        width: 0.6rem; height: 0.6rem; margin-top: -0.05rem;
+        background: var(--color-white); transition: transform 0.3s ease;
+      }
+      .dr-hud__hint-text {
+        margin-left: 0.8rem; font-size: 11px; letter-spacing: 0.12em;
+        filter: blur(4px); opacity: 0.85;
+      }
+      .dr-hud__info {
+        position: fixed; inset: 0; z-index: 50; background: rgba(0,0,0,0.75);
+        display: none; align-items: flex-start; justify-content: flex-start;
+        padding: 6rem 2rem 2rem; pointer-events: auto;
+        filter: none;
+      }
+      .dr-hud__info.is-open { display: flex; }
+      .dr-hud__info-inner { max-width: 36rem; }
+      .dr-hud__info-inner h2, .dr-hud__info-inner h3 {
+        font-size: 13px; letter-spacing: 0.1em; margin: 0 0 1rem;
+      }
+      .dr-hud__info-inner p {
+        font-size: 12px; line-height: 1.6; opacity: 0.85; margin: 0 0 1.2rem;
+      }
+      .dr-hud__info-links { font-size: 12px; margin-bottom: 1.5rem; }
+      .dr-hud__info-links div { margin-bottom: 0.4rem; }
+      .dr-hud__info-links a { color: inherit; margin-left: 0.5rem; }
+      .dr-hud__close {
+        margin-top: 0.5rem; background: transparent;
+        border: 1px solid rgba(255,255,255,0.4);
+        color: inherit; padding: 0.4rem 1rem; cursor: pointer; font-size: 11px;
+        pointer-events: auto;
+      }
+    </style>
+    <script type="module" crossorigin src="./assets/index-f_LOTa5R.js"></script>
+  </head>
+  <body>
+    <div id="app"></div>
+  </body>
+</html>

@@ -1,0 +1,24 @@
+<h2>🔭 桶形畸变</h2>
+<p class="knowledge-tags"><a class="knowledge-link" data-page="/learn-barrel-distortion.html" data-title="桶形畸变 Barrel Distortion"><span class="kl-icon">🔭</span><span class="kl-text">桶形畸变 Barrel Distortion</span></a></p>
+
+<h3>镜头感从哪来？</h3>
+<p>沿径向推拉 UV，模拟广角镜头边缘弯曲。Dracarys Master pass 在慢动作时加强畸变，强化电影镜头感。</p>
+
+<h3>公式</h3>
+<div class="formula-block">
+  cc = uv − 0.5<br>
+  d = dot(cc, cc)<br>
+  uv' = uv + cc × d × strength
+</div>
+
+<div class="info-box">
+  <strong>采样顺序：</strong>先算畸变后的 UV，再用它读取棋盘/场景颜色——这是后处理 pass 的标准写法。
+</div>
+
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 实现 <code>barrel(uv, strength)</code> 返回畸变 UV</p>
+  <p>2. 用畸变 UV 采样棋盘 <code>checker(uv)</code></p>
+  <p>3. 左半原图、右半畸变对比（或全屏畸变）</p>
+  <p>4. 调 <code>strength</code>（正 = 桶形，负 = 枕形）</p>
+</div>

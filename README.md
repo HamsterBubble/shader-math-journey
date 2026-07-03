@@ -26,7 +26,7 @@ npm install
 npm run dev
 ```
 
-浏览器打开 `http://localhost:5173` 即可访问。
+浏览器打开 `http://localhost:3456` 即可访问（端口见 `vite.config.js`）。
 
 ### 构建生产版本
 
@@ -46,6 +46,9 @@ npm run preview
 
 ```
 shader-math-journey/
+├── AGENTS.md             # AI 代理入口（先读这个）
+├── CONTEXT.md            # 领域术语表
+├── docs/                 # 架构、约定、课程索引、ADR
 ├── index.html            # 入口 HTML
 ├── src/
 │   ├── main.jsx          # 应用入口
@@ -58,6 +61,16 @@ shader-math-journey/
 ├── vite.config.js        # Vite 配置
 └── package.json
 ```
+
+## 📖 文档
+
+| 文件 | 用途 |
+|------|------|
+| [AGENTS.md](./AGENTS.md) | AI 代理入口与任务速查 |
+| [CONTEXT.md](./CONTEXT.md) | 领域术语（Lesson / Challenge 等） |
+| [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) | 架构与数据流 |
+| [docs/LESSON-CONVENTIONS.md](./docs/LESSON-CONVENTIONS.md) | 新增/修改课程约定 |
+| [docs/CURRICULUM.md](./docs/CURRICULUM.md) | 全部 99 节课索引（`npm run docs:curriculum` 生成） |
 
 ## 📄 License
 

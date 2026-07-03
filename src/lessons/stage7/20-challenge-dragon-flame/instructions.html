@@ -1,0 +1,13 @@
+<h2>🏆 挑战：火焰粒子</h2>
+<p class="knowledge-tags"><a class="knowledge-link" data-page="/learn-particle-life.html" data-title="粒子生命周期"><span class="kl-icon">💫</span><span class="kl-text">粒子生命周期</span></a></p>
+
+<p>火焰粒子全部从<strong>同一个发射原点</strong>沿各自方向飞出，位移量随生命周期 <code>life ∈ [0,1]</code> 线性增长；透明度由 <code>life</code> 驱动先淡入再淡出。</p>
+
+<div class="goal-preview"><div class="goal-label"><span class="dot"></span>目标效果</div><canvas class="goal-canvas"></canvas></div>
+
+<h3>要求</h3>
+<ul>
+  <li>补全 <code>center = origin + dir * (1.0 + speed) * life</code></li>
+  <li>让粒子沿方向飞离原点，而非停在原地</li>
+  <li>生命周期淡入淡出已实现</li>
+</ul>

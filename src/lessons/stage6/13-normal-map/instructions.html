@@ -1,0 +1,23 @@
+<h2>🗺️ 法线扰动 UV</h2>
+<p class="knowledge-tags"><a class="knowledge-link" data-page="/learn-normal-map.html" data-title="法线贴图扰动 UV"><span class="kl-icon">🗺️</span><span class="kl-text">法线贴图扰动 UV</span></a></p>
+
+<h3>法线贴图在做什么？</h3>
+<p>法线贴图 RGB 编码表面微观法线。采样后把 xy 分量当作<strong>UV 偏移</strong>，让反射/折射看起来有凹凸细节——无需额外几何。</p>
+
+<h3>常见步骤</h3>
+<div class="formula-block">
+  normal = fakeNormal(uv) × 2 − 1<br>
+  sampleUV = uv + normal.xy × strength
+</div>
+
+<div class="info-box">
+  <strong>本课简化：</strong>用 sin/cos 生成假法线场，再扰动采样坐标读取「背景图案」。完成后应看到水面/金属般的<strong>流动反射错位</strong>。
+</div>
+
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 实现 <code>fakeNormal(uv)</code>，输出 0~1 的 RGB 法线</p>
+  <p>2. 映射到 [-1,1]，用 xy 偏移采样 UV</p>
+  <p>3. 绘制扰动前后的对比（左半原 UV，右半扰动 UV）</p>
+  <p>4. 调 <code>strength</code> 与 <code>u_time</code> 动画速度</p>
+</div>

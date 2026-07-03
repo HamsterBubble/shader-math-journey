@@ -79,4 +79,99 @@ export const KNOWLEDGE_POINTS = [
     icon: '✨',
     patterns: ['+=', '*=', 'color +', 'color *', '-='], 
   },
+  {
+    id: 'ndc-coords',
+    page: '/learn-ndc-coords.html',
+    title: 'NDC 标准化设备坐标',
+    label: '屏幕 → NDC',
+    icon: '🖱️',
+    patterns: [],
+  },
+  {
+    id: 'texture-sample',
+    page: '/learn-texture-sample.html',
+    title: '纹理采样 texture2D',
+    label: '多 pass 纹理读写',
+    icon: '🗂️',
+    patterns: ['texture2D('],
+  },
+  {
+    id: 'wave-equation',
+    page: '/learn-wave-equation.html',
+    title: '水面波动方程',
+    label: '邻域采样求高',
+    icon: '〰️',
+    patterns: [],
+
+  },
+  {
+    id: 'normal-map',
+    page: '/learn-normal-map.html',
+    title: '法线贴图扰动 UV',
+    label: '反射偏移',
+    icon: '🗺️',
+    patterns: [],
+
+  },
+  {
+    id: 'gpgpu-particles',
+    page: '/learn-gpgpu-particles.html',
+    title: 'GPGPU 粒子模拟',
+    label: 'FBO 速度/位置 pass',
+    icon: '✨',
+    patterns: [],
+
+  },
+  {
+    id: 'euler-integration',
+    page: '/learn-gpgpu-particles.html',
+    title: '欧拉积分',
+    label: 'v += a·dt, p += v·dt',
+    icon: '🏃',
+    patterns: [],
+  },
+  {
+    id: 'render-to-texture',
+    page: '/learn-texture-sample.html',
+    title: '渲染到纹理 RTT',
+    label: '多 Pass ping-pong',
+    icon: '🖼️',
+    patterns: [],
+  },
+  {
+    id: 'particle-life',
+    page: '/learn-particle-life.html',
+    title: '粒子生命周期',
+    label: 'alpha 衰减与重生',
+    icon: '💫',
+    patterns: [],
+
+  },
+  {
+    id: 'barrel-distortion',
+    page: '/learn-barrel-distortion.html',
+    title: '桶形畸变 Barrel Distortion',
+    label: '径向 UV 偏移',
+    icon: '🔭',
+    patterns: [],
+
+  },
+  {
+    id: 'blend-screen',
+    page: '/learn-blend-screen.html',
+    title: 'Screen 滤色混合',
+    label: '1 − (1−a)(1−b)',
+    icon: '💡',
+    patterns: [],
+
+  },
+  {
+    id: 'noise-texture',
+    page: '/learn-noise-texture.html',
+    title: '噪声纹理采样',
+    label: '雾与氛围',
+    icon: '🌫️',
+    patterns: [],
+
+  },
 ];

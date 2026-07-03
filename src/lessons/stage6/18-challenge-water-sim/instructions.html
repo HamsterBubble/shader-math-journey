@@ -1,0 +1,13 @@
+<h2>🏆 挑战：水面波动模拟</h2>
+<p class="knowledge-tags"><a class="knowledge-link" data-page="/learn-wave-equation.html" data-title="波动方程"><span class="kl-icon">〰️</span><span class="kl-text">波动方程</span></a> <a class="knowledge-link" data-page="/learn-texture-sample.html" data-title="纹理采样"><span class="kl-icon">🗂️</span><span class="kl-text">纹理采样</span></a></p>
+
+<p>真实水面平时几乎静止如镜，只有鼠标经过处才会隆起凸包，再靠 Laplacian 扩散推成外扩涟漪。本挑战用单屏近似版还原高度场更新公式。</p>
+
+<div class="goal-preview"><div class="goal-label"><span class="dot"></span>目标效果</div><canvas class="goal-canvas"></canvas></div>
+
+<h3>要求</h3>
+<ul>
+  <li>补全 Laplacian 更新式：<code>((north + south + east + west) * 0.5 - prev) * viscosity</code></li>
+  <li>鼠标注入凸包公式已实现，完成后涟漪会随时间扩散</li>
+  <li><code>viscosity</code> 约 <code>0.89</code> 控制涟漪保留程度</li>
+</ul>

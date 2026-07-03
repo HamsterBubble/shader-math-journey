@@ -18,9 +18,10 @@ export default function App() {
       return 0;
     }
   });
+
   const [compileStatus, setCompileStatus] = useState({ ok: true, error: null });
   const [selectedKnowledge, setSelectedKnowledge] = useState(null);
-  
+
   const [completedLessons, setCompletedLessons] = useState(() => {
     try {
       const stored = localStorage.getItem('completedLessons');
@@ -30,10 +31,10 @@ export default function App() {
     }
   });
 
-  const toggleComplete = useCallback((id) => {
+  const toggleLessonComplete = useCallback((id) => {
     setCompletedLessons(prev => {
-      const next = prev.includes(id) 
-        ? prev.filter(x => x !== id) 
+      const next = prev.includes(id)
+        ? prev.filter(x => x !== id)
         : [...prev, id];
       localStorage.setItem('completedLessons', JSON.stringify(next));
       return next;
@@ -91,7 +92,7 @@ export default function App() {
           title={lesson.title}
           badge={lesson.badge}
           isCompleted={completedLessons.includes(lesson.id)}
-          onToggleComplete={() => toggleComplete(lesson.id)}
+          onToggleComplete={() => toggleLessonComplete(lesson.id)}
           onReset={handleReset}
           onPrev={handlePrev}
           onNext={handleNext}

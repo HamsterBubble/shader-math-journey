@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🔭 桶形畸变 Barrel Distortion</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0d1117;color:#e6edf3;font-family:'Inter',-apple-system,sans-serif;line-height:1.7;padding:40px 24px;padding-bottom:80px}
+.container{max-width:820px;margin:0 auto}
+h1{font-size:1.8rem;margin-bottom:0.5rem;color:#58a6ff}
+h2{font-size:1.3rem;color:#58a6ff;margin:2.5rem 0 1rem;padding-left:12px;border-left:3px solid #58a6ff}
+p,li{color:#8b949e;margin-bottom:.8rem;font-size:.95rem}
+strong{color:#e6edf3}
+code{font-family:'JetBrains Mono',monospace;background:rgba(255,255,255,.06);padding:2px 6px;border-radius:4px;color:#58a6ff;font-size:.9rem}
+pre{background:#161b22;border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:16px 20px;margin:1rem 0;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:.88rem;line-height:1.7;color:#c9d1d9}
+canvas{width:100%;border-radius:8px;display:block;margin:1rem 0;background:#000;border:1px solid rgba(255,255,255,.1)}
+.card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:24px;margin-bottom:20px}
+.card h4{color:#39d2c0;margin-bottom:12px;font-size:1.05rem}
+.tip-box{background:rgba(88,166,255,.08);border:1px solid rgba(88,166,255,.2);padding:16px 20px;border-radius:8px;font-size:.9rem;margin:15px 0}
+hr{border:0;border-top:1px solid rgba(255,255,255,.1);margin:30px 0}
+.slider-row{display:flex;align-items:center;gap:12px;margin:8px 0}
+.slider-row label{width:100px;font-size:.85rem;color:#bc8cff}
+input[type=range]{flex:1;accent-color:#58a6ff}
+.val{font-family:monospace;font-size:.85rem;color:#58a6ff;width:50px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:600px){.grid-2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🔭 桶形畸变 — 模拟广角镜头的边缘弯曲</h1>
+  <p style="font-size:1.05rem;">真实相机镜头尤其是广角镜，画面边缘会向中心<strong>「鼓出」</strong>。后处理中用径向 UV 偏移模拟这种桶形畸变（Barrel Distortion），能瞬间赋予画面电影镜头感。</p>
+
+  <hr>
+
+  <h2>一、径向推拉：离中心越远，偏移越大</h2>
+  <p>以画面中心 (0.5, 0.5) 为原点，计算每个像素到中心的距离平方，沿径向方向推拉 UV：</p>
+  <div class="tip-box">
+<pre style="background:transparent;border:none;padding:0;margin:0;color:#c9d1d9">vec2 cc = uv - 0.5;
+float d = dot(cc, cc);           // 距离²，避免 sqrt
+uv = uv + cc * d * strength;     // strength > 0 → 桶形（边缘外鼓）</pre>
+  </div>
+  <p><code>strength &gt; 0</code> 桶形畸变（广角感）· <code>strength &lt; 0</code> 枕形畸变（边缘内收）</p>
+
+  <hr>
+
+  <h2>二、为什么用 dot(cc, cc) 而不是 length？</h2>
+  <div class="card" style="border-color:rgba(188,140,255,.4)">
+    <h4 style="color:#bc8cff">性能与效果</h4>
+    <ul>
+      <li><code>dot(cc, cc)</code> = r²，单调递增，偏移趋势与 r 一致</li>
+      <li>省一次 <code>sqrt</code>，全屏后处理每像素都受益</li>
+      <li>高阶版本可用 <code>d + d² * k2 + d³ * k3</code>（Brown-Conrady 模型）</li>
+    </ul>
+  </div>
+
+  <hr>
+
+  <h2>三、交互对比：拖动强度看畸变</h2>
+  <p>左：原始网格 · 右：桶形畸变后。注意边缘格子如何被「往外推」。</p>
+
+  <div class="card" style="border-color:rgba(88,166,255,.5)">
+    <div class="slider-row">
+      <label>strength</label>
+      <input type="range" id="s-str" min="-150" max="150" value="60">
+      <span class="val" id="v-str">0.60</span>
+    </div>
+    <div class="grid-2">
+      <canvas id="c-orig" height="280"></canvas>
+      <canvas id="c-dist" height="280"></canvas>
+    </div>
+  </div>
+
+  <hr>
+
+  <h2>四、Dracarys Master Pass（dracarys-07-post-master）</h2>
+  <p>案例在后处理 Master Pass 中根据<strong>慢动作进度</strong>动态加强桶形畸变——时间减速时镜头感骤然增强，配合暗角和色差，营造「龙息凝滞」的电影瞬间。</p>
+<pre>float barrel = mix(0.0, uMaxBarrel, slowMoFactor);
+vec2 cc = uv - 0.5;
+uv += cc * dot(cc, cc) * barrel;
+vec3 color = texture2D(uScene, uv).rgb;</pre>
+</div>
+<script>
+(function(){
+  const strEl = document.getElementById('s-str');
+  const strVal = document.getElementById('v-str');
+  let strength = 0.6;
+
+  function barrel(u, v, s){
+    const ccx = u - 0.5, ccy = v - 0.5;
+    const d = ccx*ccx + ccy*ccy;
+    return [u + ccx*d*s, v + ccy*d*s];
+  }
+
+  function drawGrid(id, distort){
+    const c = document.getElementById(id);
+    const ctx = c.getContext('2d');
+    c.width = c.offsetWidth * 2;
+    c.height = c.offsetHeight * 2;
+    const W = c.width, H = c.height;
+    const N = 12;
+
+    ctx.fillStyle = '#080c14'; ctx.fillRect(0,0,W,H);
+
+    // colored background bands
+    for(let i=0;i<8;i++){
+      ctx.fillStyle = `hsl(${200+i*20}, 60%, ${12+i*3}%)`;
+      ctx.fillRect(0, H*i/8, W, H/8+1);
+    }
+
+    ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 1.5;
+    for(let i=0;i<=N;i++){
+      ctx.beginPath();
+      for(let j=0;j<=N;j++){
+        let u = i/N, v = j/N;
+        if(distort){ [u,v] = barrel(u,v,strength); }
+        const x = u*W, y = (1-v)*H;
+        if(j===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+
+      ctx.beginPath();
+      for(let j=0;j<=N;j++){
+        let u = j/N, v = i/N;
+        if(distort){ [u,v] = barrel(u,v,strength); }
+        const x = u*W, y = (1-v)*H;
+        if(j===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+    }
+
+    // center cross
+    ctx.strokeStyle = '#ffa657'; ctx.lineWidth = 2;
+    let cx=0.5, cy=0.5;
+    if(distort){ [cx,cy] = barrel(0.5,0.5,strength); }
+    ctx.beginPath(); ctx.moveTo(cx*W-10,(1-cy)*H); ctx.lineTo(cx*W+10,(1-cy)*H); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx*W,(1-cy)*H-10); ctx.lineTo(cx*W,(1-cy)*H+10); ctx.stroke();
+
+    ctx.fillStyle = '#8b949e'; ctx.font = `${Math.round(H*0.04)}px monospace`; ctx.textAlign='center';
+    ctx.fillText(distort ? `barrel(${strength.toFixed(2)})` : '原始', W/2, 24);
+  }
+
+  function update(){
+    strength = strEl.value / 100;
+    strVal.textContent = strength.toFixed(2);
+    drawGrid('c-orig', false);
+    drawGrid('c-dist', true);
+  }
+
+  strEl.addEventListener('input', update);
+  update();
+  window.addEventListener('resize', update);
+})();
+</script>
+</body>
+</html>

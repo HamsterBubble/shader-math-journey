@@ -1,0 +1,23 @@
+<h2>🌫️ 噪声雾效</h2>
+<p class="knowledge-tags"><a class="knowledge-link" data-page="/learn-noise-texture.html" data-title="噪声纹理采样"><span class="kl-icon">🌫️</span><span class="kl-text">噪声纹理采样</span></a></p>
+
+<h3>预烘焙 vs 实时</h3>
+<p>案例中常用预烘焙 FBM 噪声图 + <code>texture2D</code> 采样。本课用<strong>纯数学 FBM</strong> 模拟同样效果：按 UV + 时间偏移采样，驱动雾密度与闪烁。</p>
+
+<h3>雾密度</h3>
+<div class="formula-block">
+  fog = fbm(uv × scale + vec2(0, t × drift))<br>
+  alpha = fog × (1 − distToCamera)
+</div>
+
+<div class="info-box">
+  <strong>氛围要点：</strong>多层噪声叠加（FBM）+ 距离衰减 + 冷色 tint，即 Dracarys 环境雾的核心套路。
+</div>
+
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 实现 hash + noise + fbm 三层</p>
+  <p>2. 用 fbm(uv + time) 作为雾密度</p>
+  <p>3. 加径向距离衰减，中心清晰、边缘浓雾</p>
+  <p>4. 混合冷色雾与深色背景</p>
+</div>

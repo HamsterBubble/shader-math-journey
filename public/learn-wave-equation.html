@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>〰️ 水面波动方程</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0d1117;color:#e6edf3;font-family:'Inter',-apple-system,sans-serif;line-height:1.7;padding:40px 24px;padding-bottom:80px}
+.container{max-width:820px;margin:0 auto}
+h1{font-size:1.8rem;margin-bottom:0.5rem;color:#58a6ff}
+h2{font-size:1.3rem;color:#58a6ff;margin:2.5rem 0 1rem;padding-left:12px;border-left:3px solid #58a6ff}
+p,li{color:#8b949e;margin-bottom:.8rem;font-size:.95rem}
+strong{color:#e6edf3}
+code{font-family:'JetBrains Mono',monospace;background:rgba(255,255,255,.06);padding:2px 6px;border-radius:4px;color:#58a6ff;font-size:.9rem}
+pre{background:#161b22;border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:16px 20px;margin:1rem 0;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:.88rem;line-height:1.7;color:#c9d1d9}
+canvas{width:100%;border-radius:8px;display:block;margin:1rem 0;background:#000;border:1px solid rgba(255,255,255,.1);cursor:crosshair}
+.card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:24px;margin-bottom:20px}
+.card h4{color:#39d2c0;margin-bottom:12px;font-size:1.05rem}
+.tip-box{background:rgba(88,166,255,.08);border:1px solid rgba(88,166,255,.2);padding:16px 20px;border-radius:8px;font-size:.9rem;margin:15px 0}
+hr{border:0;border-top:1px solid rgba(255,255,255,.1);margin:30px 0}
+.slider-row{display:flex;align-items:center;gap:12px;margin:8px 0}
+.slider-row label{width:80px;font-size:.85rem;color:#bc8cff}
+input[type=range]{flex:1;accent-color:#58a6ff}
+.val{font-family:monospace;font-size:.85rem;color:#58a6ff;width:40px}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>〰️ 波动方程 — 让水面活起来</h1>
+  <p style="font-size:1.05rem;">真实流体模拟代价极高。游戏和创意案例常用<strong>简化离散波动方程</strong>：每个像素的高度由四邻域平均决定，配合速度积分形成涟漪扩散。</p>
+
+  <hr>
+
+  <h2>一、物理直觉：弹簧网格</h2>
+  <p>想象每个像素是一根小弹簧，四邻域拉它回到「平均水平」。偏离越大，回弹力越强——这就是<strong>离散波动</strong>的本质。</p>
+  <div class="tip-box">
+    高度 h ≈ 水面位置 · 速度 vel ≈ 高度变化率 · 每帧交替更新
+  </div>
+
+  <hr>
+
+  <h2>二、核心公式（每帧每个像素）</h2>
+  <div class="card" style="border-color:rgba(58,166,255,.4)">
+    <h4 style="color:#58a6ff">更新规则</h4>
+<pre>float avg = (north + south + east + west) * 0.5;
+float newH  = avg - prevVel;       // 四邻平均 − 旧速度
+float newVel = newH - oldH;        // 新速度 = 高度差分
+// 可选阻尼
+newVel *= 0.995;
+newH   *= 0.998;</pre>
+    <p>这不是精确 Navier-Stokes，但视觉上足够 convincing，且 GPU 友好。</p>
+  </div>
+
+  <div class="card" style="border-color:rgba(247,120,186,.4)">
+    <h4 style="color:#f778ba">鼠标激励源</h4>
+<pre>float dist = length(uv - mouseUV);
+float bump = cos(dist * 40.0) * exp(-dist * 8.0);
+newH += bump * clickStrength;</pre>
+    <p>点击时叠加 <code>cos</code> 相位鼓包，模拟石子入水的涟漪源。</p>
+  </div>
+
+  <hr>
+
+  <h2>三、实时模拟：点击水面投石</h2>
+  <p>在画布上<strong>点击或拖动</strong>制造涟漪。左侧是高度场，右侧是法线（由高度梯度推导）。</p>
+
+  <div class="card" style="border-color:rgba(88,166,255,.5)">
+    <canvas id="c-wave" height="320"></canvas>
+    <div class="slider-row">
+      <label>阻尼</label>
+      <input type="range" id="s-damp" min="950" max="999" value="992">
+      <span class="val" id="v-damp">0.992</span>
+    </div>
+  </div>
+
+  <hr>
+
+  <h2>四、Dracarys 水面（dracarys-03-water）</h2>
+  <p>案例用 GPGPU 双缓冲纹理存储 h/vel/normal，每帧更新后供折射 Shader 采样。鼠标 NDC 坐标驱动交互鼓包，龙飞过水面时还会叠加<strong>尾迹激励</strong>。</p>
+</div>
+<script>
+(function(){
+  const N = 128;
+  let h = new Float32Array(N*N);
+  let hPrev = new Float32Array(N*N);
+  let vel = new Float32Array(N*N);
+  let damp = 0.992;
+
+  const c = document.getElementById('c-wave');
+  const ctx = c.getContext('2d');
+
+  function addRipple(gx, gy, strength){
+    for(let y=0;y<N;y++) for(let x=0;x<N;x++){
+      const dx=x-gx, dy=y-gy;
+      const d = Math.sqrt(dx*dx+dy*dy);
+      h[y*N+x] += Math.cos(d*0.8)*Math.exp(-d*0.15)*strength;
+    }
+  }
+
+  function step(){
+    for(let y=1;y<N-1;y++) for(let x=1;x<N-1;x++){
+      const i = y*N+x;
+      const avg = (h[i-N]+h[i+N]+h[i-1]+h[i+1])*0.5;
+      const newH = (avg - vel[i]) * damp;
+      vel[i] = newH - hPrev[i];
+      hPrev[i] = h[i];
+      h[i] = newH;
+    }
+  }
+
+  function draw(){
+    c.width = c.offsetWidth * 2;
+    c.height = c.offsetHeight * 2;
+    const W = c.width, H = c.height;
+    const half = W/2;
+    const cell = half / N;
+
+    ctx.fillStyle = '#080c14'; ctx.fillRect(0,0,W,H);
+
+    for(let y=0;y<N;y++) for(let x=0;x<N;x++){
+      const v = h[y*N+x];
+      const t = Math.max(0, Math.min(1, v*0.5+0.5));
+      ctx.fillStyle = `rgb(${Math.round(10+t*30)},${Math.round(40+t*100)},${Math.round(80+t*175)})`;
+      ctx.fillRect(x*cell, y*cell, cell+1, cell+1);
+
+      // normal from gradient
+      const hl = h[y*N+(x-1)]||0, hr = h[y*N+(x+1)]||0;
+      const hu = h[(y-1)*N+x]||0, hd = h[(y+1)*N+x]||0;
+      const nx = (hl-hr)*2, ny = (hu-hd)*2;
+      const r = Math.round(128+nx*80), g = Math.round(128+ny*80), b = 200;
+      ctx.fillStyle = `rgb(${Math.max(0,Math.min(255,r))},${Math.max(0,Math.min(255,g))},${b})`;
+      ctx.fillRect(half+x*cell, y*cell, cell+1, cell+1);
+    }
+
+    ctx.fillStyle = '#8b949e'; ctx.font = `${Math.round(H*0.04)}px monospace`;
+    ctx.fillText('高度 h', 12, 24);
+    ctx.fillText('法线 (∂h/∂x, ∂h/∂y)', half+12, 24);
+  }
+
+  let running = true;
+  function loop(){
+    if(running){ step(); draw(); }
+    requestAnimationFrame(loop);
+  }
+
+  c.addEventListener('mousedown', e=>{
+    const r = c.getBoundingClientRect();
+    const px = (e.clientX-r.left)/r.width * c.width;
+    const py = (e.clientY-r.top)/r.height * c.height;
+    const half = c.width/2;
+    if(px < half){
+      addRipple(Math.floor(px/(half/N)), Math.floor(py/(c.height/N)), 0.8);
+    }
+  });
+  c.addEventListener('mousemove', e=>{
+    if(e.buttons !== 1) return;
+    const r = c.getBoundingClientRect();
+    const px = (e.clientX-r.left)/r.width * c.width;
+    const py = (e.clientY-r.top)/r.height * c.height;
+    const half = c.width/2;
+    if(px < half) addRipple(Math.floor(px/(half/N)), Math.floor(py/(c.height/N)), 0.3);
+  });
+
+  document.getElementById('s-damp').addEventListener('input', e=>{
+    damp = e.target.value/1000;
+    document.getElementById('v-damp').textContent = damp.toFixed(3);
+  });
+
+  addRipple(N/2, N/2, 1.2);
+  loop();
+  window.addEventListener('resize', draw);
+})();
+</script>
+</body>
+</html>

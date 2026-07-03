@@ -5,8 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "predev": "node scripts/sync-dracarys-assets.mjs",
     "build": "vite build",
-    "preview": "vite preview"
+    "prebuild": "node scripts/sync-dracarys-assets.mjs",
+    "preview": "vite preview",
+    "docs:curriculum": "node scripts/gen-curriculum.mjs",
+    "cases:sync-dracarys": "node scripts/sync-dracarys-assets.mjs",
+    "cases:knowledge-pages": "node scripts/gen-case-knowledge-pages.mjs"
   },
   "dependencies": {
     "@vitejs/plugin-react": "^6.0.1",
@@ -14,6 +19,7 @@
     "monaco-editor": "^0.55.1",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
+    "three": "^0.185.1",
     "vite": "^8.0.2"
   }
 }

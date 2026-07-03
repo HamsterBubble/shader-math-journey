@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💫 粒子生命周期</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0d1117;color:#e6edf3;font-family:'Inter',-apple-system,sans-serif;line-height:1.7;padding:40px 24px;padding-bottom:80px}
+.container{max-width:820px;margin:0 auto}
+h1{font-size:1.8rem;margin-bottom:0.5rem;color:#58a6ff}
+h2{font-size:1.3rem;color:#58a6ff;margin:2.5rem 0 1rem;padding-left:12px;border-left:3px solid #58a6ff}
+p,li{color:#8b949e;margin-bottom:.8rem;font-size:.95rem}
+strong{color:#e6edf3}
+code{font-family:'JetBrains Mono',monospace;background:rgba(255,255,255,.06);padding:2px 6px;border-radius:4px;color:#58a6ff;font-size:.9rem}
+pre{background:#161b22;border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:16px 20px;margin:1rem 0;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:.88rem;line-height:1.7;color:#c9d1d9}
+canvas{width:100%;border-radius:8px;display:block;margin:1rem 0;background:#000;border:1px solid rgba(255,255,255,.1)}
+.card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:24px;margin-bottom:20px}
+.card h4{color:#39d2c0;margin-bottom:12px;font-size:1.05rem}
+.tip-box{background:rgba(88,166,255,.08);border:1px solid rgba(88,166,255,.2);padding:16px 20px;border-radius:8px;font-size:.9rem;margin:15px 0}
+hr{border:0;border-top:1px solid rgba(255,255,255,.1);margin:30px 0}
+.slider-row{display:flex;align-items:center;gap:12px;margin:8px 0}
+.slider-row label{width:100px;font-size:.85rem;color:#bc8cff}
+input[type=range]{flex:1;accent-color:#58a6ff}
+.val{font-family:monospace;font-size:.85rem;color:#58a6ff;width:40px}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>💫 粒子生命周期 — 从诞生到熄灭</h1>
+  <p style="font-size:1.05rem;">火焰、烟雾、火花不能永远存在。GPGPU 粒子的 <strong>Alpha 通道</strong>存生命值 life，每帧递减；归零则重生——形成连续的「起—燃—熄」循环。</p>
+
+  <hr>
+
+  <h2>一、life 通道：粒子的「倒计时」</h2>
+  <div class="tip-box">
+    <code>float life = texture2D(uPosTex, uv).a;</code> · 范围通常 [0, 1] · 1 = 刚诞生 · 0 = 该重生了
+  </div>
+  <p>与位置/速度存在同一张纹理里，更新 pass 一次读写全部状态，无需 CPU 介入。</p>
+
+  <hr>
+
+  <h2>二、更新逻辑：衰减 + 重生</h2>
+  <div class="card" style="border-color:rgba(247,120,186,.4)">
+    <h4 style="color:#f778ba">每帧递减</h4>
+<pre>life -= uDecayRate * dt;
+if (life <= 0.0) {
+  life = 1.0;                                    // 重置生命
+  pos  = randomPointOnEmitterSurface();          // 随机发射点
+  vel  = uInitialVelocity + randomJitter();        // 初速度 + 扰动
+}</pre>
+  </div>
+
+  <div class="card" style="border-color:rgba(255,166,87,.4)">
+    <h4 style="color:#ffa657">渲染 pass：life 驱动视觉</h4>
+<pre>float age = 1.0 - life;                          // 0=年轻 1=将死
+vec3 color = mix(uHotColor, uColdColor, age);    // 黄→红→灰
+float size = mix(uMaxSize, uMinSize, age);       // 大→小
+float alpha = life * smoothstep(0.0, 0.1, life); // 末尾淡出</pre>
+  </div>
+
+  <hr>
+
+  <h2>三、实时演示：火焰粒子生命周期</h2>
+  <p>观察粒子从<strong>底部诞生（亮黄、大）</strong>→ 上升<strong>变橙</strong> → 顶部<strong>缩小熄灭（暗红、透明）</strong>。调整衰减速度看效果变化。</p>
+
+  <div class="card" style="border-color:rgba(255,100,50,.5)">
+    <canvas id="c-life" height="360"></canvas>
+    <div class="slider-row">
+      <label>衰减速度</label>
+      <input type="range" id="s-decay" min="10" max="80" value="35">
+      <span class="val" id="v-decay">0.35</span>
+    </div>
+  </div>
+
+  <hr>
+
+  <h2>四、Dracarys 龙焰（dracarys-06-flame）</h2>
+  <p>案例在龙口发射器表面随机重生粒子，life 驱动颜色从白炽→橙红→烟灰，配合 Screen 混合叠加到场景。这是 GPGPU 粒子管线中<strong>渲染 pass 与模拟 pass 分工</strong>的经典范例。</p>
+</div>
+<script>
+(function(){
+  const COUNT = 200;
+  const particles = [];
+  let decay = 0.35;
+
+  function spawn(){
+    return {
+      x: 0.48 + Math.random()*0.04,
+      y: 0.85 + Math.random()*0.05,
+      vx: (Math.random()-0.5)*0.15,
+      vy: -0.3 - Math.random()*0.4,
+      life: 0.5 + Math.random()*0.5
+    };
+  }
+  for(let i=0;i<COUNT;i++) particles.push(spawn());
+
+  const c = document.getElementById('c-life');
+  const ctx = c.getContext('2d');
+
+  function lifeColor(life){
+    const age = 1 - life;
+    if(age < 0.3) return [255, 220+age*100, 80+age*200, life];
+    if(age < 0.7) return [255, 180-age*100, 40, life*0.9];
+    return [200-age*150, 60, 20, life*0.5];
+  }
+
+  function step(dt){
+    for(const p of particles){
+      p.life -= decay * dt;
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.vx *= 0.98;
+      if(p.life <= 0) Object.assign(p, spawn());
+    }
+  }
+
+  function draw(){
+    c.width = c.offsetWidth * 2;
+    c.height = c.offsetHeight * 2;
+    const W = c.width, H = c.height;
+
+    ctx.fillStyle = 'rgba(8,12,20,0.25)';
+    ctx.fillRect(0,0,W,H);
+
+    // emitter
+    ctx.fillStyle = '#ffa657';
+    ctx.fillRect(W*0.4, H*0.88, W*0.2, H*0.04);
+
+    for(const p of particles){
+      const [r,g,b,a] = lifeColor(p.life);
+      const size = (4 + p.life * 12) * (W/500);
+      ctx.fillStyle = `rgba(${r|0},${g|0},${b|0},${a})`;
+      ctx.beginPath();
+      ctx.arc(p.x*W, p.y*H, size, 0, Math.PI*2);
+      ctx.fill();
+    }
+
+    // life bar legend
+    const barW = W*0.6, barH = 8, barX = W*0.2, barY = H-20;
+    const grad = ctx.createLinearGradient(barX,0,barX+barW,0);
+    grad.addColorStop(0,'#fff5a0'); grad.addColorStop(0.5,'#ff8833'); grad.addColorStop(1,'#331100');
+    ctx.fillStyle = grad; ctx.fillRect(barX,barY,barW,barH);
+    ctx.fillStyle = '#8b949e'; ctx.font = `${Math.round(H*0.028)}px monospace`; ctx.textAlign='center';
+    ctx.fillText('life: 1.0 诞生 ──────────────→ 0.0 重生', W/2, barY-6);
+  }
+
+  let last = performance.now();
+  function loop(now){
+    step(Math.min(0.033,(now-last)/1000));
+    last = now;
+    draw();
+    requestAnimationFrame(loop);
+  }
+
+  document.getElementById('s-decay').addEventListener('input', e=>{
+    decay = e.target.value/100;
+    document.getElementById('v-decay').textContent = decay.toFixed(2);
+  });
+
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

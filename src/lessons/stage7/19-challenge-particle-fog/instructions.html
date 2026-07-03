@@ -1,0 +1,14 @@
+<h2>🏆 挑战：粒子雾场</h2>
+<p class="knowledge-tags"><a class="knowledge-link" data-page="/learn-particle-life.html" data-title="粒子生命周期"><span class="kl-icon">💫</span><span class="kl-text">粒子生命周期</span></a> <a class="knowledge-link" data-page="/learn-noise-texture.html" data-title="噪声纹理采样"><span class="kl-icon">🌫️</span><span class="kl-text">噪声纹理采样</span></a> <a class="knowledge-link" data-page="/learn-texture-sample.html" data-title="纹理采样"><span class="kl-icon">🗂️</span><span class="kl-text">纹理采样</span></a></p>
+
+<p>把生命周期粒子和 FBM 雾结合起来，做一个会漂移、闪烁、衰减的魔法雾场。</p>
+
+<div class="goal-preview"><div class="goal-label"><span class="dot"></span>目标效果</div><canvas class="goal-canvas"></canvas></div>
+
+<h3>要求</h3>
+<ul>
+  <li>实现 <code>hash / noise / fbm</code></li>
+  <li>用 <code>fract(seed - u_time * speed)</code> 控制粒子生命</li>
+  <li>用 FBM 调制雾密度和粒子亮度</li>
+  <li>让边缘雾更浓、中心保留发光粒子</li>
+</ul>

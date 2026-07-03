@@ -1,0 +1,30 @@
+<h2>🖼️ 渲染到纹理 — 多 Pass 管线概念</h2>
+<p class="knowledge-tags"><a class="knowledge-link" data-page="/learn-texture-sample.html" data-title="纹理采样"><span class="kl-icon">🗂️</span><span class="kl-text">纹理采样</span></a></p>
+
+<h3>为什么需要 RTT？</h3>
+<p>单屏 fragment 课只能看<strong>当前像素自己的 UV</strong>。真实水面、GPGPU 粒子需要「这一帧写入纹理 → 下一帧读回来」——即 <strong>Render to Texture（RTT）</strong> 或 FBO。</p>
+
+<div class="formula-block">
+  Pass A：simulate → 写入 texA<br>
+  Pass B：fragment 里 texture2D(texA, uv) → 更新 → 写入 texB<br>
+  每帧交换 texA ↔ texB（ping-pong）
+</div>
+
+<div class="info-box">
+  <strong>本课不做真实 FBO</strong>（主课程仍用单屏 ShaderRenderer）。用<strong>数学模拟</strong>「读上一状态 + 写新状态」：把上一帧结果想成函数 <code>f(uv, t)</code>，本帧在邻域采样它——与下一课「纹理采样」同一思维。
+</div>
+
+<div class="info-box tip">
+  <strong>💡 Dracarys 对应</strong><br>
+  ● 水面高度场：每帧更新一张「高度纹理」<br>
+  ● GPGPU 粒子：位置纹 / 速度纹双缓冲<br>
+  ● 后处理：整屏 color buffer → Master pass
+</div>
+
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 用 <code>sin(uv.x*20. + u_time)</code> 模拟「上一帧状态场」</p>
+  <p>2. 对 uv 加小偏移再采样，可视化「读邻域 = 读纹理」</p>
+  <p>3. 混合时间：让场随 u_time 扩散（模糊邻域平均）</p>
+  <p>4. 思考：若真用 FBO，哪一步对应你的 shader？</p>
+</div>

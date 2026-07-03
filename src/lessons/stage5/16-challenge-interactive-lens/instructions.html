@@ -1,0 +1,14 @@
+<h2>🏆 挑战：交互镜头</h2>
+<p class="knowledge-tags"><a class="knowledge-link" data-page="/learn-ndc-coords.html" data-title="NDC 标准化设备坐标"><span class="kl-icon">🖱️</span><span class="kl-text">NDC 标准化设备坐标</span></a> <a class="knowledge-link" data-page="/learn-barrel-distortion.html" data-title="桶形畸变"><span class="kl-icon">🔭</span><span class="kl-text">桶形畸变</span></a></p>
+
+<p>做一个跟随鼠标移动的圆形镜头：镜头内部出现桶形畸变，边缘有高光和暗角。</p>
+
+<div class="goal-preview"><div class="goal-label"><span class="dot"></span>目标效果</div><canvas class="goal-canvas"></canvas></div>
+
+<h3>要求</h3>
+<ul>
+  <li>把 <code>u_mouse</code> 转成居中 NDC 坐标</li>
+  <li>只在镜头圆内使用畸变后的 UV 采样棋盘</li>
+  <li>镜头边缘有一圈高光</li>
+  <li>背景保留未畸变的棋盘作为对比</li>
+</ul>

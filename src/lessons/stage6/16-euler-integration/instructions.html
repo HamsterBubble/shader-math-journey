@@ -1,0 +1,28 @@
+<h2>🏃 欧拉积分 — 每帧更新速度与位置</h2>
+<p class="knowledge-tags"><a class="knowledge-link" data-page="/learn-gpgpu-particles.html" data-title="GPGPU 粒子模拟"><span class="kl-icon">✨</span><span class="kl-text">GPGPU 粒子模拟</span></a></p>
+
+<h3>为什么需要积分？</h3>
+<p>导数课学的是「斜率 = 变化率」。真实粒子模拟每帧要做两件事：<strong>速度 += 加速度 × Δt</strong>，<strong>位置 += 速度 × Δt</strong>。这就是最简单的 <strong>显式欧拉积分</strong>。</p>
+
+<div class="formula-block">
+  v(t + Δt) = v(t) + a(t) × Δt<br>
+  p(t + Δt) = p(t) + v(t) × Δt
+</div>
+
+<div class="info-box">
+  <strong>本课用 u_time 模拟连续帧</strong>：把 <code>sin(u_time)</code> 当作「外力加速度」，在单屏 shader 里画出粒子轨迹圆环，理解「积分 = 累加变化」。
+</div>
+
+<div class="info-box tip">
+  <strong>💡 Dracarys 对应</strong><br>
+  ● 火焰粒子：每帧 <code>velocity += gravity</code>，<code>position += velocity</code><br>
+  ● GPGPU pass：位置纹 / 速度纹双缓冲，与下一课弹簧力模型衔接
+</div>
+
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 设加速度 <code>a = vec2(sin(u_time), cos(u_time)) * 0.5</code></p>
+  <p>2. 用 <code>u_time</code> 解析积分出位置 <code>p(t)</code>（圆周运动）</p>
+  <p>3. 画粒子点 + 速度箭头（用线段或颜色方向暗示）</p>
+  <p>4. 改阻尼：<code>v *= 0.98</code> 每帧，观察螺旋收敛</p>
+</div>

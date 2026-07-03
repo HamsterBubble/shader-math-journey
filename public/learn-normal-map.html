@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🗺️ 法线贴图扰动 UV</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0d1117;color:#e6edf3;font-family:'Inter',-apple-system,sans-serif;line-height:1.7;padding:40px 24px;padding-bottom:80px}
+.container{max-width:820px;margin:0 auto}
+h1{font-size:1.8rem;margin-bottom:0.5rem;color:#58a6ff}
+h2{font-size:1.3rem;color:#58a6ff;margin:2.5rem 0 1rem;padding-left:12px;border-left:3px solid #58a6ff}
+p,li{color:#8b949e;margin-bottom:.8rem;font-size:.95rem}
+strong{color:#e6edf3}
+code{font-family:'JetBrains Mono',monospace;background:rgba(255,255,255,.06);padding:2px 6px;border-radius:4px;color:#58a6ff;font-size:.9rem}
+pre{background:#161b22;border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:16px 20px;margin:1rem 0;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:.88rem;line-height:1.7;color:#c9d1d9}
+canvas{width:100%;border-radius:8px;display:block;margin:1rem 0;background:#000;border:1px solid rgba(255,255,255,.1)}
+.card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:24px;margin-bottom:20px}
+.card h4{color:#39d2c0;margin-bottom:12px;font-size:1.05rem}
+.tip-box{background:rgba(88,166,255,.08);border:1px solid rgba(88,166,255,.2);padding:16px 20px;border-radius:8px;font-size:.9rem;margin:15px 0}
+hr{border:0;border-top:1px solid rgba(255,255,255,.1);margin:30px 0}
+.slider-row{display:flex;align-items:center;gap:12px;margin:8px 0}
+.slider-row label{width:100px;font-size:.85rem;color:#bc8cff}
+input[type=range]{flex:1;accent-color:#58a6ff}
+.val{font-family:monospace;font-size:.85rem;color:#58a6ff;width:40px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:600px){.grid-2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🗺️ 法线贴图 — 用 RGB 伪造微观凹凸</h1>
+  <p style="font-size:1.05rem;">真实水面波纹需要百万级顶点。法线贴图把<strong>微观表面朝向</strong>编码进 RGB 纹理，Shader 采样后偏移反射 UV——零额外几何，却有丰富的镜面细节。</p>
+
+  <hr>
+
+  <h2>一、法线贴图里存的是什么？</h2>
+  <p>每个 texel 的 RGB 代表该点<strong>切线空间法线</strong>的方向向量：</p>
+  <div class="tip-box">
+    <code>vec3 normal = texture2D(uNormalMap, uv).rgb * 2.0 - 1.0;</code><br>
+    纹理值 [0,1] → 法线 [-1,1] · 默认 (0.5, 0.5, 1.0) = 平坦朝上
+  </div>
+  <ul>
+    <li><strong>R</strong> → X 分量（左右倾斜）</li>
+    <li><strong>G</strong> → Y 分量（前后倾斜）</li>
+    <li><strong>B</strong> → Z 分量（朝向表面外，通常最亮）</li>
+  </ul>
+
+  <hr>
+
+  <h2>二、扰动反射 UV 的三步</h2>
+  <div class="card" style="border-color:rgba(247,120,186,.4)">
+    <h4 style="color:#f778ba">① 采样法线并解码</h4>
+<pre>vec3 n = texture2D(uNormalMap, uv).rgb * 2.0 - 1.0;</pre>
+  </div>
+  <div class="card" style="border-color:rgba(63,185,80,.4)">
+    <h4 style="color:#3fb950">② 用 XY 分量偏移采样坐标</h4>
+<pre>vec2 reflectUV = baseUV + n.xy * uStrength;</pre>
+    <p>法线往右倾 → 反射图像往右「滑」一点，模拟凹凸造成的折射/反射偏移。</p>
+  </div>
+  <div class="card" style="border-color:rgba(88,166,255,.4)">
+    <h4 style="color:#58a6ff">③ 用扰动后的 UV 采样环境/场景</h4>
+<pre>vec3 reflection = texture2D(uScene, reflectUV).rgb;</pre>
+  </div>
+
+  <hr>
+
+  <h2>三、交互对比：有无扰动</h2>
+  <p>拖动「扰动强度」滑块。左：平面反射（无扰动）；右：法线贴图扰动后的反射。</p>
+
+  <div class="card">
+    <div class="slider-row">
+      <label>扰动强度</label>
+      <input type="range" id="s-str" min="0" max="100" value="35">
+      <span class="val" id="v-str">0.035</span>
+    </div>
+    <div class="grid-2">
+      <canvas id="c-flat" height="240"></canvas>
+      <canvas id="c-bump" height="240"></canvas>
+    </div>
+    <p style="text-align:center;font-size:.85rem;color:#8b949e;margin-top:8px">左：flat UV · 右：uv + normal.xy × strength</p>
+  </div>
+
+  <hr>
+
+  <h2>四、Dracarys 水面反射（dracarys-04-water-reflect）</h2>
+  <p>案例从波动纹理的梯度推导法线，再扰动天空盒/场景采样 UV。龙飞过水面时，反射会随波纹<strong>实时扭曲</strong>——这是法线贴图课与波动方程课的综合应用。</p>
+</div>
+<script>
+(function(){
+  const strEl = document.getElementById('s-str');
+  const strVal = document.getElementById('v-str');
+  let strength = 0.035;
+
+  // procedural normal map
+  function normalAt(u, v, t){
+    const e = 0.01;
+    const h = (x,y)=> Math.sin(x*12+t)*Math.cos(y*10+t*0.7)*0.5 + Math.sin((x+y)*8)*0.3;
+    const hx = (h(u+e,v)-h(u-e,v))/(2*e);
+    const hy = (h(u,v+e)-h(u,v-e))/(2*e);
+    const nx = -hx, ny = -hy, nz = 1.0;
+    const len = Math.sqrt(nx*nx+ny*ny+nz*nz);
+    return [nx/len, ny/len, nz/len];
+  }
+
+  // checker + gradient "scene"
+  function sceneColor(u, v){
+    u = ((u%1)+1)%1; v = ((v%1)+1)%1;
+    const check = ((Math.floor(u*8)+Math.floor(v*8))%2);
+    const grad = 0.3 + 0.7*(1-v);
+    if(check) return [grad*0.2, grad*0.5, grad*1.0];
+    return [grad*0.05, grad*0.15, grad*0.35];
+  }
+
+  function render(id, perturb){
+    const c = document.getElementById(id);
+    const ctx = c.getContext('2d');
+    c.width = c.offsetWidth * 2;
+    c.height = c.offsetHeight * 2;
+    const W = c.width, H = c.height;
+    const t = performance.now() * 0.001;
+    const img = ctx.createImageData(W, H);
+
+    for(let py=0;py<H;py++) for(let px=0;px<W;px++){
+      const u = px/W, v = py/H;
+      const [nx,ny,nz] = normalAt(u, v, t);
+      let su = u, sv = v;
+      if(perturb){ su += nx * strength; sv += ny * strength; }
+      const [r,g,b] = sceneColor(su, sv);
+      const i = (py*W+px)*4;
+      img.data[i]=r*255; img.data[i+1]=g*255; img.data[i+2]=b*255; img.data[i+3]=255;
+    }
+    ctx.putImageData(img,0,0);
+
+    // normal viz overlay (small corner)
+    const sz = Math.min(W,H)*0.25;
+    for(let py=0;py<sz;py++) for(let px=0;px<sz;px++){
+      const u=px/sz, v=py/sz;
+      const [nx,ny,nz] = normalAt(u,v,t);
+      ctx.fillStyle = `rgb(${Math.round((nx+1)*127)},${Math.round((ny+1)*127)},${Math.round((nz+1)*127)})`;
+      ctx.fillRect(px, H-sz+py, 1, 1);
+    }
+  }
+
+  function update(){
+    strength = strEl.value / 1000;
+    strVal.textContent = strength.toFixed(3);
+    render('c-flat', false);
+    render('c-bump', true);
+  }
+
+  strEl.addEventListener('input', update);
+  function loop(){ update(); requestAnimationFrame(loop); }
+  loop();
+})();
+</script>
+</body>
+</html>

@@ -58,9 +58,34 @@ import lesson13Instructions from './13-challenge-ui-button/instructions.html?raw
 import lesson13Code from './13-challenge-ui-button/code.glsl?raw';
 import lesson13Goal from './13-challenge-ui-button/goal.glsl?raw';
 
+import { meta as lesson14Meta } from './14-ndc-coords/meta.js';
+import lesson14Instructions from './14-ndc-coords/instructions.html?raw';
+import lesson14Code from './14-ndc-coords/code.glsl?raw';
+
+import { meta as lesson15Meta } from './15-barrel-distortion/meta.js';
+import lesson15Instructions from './15-barrel-distortion/instructions.html?raw';
+import lesson15Code from './15-barrel-distortion/code.glsl?raw';
+
+import { meta as lesson16Meta } from './16-challenge-interactive-lens/meta.js';
+import lesson16Instructions from './16-challenge-interactive-lens/instructions.html?raw';
+import lesson16Code from './16-challenge-interactive-lens/code.glsl?raw';
+import lesson16Goal from './16-challenge-interactive-lens/goal.glsl?raw';
+
+import { meta as lesson17Meta } from './17-challenge-ndc-mouse/meta.js';
+import lesson17Instructions from './17-challenge-ndc-mouse/instructions.html?raw';
+import lesson17Code from './17-challenge-ndc-mouse/code.glsl?raw';
+import lesson17Goal from './17-challenge-ndc-mouse/goal.glsl?raw';
+
+import { meta as lesson18Meta } from './18-challenge-post-master/meta.js';
+import lesson18Instructions from './18-challenge-post-master/instructions.html?raw';
+import lesson18Code from './18-challenge-post-master/code.glsl?raw';
+import lesson18Goal from './18-challenge-post-master/goal.glsl?raw';
+
 export const stage5 = [
   // ── 基础: UV 与 SDF 核心 ──
   { ...lesson01Meta, instructions: lesson01Instructions, code: lesson01Code },       // 01 UV 坐标变换
+  { ...lesson14Meta, instructions: lesson14Instructions, code: lesson14Code },       // 02 NDC 鼠标映射
+  { ...lesson15Meta, instructions: lesson15Instructions, code: lesson15Code },       // 03 桶形畸变
   { ...lesson02Meta, instructions: lesson02Instructions, code: lesson02Code },       // 02 SDF 基础形状
   { ...lesson03Meta, instructions: lesson03Instructions, code: lesson03Code },       // 03 SDF 布尔运算
   { ...lesson04Meta, instructions: lesson04Instructions, code: lesson04Code },       // 04 SDF 原语集
@@ -76,4 +101,7 @@ export const stage5 = [
   { ...lesson08Meta, instructions: lesson08Instructions, code: lesson08Code, goalCode: lesson08Goal },   // 11 🏆 融球 Metaballs
   { ...lesson12Meta, instructions: lesson12Instructions, code: lesson12Code, goalCode: lesson12Goal },   // 12 🏆 Emoji 表情
   { ...lesson13Meta, instructions: lesson13Instructions, code: lesson13Code, goalCode: lesson13Goal },   // 13 🏆 纯Shader按钮
+  { ...lesson16Meta, instructions: lesson16Instructions, code: lesson16Code, goalCode: lesson16Goal },   // 14 🏆 交互镜头
+  { ...lesson17Meta, instructions: lesson17Instructions, code: lesson17Code, goalCode: lesson17Goal },   // 15 🏆 鼠标 NDC 映射
+  { ...lesson18Meta, instructions: lesson18Instructions, code: lesson18Code, goalCode: lesson18Goal },   // 16 🏆 后处理合成
 ];

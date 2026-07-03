@@ -77,6 +77,15 @@ import lesson18Instructions from './18-challenge-sunrise/instructions.html?raw';
 import lesson18Code from './18-challenge-sunrise/code.glsl?raw';
 import lesson18Goal from './18-challenge-sunrise/goal.glsl?raw';
 
+import { meta as lesson19Meta } from './19-blend-screen/meta.js';
+import lesson19Instructions from './19-blend-screen/instructions.html?raw';
+import lesson19Code from './19-blend-screen/code.glsl?raw';
+
+import { meta as lesson20Meta } from './20-challenge-screen-glow/meta.js';
+import lesson20Instructions from './20-challenge-screen-glow/instructions.html?raw';
+import lesson20Code from './20-challenge-screen-glow/code.glsl?raw';
+import lesson20Goal from './20-challenge-screen-glow/goal.glsl?raw';
+
 export const stage1 = [
   // ── 基础入门：UV 与单值函数 ──
   { ...lesson01Meta, instructions: lesson01Instructions, code: lesson01Code },       // 01 你好，渐变！
@@ -97,8 +106,10 @@ export const stage1 = [
   { ...lesson14Meta, instructions: lesson14Instructions, code: lesson14Code },       // 13 符号函数 sign()
   { ...lesson16Meta, instructions: lesson16Instructions, code: lesson16Code },       // 14 条件选择：三元替代
   { ...lesson12Meta, instructions: lesson12Instructions, code: lesson12Code },       // 15 RGB 颜色数学
+  { ...lesson19Meta, instructions: lesson19Instructions, code: lesson19Code },       // 16 Screen 滤色混合
   // ── 综合挑战 ──
   { ...lesson13Meta, instructions: lesson13Instructions, code: lesson13Code, goalCode: lesson13Goal },   // 16 🏆 创意图案
   { ...lesson17Meta, instructions: lesson17Instructions, code: lesson17Code, goalCode: lesson17Goal },   // 17 🏆 棋盘大师
   { ...lesson18Meta, instructions: lesson18Instructions, code: lesson18Code, goalCode: lesson18Goal },   // 18 🏆 日出渐变
+  { ...lesson20Meta, instructions: lesson20Instructions, code: lesson20Code, goalCode: lesson20Goal },   // 19 🏆 光晕滤色
 ];

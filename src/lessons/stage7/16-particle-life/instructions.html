@@ -1,0 +1,24 @@
+<h2>💫 粒子生命衰减</h2>
+<p class="knowledge-tags"><a class="knowledge-link" data-page="/learn-particle-life.html" data-title="粒子生命周期"><span class="kl-icon">💫</span><span class="kl-text">粒子生命周期</span></a></p>
+
+<h3>生命周期</h3>
+<p>GPGPU 粒子常用 alpha 通道存<strong>生命值</strong>：每帧递减，低于阈值则重生到发射器表面随机点。渲染 pass 根据 life 混合颜色与尺寸，形成「起—燃—熄」。</p>
+
+<h3>单屏模拟</h3>
+<div class="formula-block">
+  life = fract(seed − t × speed)<br>
+  radius = mix(rMin, rMax, life)<br>
+  color = mix(fadeOut, hot, life)
+</div>
+
+<div class="info-box">
+  <strong>fract 的妙用：</strong><code>fract(seed - u_time)</code> 让每个粒子有固定相位差，看起来像连续发射、逐个熄灭重生——无需真实 FBO 状态。
+</div>
+
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 用 hash 生成 N 个粒子中心与 seed</p>
+  <p>2. 计算 life 并画圆，life 越小圆越小、越暗</p>
+  <p>3. life &lt; 0.1 时「重生」到新的随机位置（改 seed 偏移）</p>
+  <p>4. 热色渐变：life 高时偏黄白，低时偏暗红</p>
+</div>

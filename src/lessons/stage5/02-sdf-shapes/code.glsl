@@ -1,3 +1,4 @@
+#extension GL_OES_standard_derivatives : enable
 precision mediump float;
 uniform vec2 u_resolution;
 uniform float u_time;

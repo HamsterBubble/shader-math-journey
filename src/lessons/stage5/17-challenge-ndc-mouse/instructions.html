@@ -1,0 +1,14 @@
+<h2>🏆 挑战：鼠标 NDC 映射</h2>
+<p class="knowledge-tags"><a class="knowledge-link" data-page="/learn-ndc-coords.html" data-title="NDC 坐标"><span class="kl-icon">🖱️</span><span class="kl-text">NDC 坐标</span></a></p>
+
+<p>鼠标涟漪、粒子推开都依赖<strong>屏幕像素坐标 → 标准化设备坐标（NDC）</strong>。本挑战用下一步水面会用到的凸起公式做可视化：只有 NDC 换算正确，凸起才会精确跟随鼠标。</p>
+
+<div class="goal-preview"><div class="goal-label"><span class="dot"></span>目标效果</div><canvas class="goal-canvas"></canvas></div>
+
+<h3>要求</h3>
+<ul>
+  <li><code>u_mouse</code> 为像素坐标（左下原点）</li>
+  <li>先归一化到 0–1，再 <code>* 2.0 - 1.0</code> 映射到 NDC</li>
+  <li><code>mouseNDC.x *= aspect</code> 校正宽高比</li>
+  <li>使水面凸起跟随鼠标移动</li>
+</ul>

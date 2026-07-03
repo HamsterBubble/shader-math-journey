@@ -1,0 +1,24 @@
+<h2>✨ GPGPU 弹簧粒子</h2>
+<p class="knowledge-tags"><a class="knowledge-link" data-page="/learn-gpgpu-particles.html" data-title="GPGPU 粒子模拟"><span class="kl-icon">✨</span><span class="kl-text">GPGPU 粒子模拟</span></a></p>
+
+<h3>单粒子数学演示</h3>
+<p>Dracarys 龙鳞粒子在 FBO 里每帧更新速度与位置。本课在单屏 Shader 中演示<strong>一个粒子</strong>的受力平衡：弹簧拉回锚点 + 鼠标径向推开。</p>
+
+<h3>力模型</h3>
+<div class="formula-block">
+  F_spring = −k × (pos − anchor)<br>
+  F_mouse  = push × normalize(pos − mouse) / dist²<br>
+  pos_new  = anchor + F_mouse / k  （静力平衡近似）
+</div>
+
+<div class="info-box">
+  <strong>可视化：</strong>画锚点、鼠标影响圈、粒子圆点，以及弹簧连线。移动鼠标时粒子应被推开又弹回锚点。
+</div>
+
+<div class="task-box">
+  <h4>🎯 动手试试</h4>
+  <p>1. 设定锚点 <code>anchor = vec2(0.0)</code>，计算 mouse NDC</p>
+  <p>2. 实现静力平衡位置 <code>particlePos</code></p>
+  <p>3. 用 smoothstep 画粒子圆点 + 锚点 + 连线</p>
+  <p>4. 加阻尼振荡：<code>pos += sin(u_time * w) * 0.02</code> 模拟弹性</p>
+</div>
