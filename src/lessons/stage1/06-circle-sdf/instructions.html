@@ -1,10 +1,9 @@
 <h2>⭕ 画圆 — SDF 入门</h2>
-<p class="knowledge-tags">
-  <a class="knowledge-link" data-page="/learn-uv-remap.html" data-title="坐标居中：uv × 2 − 1"><span class="kl-icon">📐</span><span class="kl-text">坐标居中原理</span></a>
-  <a class="knowledge-link" data-page="/learn-smoothstep.html" data-title="smoothstep 平滑阶跃"><span class="kl-icon">📈</span><span class="kl-text">smoothstep 原理</span></a>
-  <a class="knowledge-link" data-page="/learn-mix-blend.html" data-title="mix 颜色混合与插值"><span class="kl-icon">🎨</span><span class="kl-text">mix 混合原理</span></a>
-  <a class="knowledge-link" data-page="/explain-lesson06-circle.html" data-title="第五课：核心代码解说" style="background: rgba(63,185,80,0.15); border-color: rgba(63,185,80,0.4); color: #3fb950; font-weight: bold;"><span class="kl-icon">❓</span><span class="kl-text">互动解说本课代码</span></a>
-</p>
+<p class="knowledge-tags"><a class="knowledge-link" data-page="/learn-aspect-ratio.html" data-title="宽高比校正"><span class="kl-icon">📏</span><span class="kl-text">为什么乘宽高比</span></a><a class="knowledge-link" data-page="/learn-uv-normalize.html" data-title="UV 归一化：像素 → [0, 1]"><span class="kl-icon">📍</span><span class="kl-text">为什么除以分辨率</span></a><a class="knowledge-link" data-page="/learn-uv-remap.html" data-title="坐标居中：uv × 2 − 1"><span class="kl-icon">📐</span><span class="kl-text">坐标居中原理</span></a><a class="knowledge-link" data-page="/learn-smoothstep.html" data-title="smoothstep 平滑阶跃"><span class="kl-icon">📈</span><span class="kl-text">smoothstep 原理</span></a><a class="knowledge-link" data-page="/learn-mix-blend.html" data-title="mix 颜色混合与插值"><span class="kl-icon">🎨</span><span class="kl-text">mix 混合原理</span></a><a class="knowledge-link" data-page="/learn-color-blend.html" data-title="颜色加减与光效叠加 (+= / *=)"><span class="kl-icon">✨</span><span class="kl-text">光斑与色彩算术</span></a></p>
+
+
+
+
 
 
 
@@ -30,6 +29,18 @@
   <li>减去 <code>radius</code> → 内部变负、边界为零、外部为正</li>
 </ul>
 
+<h3>坐标起手式：居中 + 宽高比</h3>
+<p>画圆前需要把 UV 变成<strong>以屏幕中心为原点、横纵等比例</strong>的坐标系：</p>
+<div class="formula-block">
+  uv = uv * 2.0 - 1.0;<br>
+  uv.x *= u_resolution.x / u_resolution.y;
+</div>
+<ul>
+  <li><code>uv * 2 - 1</code>：把 [0,1] 映射到 [-1,1]，原点移到画面正中央</li>
+  <li><code>uv.x *= aspect</code>：宽屏上横向 1 单位跨越更多像素，不修正则圆变椭圆；乘以宽高比后 <code>length(uv)</code> 才是真实距离</li>
+</ul>
+<p>详见知识库：<a class="knowledge-link" data-page="/learn-uv-remap.html" data-title="坐标居中：uv × 2 − 1"><span class="kl-icon">📐</span><span class="kl-text">坐标居中原理</span></a>、<a class="knowledge-link" data-page="/learn-aspect-ratio.html" data-title="宽高比校正"><span class="kl-icon">📏</span><span class="kl-text">为什么乘宽高比</span></a></p>
+
 <h3>从距离到颜色</h3>
 <p>有了 SDF 值，怎么画出图形？最简单的方法：</p>
 <ul>
@@ -37,6 +48,19 @@
   <li><code>smoothstep(0.01, -0.01, sdf)</code> → 柔边圆（抗锯齿）</li>
   <li>直接用 sdf 值映射颜色 → 看到距离场的"等高线"</li>
 </ul>
+
+<h3>辉光：exp(-abs(d)) 边缘发光</h3>
+<p>代码最后一行在实心圆之上叠加光晕：</p>
+<div class="formula-block">
+  color += fg * 0.15 * exp(-abs(d) * 15.0);
+</div>
+<ul>
+  <li><code>+=</code>：加法叠加亮度（光越叠越亮）</li>
+  <li><code>abs(d)</code>：到边界的距离——圆内圆外对称，所以<strong>最亮点在轮廓上</strong>，圆心反而暗</li>
+  <li><code>exp(-x)</code>：指数衰减，离边界越远光越弱</li>
+  <li><code>0.15</code> 控制强度，<code>15.0</code> 控制光晕宽窄</li>
+</ul>
+<p>详见知识库：<a class="knowledge-link" data-page="/learn-sdf-glow.html" data-title="SDF 辉光原理"><span class="kl-icon">💡</span><span class="kl-text">exp(-abs(d)) 发光</span></a></p>
 
 <div class="info-box">
   <strong>为什么 SDF 如此强大？</strong><br>

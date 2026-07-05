@@ -92,7 +92,8 @@ td{padding:8px 12px;text-align:center;color:#8b949e;border:1px solid rgba(255,25
 
   <div class="card" style="border-top: 4px solid #58a6ff;">
     <h4 style="color:#58a6ff;">策略 ③ 外发光 — <code>exp(-abs(d) * k)</code></h4>
-    <p>利用指数衰减函数，让<strong>边界最亮、向两边极速消散</strong>。做出类似灯管或霓虹灯的光晕效果。</p>
+    <p>利用指数衰减，让<strong>边界最亮、向两边极速消散</strong>。做出霓虹灯、能量护盾等光晕效果。</p>
+    <p><code>abs(d)</code> 让亮峰落在轮廓上（Rim Glow）；换 <code>max(0.0, d)</code> 可得纯外发光，换裸 <code>d</code> 可得中心爆亮。详见 <a href="/learn-sdf-glow.html" style="color:#58a6ff">SDF 辉光原理</a>。</p>
   </div>
 
   <div class="card" style="border-top: 4px solid #bc8cff;">

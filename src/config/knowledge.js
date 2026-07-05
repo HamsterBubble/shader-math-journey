@@ -1,5 +1,29 @@
 export const KNOWLEDGE_POINTS = [
   {
+    id: 'aspect-ratio',
+    page: '/learn-aspect-ratio.html',
+    title: '宽高比校正',
+    label: '为什么乘宽高比',
+    icon: '📏',
+    patterns: ['.x *= u_resolution.x / u_resolution.y', '.x *= u_resolution.x/u_resolution.y'],
+  },
+  {
+    id: 'sdf-glow',
+    page: '/learn-sdf-glow.html',
+    title: 'SDF 辉光原理',
+    label: 'exp(-abs(d)) 发光',
+    icon: '💡',
+    patterns: ['exp(-abs(d)', 'exp(-abs('],
+  },
+  {
+    id: 'uv-normalize',
+    page: '/learn-uv-normalize.html',
+    title: 'UV 归一化：像素 → [0, 1]',
+    label: '为什么除以分辨率',
+    icon: '📍',
+    patterns: ['gl_FragCoord.xy / u_resolution', 'gl_FragCoord / u_resolution'],
+  },
+  {
     id: 'uv-remap',
     page: '/learn-uv-remap.html',
     title: '坐标居中：uv × 2 − 1',

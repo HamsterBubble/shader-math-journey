@@ -1,5 +1,8 @@
 <h2>🗂️ 纹理采样模拟</h2>
-<p class="knowledge-tags"><a class="knowledge-link" data-page="/learn-texture-sample.html" data-title="纹理采样 texture2D"><span class="kl-icon">🗂️</span><span class="kl-text">纹理采样 texture2D</span></a></p>
+<p class="knowledge-tags"><a class="knowledge-link" data-page="/learn-aspect-ratio.html" data-title="宽高比校正"><span class="kl-icon">📏</span><span class="kl-text">为什么乘宽高比</span></a><a class="knowledge-link" data-page="/learn-uv-normalize.html" data-title="UV 归一化：像素 → [0, 1]"><span class="kl-icon">📍</span><span class="kl-text">为什么除以分辨率</span></a><a class="knowledge-link" data-page="/learn-smoothstep.html" data-title="smoothstep 平滑阶跃"><span class="kl-icon">📈</span><span class="kl-text">smoothstep 原理</span></a><a class="knowledge-link" data-page="/learn-sin-cos.html" data-title="sin/cos 三角函数"><span class="kl-icon">🌊</span><span class="kl-text">sin/cos 波形</span></a><a class="knowledge-link" data-page="/learn-mix-blend.html" data-title="mix 颜色混合与插值"><span class="kl-icon">🎨</span><span class="kl-text">mix 混合原理</span></a><a class="knowledge-link" data-page="/learn-fract-repeat.html" data-title="fract 取小数与图案重复"><span class="kl-icon">🔁</span><span class="kl-text">fract 重复</span></a><a class="knowledge-link" data-page="/learn-color-blend.html" data-title="颜色加减与光效叠加 (+= / *=)"><span class="kl-icon">✨</span><span class="kl-text">光斑与色彩算术</span></a></p>
+
+
+
 
 <h3>单屏课 vs 多 Pass</h3>
 <p>真实 GPGPU / 水面管线用 <code>texture2D(sampler, uv)</code> 读取<strong>上一帧或邻域像素</strong>。本课用纯数学函数模拟「纹理」，练习<strong>偏移 UV 再采样</strong>的思维。</p>

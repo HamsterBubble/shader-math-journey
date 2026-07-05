@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📏 宽高比校正：为什么乘 u_resolution.x / u_resolution.y</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0d1117;color:#e6edf3;font-family:'Inter',-apple-system,sans-serif;line-height:1.7;padding:40px 24px;padding-bottom:80px}
+.container{max-width:820px;margin:0 auto}
+h1{font-size:1.8rem;margin-bottom:0.5rem;color:#58a6ff}
+h2{font-size:1.3rem;color:#58a6ff;margin:2.5rem 0 1rem;padding-left:12px;border-left:3px solid #58a6ff}
+p,li{color:#8b949e;margin-bottom:.8rem;font-size:.95rem}
+strong{color:#e6edf3}
+code{font-family:'JetBrains Mono',monospace;background:rgba(255,255,255,.06);padding:2px 6px;border-radius:4px;color:#58a6ff;font-size:.9rem}
+pre{background:#161b22;border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:16px 20px;margin:1rem 0;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:.88rem;line-height:1.7;color:#c9d1d9}
+canvas{width:100%;border-radius:8px;display:block;margin:1rem 0;background:#000;border:1px solid rgba(255,255,255,.1)}
+.card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:24px;margin-bottom:20px}
+.card h4{color:#39d2c0;margin-bottom:12px;font-size:1.05rem}
+.tip-box{background:rgba(88,166,255,.08);border:1px solid rgba(88,166,255,.2);padding:16px 20px;border-radius:8px;font-size:.9rem;margin:15px 0}
+hr{border:0;border-top:1px solid rgba(255,255,255,.1);margin:30px 0}
+table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.9rem}
+th{background:rgba(255,255,255,.04);color:#58a6ff;padding:8px 12px;text-align:center;border:1px solid rgba(255,255,255,.06)}
+td{padding:8px 12px;text-align:center;color:#8b949e;border:1px solid rgba(255,255,255,.06)}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:12px 0}
+.btn{background:#21262d;border:1px solid rgba(255,255,255,.12);color:#c9d1d9;padding:8px 16px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:.85rem}
+.btn.active{background:rgba(88,166,255,.2);border-color:#58a6ff;color:#58a6ff}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>📏 为什么 <code>uv.x *= u_resolution.x / u_resolution.y</code>？</h1>
+  <p style="font-size:1.05rem;">归一化并居中之后，坐标范围是 [-1, 1] × [-1, 1]——看起来是正方形，但<strong>屏幕本身往往是长方形</strong>。不修正的话，用 <code>length(uv)</code> 画出来的「圆」会被拉成椭圆。</p>
+
+  <hr>
+
+  <h2>一、问题从哪来？</h2>
+  <p>假设画布是 <strong>800 × 400</strong>（宽是高的 2 倍）：</p>
+  <ul>
+    <li>归一化后，横向走满屏幕 <code>uv.x</code> 从 -1 到 1，对应 <strong>800 像素</strong></li>
+    <li>纵向走满屏幕 <code>uv.y</code> 从 -1 到 1，对应 <strong>400 像素</strong></li>
+  </ul>
+  <p>也就是说：<strong>在坐标里横向走 1 单位，实际跨越的像素是纵向的 2 倍</strong>。<code>length(uv) &lt; 0.4</code> 在数学上是圆，在屏幕上横向被拉宽，变成扁椭圆。</p>
+
+  <div class="tip-box">
+    宽高比 <code>aspect = u_resolution.x / u_resolution.y</code><br>
+    16:9 屏幕 → aspect ≈ <strong>1.78</strong>（偏宽）<br>
+    手机竖屏 9:16 → aspect ≈ <strong>0.56</strong>（偏高）
+  </div>
+
+  <hr>
+
+  <h2>二、修正原理：只拉 X 轴</h2>
+<pre>uv = uv * 2.0 - 1.0;                      // 居中到 [-1,1]
+uv.x *= u_resolution.x / u_resolution.y;  // 把 X 轴按宽高比拉伸</pre>
+  <p>乘以 aspect 后，<strong>横向 1 个坐标单位对应的物理距离，和纵向对齐了</strong>。此时 <code>length(uv)</code> 衡量的是真实的等比例距离，圆就是正圆。</p>
+
+  <table>
+    <tr><th>屏幕</th><th>aspect</th><th>uv.x 乘以 aspect 后</th><th>效果</th></tr>
+    <tr><td>800×400</td><td>2.0</td><td>横向范围变成 [-2, 2]</td><td>圆恢复正圆</td></tr>
+    <tr><td>1920×1080</td><td>≈1.78</td><td>横向略拉宽</td><td>圆恢复正圆</td></tr>
+    <tr><td>600×600</td><td>1.0</td><td>乘以 1，不变</td><td>正方形屏无需修正</td></tr>
+  </table>
+
+  <p>为什么只改 <code>x</code> 不改 <code>y</code>？两种写法等价，业界习惯<strong>拉伸较短的那根轴</strong>到与较长轴对齐。宽屏就拉 X，竖屏就… 仍拉 X（此时 aspect &lt; 1，相当于压缩 X）。统一写 <code>uv.x *= aspect</code> 即可适配所有比例。</p>
+
+  <hr>
+
+  <h2>三、完整起手式（画圆 / SDF 必备）</h2>
+<pre>vec2 uv = gl_FragCoord.xy / u_resolution.xy;  // [0,1]
+uv = uv * 2.0 - 1.0;                          // 中心变原点
+uv.x *= u_resolution.x / u_resolution.y;      // 等比例空间
+float d = length(uv) - 0.4;                  // 正圆 SDF</pre>
+  <p>前三行合称 <strong>「NDC + 宽高比校正」</strong>，从第 5 课画圆开始会反复出现。详见 <a href="/learn-uv-remap.html" style="color:#58a6ff">坐标居中原理</a>。</p>
+
+  <hr>
+
+  <h2>四、对比实验：修正前 vs 修正后</h2>
+  <div class="btn-row">
+    <button class="btn active" id="btn-off">❌ 未修正（椭圆）</button>
+    <button class="btn" id="btn-on">✅ 已修正（正圆）</button>
+  </div>
+  <canvas id="c-demo" height="260"></canvas>
+  <p style="text-align:center;font-family:monospace;font-size:.9rem;color:#8b949e" id="lbl">aspect = 2.0，圆被横向拉宽</p>
+</div>
+<script>
+(function(){
+  const c = document.getElementById('c-demo');
+  const ctx = c.getContext('2d');
+  const lbl = document.getElementById('lbl');
+  const aspect = 2.0;
+  const radius = 0.35;
+  let fixed = false;
+
+  function resize(){
+    c.width = c.offsetWidth * 2;
+    c.height = c.offsetHeight * 2;
+    draw();
+  }
+
+  function draw(){
+    const W = c.width, H = c.height;
+    ctx.fillStyle = '#080c14';
+    ctx.fillRect(0, 0, W, H);
+
+    const cx = W / 2, cy = H / 2;
+    const scale = Math.min(W, H) * 0.42;
+
+    // grid
+    ctx.strokeStyle = 'rgba(255,255,255,.06)';
+    ctx.lineWidth = 1;
+    for (let i = -4; i <= 4; i++) {
+      const x = cx + i / 4 * scale * (fixed ? aspect : aspect);
+      const y = cy + i / 4 * scale;
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+    }
+
+    // axes
+    ctx.strokeStyle = 'rgba(88,166,255,.35)';
+    ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, H); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(W, cy); ctx.stroke();
+
+    // circle via SDF sampling
+    const img = ctx.createImageData(W, H);
+    for (let py = 0; py < H; py++) {
+      for (let px = 0; px < W; px++) {
+        let u = (px - cx) / scale;
+        let v = (cy - py) / scale;
+        if (!fixed) {
+          // simulate uncorrected: x spans wider pixels
+          u = u / aspect;
+        }
+        const d = Math.sqrt(u * u + v * v) - radius;
+        const inside = d < 0;
+        const glow = Math.exp(-Math.abs(d) * 12);
+        let r = inside ? 50 : 8 + glow * 60;
+        let g = inside ? 150 : 10 + glow * 100;
+        let b = inside ? 255 : 20 + glow * 180;
+        const i = (py * W + px) * 4;
+        img.data[i] = r; img.data[i+1] = g; img.data[i+2] = b; img.data[i+3] = 255;
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+
+    lbl.textContent = fixed
+      ? `uv.x *= ${aspect.toFixed(1)} → 正圆`
+      : `未乘 aspect（${(W/H).toFixed(2)} 宽屏）→ 椭圆`;
+  }
+
+  document.getElementById('btn-off').onclick = () => {
+    fixed = false;
+    document.getElementById('btn-off').classList.add('active');
+    document.getElementById('btn-on').classList.remove('active');
+    draw();
+  };
+  document.getElementById('btn-on').onclick = () => {
+    fixed = true;
+    document.getElementById('btn-on').classList.add('active');
+    document.getElementById('btn-off').classList.remove('active');
+    draw();
+  };
+  window.addEventListener('resize', resize);
+  resize();
+})();
+</script>
+</body>
+</html>

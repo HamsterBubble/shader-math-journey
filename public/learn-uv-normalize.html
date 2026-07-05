@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📍 UV 归一化：为什么除以分辨率得到 [0, 1]</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0d1117;color:#e6edf3;font-family:'Inter',-apple-system,sans-serif;line-height:1.7;padding:40px 24px;padding-bottom:80px}
+.container{max-width:820px;margin:0 auto}
+h1{font-size:1.8rem;margin-bottom:0.5rem;color:#58a6ff}
+h2{font-size:1.3rem;color:#58a6ff;margin:2.5rem 0 1rem;padding-left:12px;border-left:3px solid #58a6ff}
+p,li{color:#8b949e;margin-bottom:.8rem;font-size:.95rem}
+strong{color:#e6edf3}
+code{font-family:'JetBrains Mono',monospace;background:rgba(255,255,255,.06);padding:2px 6px;border-radius:4px;color:#58a6ff;font-size:.9rem}
+pre{background:#161b22;border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:16px 20px;margin:1rem 0;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:.88rem;line-height:1.7;color:#c9d1d9}
+canvas{width:100%;border-radius:8px;display:block;margin:1rem 0;background:#000;border:1px solid rgba(255,255,255,.1);cursor:crosshair}
+.card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:24px;margin-bottom:20px}
+.card h4{color:#39d2c0;margin-bottom:12px;font-size:1.05rem}
+.tip-box{background:rgba(88,166,255,.08);border:1px solid rgba(88,166,255,.2);padding:16px 20px;border-radius:8px;font-size:.9rem;margin:15px 0}
+hr{border:0;border-top:1px solid rgba(255,255,255,.1);margin:30px 0}
+table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.9rem}
+th{background:rgba(255,255,255,.04);color:#58a6ff;padding:8px 12px;text-align:center;border:1px solid rgba(255,255,255,.06)}
+td{padding:8px 12px;text-align:center;color:#8b949e;border:1px solid rgba(255,255,255,.06)}
+.mouse-info{text-align:center;font-family:monospace;font-size:.9rem;color:#8b949e;margin-top:8px;min-height:1.5em}
+.highlight{color:#ffa657;font-weight:bold}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>📍 为什么 <code>gl_FragCoord.xy / u_resolution.xy</code> 能得到 [0, 1]？</h1>
+  <p style="font-size:1.05rem;">几乎每个 Shader 的第一行都是这句。它不是在「魔法变换坐标」，而是在算一个极其朴素的问题：<strong>当前像素在屏幕宽/高方向上，占了多少比例？</strong></p>
+
+  <hr>
+
+  <h2>一、两个输入各是什么？</h2>
+  <table>
+    <tr><th>变量</th><th>含义</th><th>典型范围（以 800×600 为例）</th></tr>
+    <tr>
+      <td><code>gl_FragCoord.xy</code></td>
+      <td>当前像素的<strong>门牌号</strong>（第几列、第几行），单位是像素</td>
+      <td>x ∈ [0, 800]，y ∈ [0, 600]</td>
+    </tr>
+    <tr>
+      <td><code>u_resolution.xy</code></td>
+      <td>画布总尺寸（宽、高），也是像素数</td>
+      <td>(800, 600)</td>
+    </tr>
+  </table>
+  <p>GPU 为<strong>每个像素</strong>并行执行同一段代码。左下角像素拿到 <code>(0, 0)</code>，正中央拿到 <code>(400, 300)</code>，右上角拿到 <code>(800, 600)</code>（具体上界因实现略有差异，但边缘一定对应 0 和 1）。</p>
+  <p>注意：WebGL 里 <code>gl_FragCoord</code> 的原点在<strong>左下角</strong>，Y 轴向上——和网页 CSS 的左上角原点相反。</p>
+
+  <hr>
+
+  <h2>二、核心原理：除法 = 求占比</h2>
+  <div class="tip-box">
+    <code>uv.x = gl_FragCoord.x / u_resolution.x</code><br>
+    读作：<strong>「当前列号 ÷ 总列数 = 横向走了多少比例」</strong>
+  </div>
+  <p>这和日常算进度条一模一样：</p>
+  <ul>
+    <li>跑了 400 米，全程 800 米 → <code>400 / 800 = 0.5</code> → 完成一半</li>
+    <li>像素在第 0 列 → <code>0 / 800 = 0.0</code> → 最左边</li>
+    <li>像素在第 800 列 → <code>800 / 800 = 1.0</code> → 最右边</li>
+    <li>像素在第 400 列 → <code>400 / 800 = 0.5</code> → 正中间</li>
+  </ul>
+  <p>Y 方向完全同理：<code>uv.y = gl_FragCoord.y / u_resolution.y</code>，从底边的 0 到顶边的 1。</p>
+  <p>所以结果天然落在 <span class="highlight">[0, 1]</span>：分子是「走了多远」，分母是「总共多远」，比值就是 0%～100% 的小数形式。</p>
+
+  <hr>
+
+  <h2>三、写成通用映射公式</h2>
+  <p>这其实是最简单的<strong>线性重映射</strong>，把区间 <code>[0, 分辨率]</code> 映到 <code>[0, 1]</code>：</p>
+<pre>y = (x − 起点) / (终点 − 起点) × (目标上界 − 目标下界) + 目标下界
+
+// 代入：起点=0，终点=resolution，目标=[0,1]
+uv = (gl_FragCoord − 0) / (u_resolution − 0) × (1 − 0) + 0
+   = gl_FragCoord / u_resolution</pre>
+  <p>后面课程里的 <code>uv × 2 − 1</code>（映到 [-1,1]）、<code>uv − 0.5</code>（居中）都是同一套公式换不同的起点/终点。详见 <a href="/learn-uv-remap.html" style="color:#58a6ff">坐标居中原理</a>。</p>
+
+  <hr>
+
+  <h2>四、四个角代入验算（800 × 600）</h2>
+  <table>
+    <tr><th>位置</th><th>gl_FragCoord</th><th>÷ u_resolution</th><th>uv 结果</th></tr>
+    <tr><td>左下角</td><td>(0, 0)</td><td>0/800, 0/600</td><td style="color:#3fb950"><strong>(0.0, 0.0)</strong></td></tr>
+    <tr><td>右下角</td><td>(800, 0)</td><td>800/800, 0/600</td><td style="color:#3fb950"><strong>(1.0, 0.0)</strong></td></tr>
+    <tr><td style="background:rgba(63,185,80,.12)">★ 正中央</td><td style="background:rgba(63,185,80,.12)">(400, 300)</td><td style="background:rgba(63,185,80,.12)">400/800, 300/600</td><td style="color:#3fb950;background:rgba(63,185,80,.12)"><strong>(0.5, 0.5)</strong></td></tr>
+    <tr><td>左上角</td><td>(0, 600)</td><td>0/800, 600/600</td><td style="color:#3fb950"><strong>(0.0, 1.0)</strong></td></tr>
+    <tr><td>右上角</td><td>(800, 600)</td><td>800/800, 600/600</td><td style="color:#3fb950"><strong>(1.0, 1.0)</strong></td></tr>
+  </table>
+
+  <hr>
+
+  <h2>五、vec2 除法：x、y 各算各的</h2>
+<pre>vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+
+// 等价于：
+// uv.x = gl_FragCoord.x / u_resolution.x;
+// uv.y = gl_FragCoord.y / u_resolution.y;</pre>
+  <p>GLSL 对 <code>vec2 / vec2</code> 是<strong>分量对应相除</strong>，不是某种二维几何运算。横向占比和纵向占比独立计算，互不干扰。</p>
+
+  <hr>
+
+  <h2>六、为什么要归一化？</h2>
+  <div class="card" style="border-top:4px solid #58a6ff">
+    <h4 style="color:#58a6ff">分辨率无关</h4>
+    <p>若直接用像素坐标 <code>gl_FragCoord.x</code>，在 1920 宽屏上正中央是 960，在 800 宽屏上却是 400——同一段 Shader 换屏幕就变形。归一化后中央永远是 <code>0.5</code>，左边永远是 <code>0</code>，右边永远是 <code>1</code>。</p>
+  </div>
+  <div class="card" style="border-top:4px solid #f778ba">
+    <h4 style="color:#f778ba">和颜色范围对齐</h4>
+    <p>Shader 颜色分量也在 <code>[0, 1]</code>。把坐标映到同一区间后，可以直接写 <code>vec3(uv.x, uv.y, 0.5)</code> 把位置变成颜色——第一课渐变就是这么来的。</p>
+  </div>
+
+  <hr>
+
+  <h2>七、交互：移动鼠标看「像素 → 占比」</h2>
+  <p>在画布上移动鼠标。橙色竖线是当前列号，背景渐变就是 <code>uv.x</code> 直接当红色通道的效果。</p>
+  <canvas id="c-demo" height="200"></canvas>
+  <div class="mouse-info" id="info">把鼠标移到画布上 ↑</div>
+</div>
+<script>
+(function(){
+  const c = document.getElementById('c-demo');
+  const ctx = c.getContext('2d');
+  const info = document.getElementById('info');
+  const RES_W = 800, RES_H = 200;
+  let mx = null;
+
+  function resize(){
+    c.width = c.offsetWidth * 2;
+    c.height = c.offsetHeight * 2;
+    draw();
+  }
+
+  function draw(){
+    const W = c.width, H = c.height;
+    const scaleX = W / RES_W;
+
+    // gradient = uv.x as color
+    const grad = ctx.createLinearGradient(0, 0, W, 0);
+    grad.addColorStop(0, '#000');
+    grad.addColorStop(1, '#c00');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+
+    // tick marks at 0, 0.25, 0.5, 0.75, 1
+    ctx.strokeStyle = 'rgba(255,255,255,.25)';
+    ctx.lineWidth = 1;
+    ctx.font = `${Math.round(11 * scaleX)}px monospace`;
+    ctx.fillStyle = '#8b949e';
+    [0, 0.25, 0.5, 0.75, 1].forEach(t => {
+      const x = t * W;
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+      ctx.fillText(t.toFixed(2), x + 4, 16 * scaleX);
+    });
+
+    if(mx !== null){
+      const px = Math.round(mx / scaleX);
+      const uv = px / RES_W;
+      const lineX = mx;
+
+      ctx.strokeStyle = '#ffa657';
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(lineX, 0); ctx.lineTo(lineX, H); ctx.stroke();
+
+      ctx.fillStyle = '#ffa657';
+      ctx.font = `bold ${Math.round(13 * scaleX)}px monospace`;
+      ctx.fillText(`像素 x = ${px}`, lineX + 8, H * 0.35);
+      ctx.fillText(`${px} ÷ ${RES_W} = ${uv.toFixed(3)}`, lineX + 8, H * 0.5);
+      ctx.fillStyle = '#3fb950';
+      ctx.fillText(`uv.x = ${uv.toFixed(3)}`, lineX + 8, H * 0.65);
+
+      info.innerHTML =
+        `gl_FragCoord.x = <span style="color:#ffa657">${px}</span> &nbsp;|&nbsp; ` +
+        `u_resolution.x = <span style="color:#58a6ff">${RES_W}</span> &nbsp;|&nbsp; ` +
+        `uv.x = <span style="color:#3fb950">${uv.toFixed(4)}</span>`;
+    } else {
+      info.textContent = '把鼠标移到画布上 ↑';
+    }
+  }
+
+  c.addEventListener('mousemove', e => {
+    const rect = c.getBoundingClientRect();
+    mx = (e.clientX - rect.left) * (c.width / rect.width);
+    mx = Math.max(0, Math.min(c.width, mx));
+    draw();
+  });
+  c.addEventListener('mouseleave', () => { mx = null; draw(); });
+  window.addEventListener('resize', resize);
+  resize();
+})();
+</script>
+</body>
+</html>

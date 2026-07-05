@@ -22,6 +22,9 @@ import { KNOWLEDGE_POINTS } from '../src/config/knowledge.js';
 //  into the lesson that *teaches* it
 // ══════════════════════════════════════════════
 const SKIP_MAP = {
+  'aspect-ratio':    ['stage5/01-uv-transforms'],
+  'sdf-glow':        ['stage1/06-circle-sdf'],
+  'uv-normalize':    ['stage1/01-hello-gradient'],
   'uv-remap':        ['stage1/01-hello-gradient', 'stage1/09-clamp-remap'],
   'smoothstep':      ['stage1/04-smoothstep-compare'],
   'sdf-basics':      ['stage1/06-circle-sdf'],

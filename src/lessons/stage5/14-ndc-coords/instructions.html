@@ -1,5 +1,8 @@
 <h2>🖱️ NDC 鼠标映射</h2>
-<p class="knowledge-tags"><a class="knowledge-link" data-page="/learn-ndc-coords.html" data-title="NDC 标准化设备坐标"><span class="kl-icon">🖱️</span><span class="kl-text">NDC 标准化设备坐标</span></a></p>
+<p class="knowledge-tags"><a class="knowledge-link" data-page="/learn-aspect-ratio.html" data-title="宽高比校正"><span class="kl-icon">📏</span><span class="kl-text">为什么乘宽高比</span></a><a class="knowledge-link" data-page="/learn-uv-normalize.html" data-title="UV 归一化：像素 → [0, 1]"><span class="kl-icon">📍</span><span class="kl-text">为什么除以分辨率</span></a><a class="knowledge-link" data-page="/learn-uv-remap.html" data-title="坐标居中：uv × 2 − 1"><span class="kl-icon">📐</span><span class="kl-text">坐标居中原理</span></a><a class="knowledge-link" data-page="/learn-smoothstep.html" data-title="smoothstep 平滑阶跃"><span class="kl-icon">📈</span><span class="kl-text">smoothstep 原理</span></a><a class="knowledge-link" data-page="/learn-sdf-basics.html" data-title="SDF 有符号距离函数"><span class="kl-icon">⭕</span><span class="kl-text">SDF 基础</span></a><a class="knowledge-link" data-page="/learn-color-blend.html" data-title="颜色加减与光效叠加 (+= / *=)"><span class="kl-icon">✨</span><span class="kl-text">光斑与色彩算术</span></a></p>
+
+
+
 
 <h3>为什么需要 NDC？</h3>
 <p>浏览器鼠标事件给出的是<strong>屏幕像素坐标</strong>（原点在左上或左下）；Three.js Raycaster、后处理 pass 和许多交互 Shader 使用的是 <strong>NDC（Normalized Device Coordinates）</strong>，范围 [-1, 1]，原点在画面中心。</p>
