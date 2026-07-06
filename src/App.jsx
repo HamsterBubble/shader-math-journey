@@ -6,40 +6,33 @@ import InstructionPanel from './components/InstructionPanel.jsx';
 import PreviewCanvas from './components/PreviewCanvas.jsx';
 import CodeEditor from './components/CodeEditor.jsx';
 import KnowledgePanel from './components/KnowledgePanel.jsx';
+import { useProgressSync } from './hooks/useProgressSync.js';
+import { loadCompletedLessons, saveCompletedLessons } from './progress/progress-payload.js';
 
 export default function App() {
+  const [completedLessons, setCompletedLessons] = useState(loadCompletedLessons);
+
+  const progressSync = useProgressSync({ completedLessons, setCompletedLessons });
+
   const [currentIndex, setCurrentIndex] = useState(() => {
-    try {
-      const stored = localStorage.getItem('completedLessons');
-      const completed = stored ? JSON.parse(stored) : [];
-      const idx = lessons.findIndex(l => !completed.includes(l.id));
-      return idx >= 0 ? idx : 0;
-    } catch {
-      return 0;
-    }
+    const completed = loadCompletedLessons();
+    const idx = lessons.findIndex((lesson) => !completed.includes(lesson.id));
+    return idx >= 0 ? idx : 0;
   });
 
   const [compileStatus, setCompileStatus] = useState({ ok: true, error: null });
   const [selectedKnowledge, setSelectedKnowledge] = useState(null);
 
-  const [completedLessons, setCompletedLessons] = useState(() => {
-    try {
-      const stored = localStorage.getItem('completedLessons');
-      return stored ? JSON.parse(stored) : [];
-    } catch {
-      return [];
-    }
-  });
-
   const toggleLessonComplete = useCallback((id) => {
-    setCompletedLessons(prev => {
+    setCompletedLessons((prev) => {
       const next = prev.includes(id)
-        ? prev.filter(x => x !== id)
+        ? prev.filter((lessonId) => lessonId !== id)
         : [...prev, id];
-      localStorage.setItem('completedLessons', JSON.stringify(next));
+      saveCompletedLessons(next);
+      progressSync.onLocalProgressSaved(next);
       return next;
     });
-  }, []);
+  }, [progressSync]);
 
   const rendererRef = useRef(null);
   const editorRef = useRef(null);
@@ -86,6 +79,7 @@ export default function App() {
         currentIndex={currentIndex}
         completedLessons={completedLessons}
         onSelectLesson={handleLessonChange}
+        progressSync={progressSync}
       />
       <div className="main">
         <Toolbar

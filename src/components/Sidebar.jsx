@@ -1,5 +1,17 @@
 import React, { memo, useMemo, useState, useEffect, useRef, useCallback } from 'react';
-import { Palette, Check, BookOpen, Trophy, ChevronRight } from 'lucide-react';
+import {
+  Palette,
+  Check,
+  BookOpen,
+  Trophy,
+  ChevronRight,
+  Cloud,
+  CloudOff,
+  CloudUpload,
+  RefreshCw,
+  AlertTriangle,
+} from 'lucide-react';
+import { ProgressSyncStatus } from '../progress/progress-sync-controller.js';
 
 const TABS = [
   { id: 'course', label: '课程', icon: BookOpen },
@@ -67,12 +79,105 @@ const StageGroup = memo(function StageGroup({
   );
 });
 
+function syncIcon(status, isSyncing) {
+  if (isSyncing) return RefreshCw;
+  switch (status) {
+    case ProgressSyncStatus.synced:
+      return Cloud;
+    case ProgressSyncStatus.conflict:
+      return AlertTriangle;
+    case ProgressSyncStatus.failed:
+      return CloudOff;
+    default:
+      return Cloud;
+  }
+}
+
+function syncTitle(status, isSyncing) {
+  if (isSyncing) return '正在同步';
+  switch (status) {
+    case ProgressSyncStatus.idle:
+      return '尚未同步';
+    case ProgressSyncStatus.synced:
+      return '进度已同步';
+    case ProgressSyncStatus.conflict:
+      return '需要选择进度版本';
+    case ProgressSyncStatus.failed:
+      return '同步失败';
+    default:
+      return '进度同步';
+  }
+}
+
+function syncSubtitle(progressSync) {
+  if (progressSync.message) return progressSync.message;
+  const updatedAt = progressSync.lastSyncedRemoteUpdatedAt;
+  if (!updatedAt) return '自动保存到服务器';
+  const date = new Date(updatedAt);
+  if (Number.isNaN(date.getTime())) return '自动保存到服务器';
+  const local = date;
+  const minute = String(local.getMinutes()).padStart(2, '0');
+  return `服务器时间 ${local.getMonth() + 1}/${local.getDate()} ${local.getHours()}:${minute}`;
+}
+
+const ProgressSyncPanel = memo(function ProgressSyncPanel({ progressSync }) {
+  if (!progressSync) return null;
+
+  const Icon = syncIcon(progressSync.status, progressSync.isSyncing);
+  const busy = progressSync.isSyncing;
+
+  return (
+    <div className={`progress-sync${progressSync.hasConflict ? ' has-conflict' : ''}`}>
+      <div className={`progress-sync-status status-${progressSync.status}`}>
+        <Icon size={14} className={busy ? 'sync-spin' : undefined} />
+        <div className="progress-sync-copy">
+          <span className="progress-sync-title">{syncTitle(progressSync.status, busy)}</span>
+          <span className="progress-sync-subtitle">{syncSubtitle(progressSync)}</span>
+        </div>
+        {!busy && !progressSync.hasConflict && (
+          <button
+            type="button"
+            className="progress-sync-btn"
+            onClick={() => progressSync.sync()}
+            title="立即同步"
+          >
+            <RefreshCw size={13} />
+          </button>
+        )}
+      </div>
+      {progressSync.hasConflict && (
+        <div className="progress-sync-actions">
+          <button
+            type="button"
+            className="progress-sync-action"
+            disabled={busy}
+            onClick={() => progressSync.useLocalForConflict()}
+          >
+            <CloudUpload size={12} />
+            <span>保留本机</span>
+          </button>
+          <button
+            type="button"
+            className="progress-sync-action"
+            disabled={busy}
+            onClick={() => progressSync.useRemoteForConflict()}
+          >
+            <Cloud size={12} />
+            <span>使用服务器</span>
+          </button>
+        </div>
+      )}
+    </div>
+  );
+});
+
 function Sidebar({
   stages,
   lessons,
   currentIndex,
   completedLessons = [],
   onSelectLesson,
+  progressSync,
 }) {
   const [activeTab, setActiveTab] = useState('course');
   const listRef = useRef(null);
@@ -195,6 +300,7 @@ function Sidebar({
           <div className="prog-fill" style={{ width: `${lessonPct}%` }} />
         </div>
         <span className="prog-text">{progressText}</span>
+        <ProgressSyncPanel progressSync={progressSync} />
       </div>
     </aside>
   );
