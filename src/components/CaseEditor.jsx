@@ -2,6 +2,8 @@ import React, { memo, useRef, useEffect } from 'react';
 import * as monaco from 'monaco-editor';
 import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 import { glslDocs } from '../core/glsl-docs.js';
+import { getGlslLanguageConfiguration } from '../core/glsl-language-config.js';
+import { registerGlslFormatting, addGlslFormatShortcut } from '../core/glsl-format.js';
 
 self.MonacoEnvironment = {
   getWorker() {
@@ -15,6 +17,8 @@ function registerGLSL() {
   langRegistered = true;
 
   monaco.languages.register({ id: 'glsl' });
+  monaco.languages.setLanguageConfiguration('glsl', getGlslLanguageConfiguration(monaco));
+  registerGlslFormatting(monaco);
   monaco.languages.registerHoverProvider('glsl', {
     provideHover(model, position) {
       const word = model.getWordAtPosition(position);
@@ -72,7 +76,11 @@ function CaseEditor({ stepId, code, compileStatus, editorRef, onCompile }) {
       scrollBeyondLastLine: false,
       automaticLayout: true,
       tabSize: 2,
+      insertSpaces: true,
+      detectIndentation: false,
+      autoIndent: 'full',
       padding: { top: 12, bottom: 12 },
+      fixedOverflowWidgets: true,
       wordWrap: 'off',
     });
 
@@ -84,6 +92,8 @@ function CaseEditor({ stepId, code, compileStatus, editorRef, onCompile }) {
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
       onCompile(editor.getValue());
     });
+
+    addGlslFormatShortcut(editor, monaco);
 
     instanceRef.current = editor;
     editorRef.current = editor;

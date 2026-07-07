@@ -23,6 +23,20 @@ export class ShaderRenderer {
     this._ro = new ResizeObserver(() => this._resize());
     this._ro.observe(canvas.parentElement || canvas);
     this._resize();
+
+    // The container can still resize right after mount without ever
+    // triggering the ResizeObserver above — e.g. in the practice arena,
+    // the demo pane mounts a tick after this pane (once an async session
+    // lookup resolves), shrinking this canvas's column from full-width to
+    // half-width. Re-measure a couple more times over the next frames to
+    // catch that kind of post-mount layout settling.
+    requestAnimationFrame(() => {
+      if (this._destroyed) return;
+      this._resize();
+      requestAnimationFrame(() => {
+        if (!this._destroyed) this._resize();
+      });
+    });
   }
 
   static VERT = `attribute vec2 a_position;
@@ -94,8 +108,14 @@ void main(){ gl_Position = vec4(a_position, 0.0, 1.0); }`;
   _resize() {
     const c = this.canvas;
     const dpr = Math.min(devicePixelRatio, 2);
-    const w = c.clientWidth || c.parentElement?.clientWidth || 300;
-    const h = c.clientHeight || c.parentElement?.clientHeight || 150;
+    // 必须以父容器的尺寸为准，不能读 c.clientWidth/Height——
+    // 一旦下面把 style.width/height 写成固定像素值，canvas 自身的
+    // clientWidth 就不再跟随父容器变化，后续布局收缩时会读到
+    // "自己之前写死的旧值"，导致 canvas 尺寸再也无法缩小，
+    // 从而溢出容器（练习场双栏布局初次挂载时单栏→双栏收缩就会触发）。
+    const parent = c.parentElement;
+    const w = parent?.clientWidth || c.clientWidth || 300;
+    const h = parent?.clientHeight || c.clientHeight || 150;
     c.width = w * dpr;
     c.height = h * dpr;
     c.style.width = w + 'px';
@@ -139,6 +159,7 @@ void main(){ gl_Position = vec4(a_position, 0.0, 1.0); }`;
   }
 
   destroy() {
+    this._destroyed = true;
     this.stop();
     this._ro?.disconnect();
     if (this.program) this.gl.deleteProgram(this.program);

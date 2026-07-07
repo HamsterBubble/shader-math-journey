@@ -1,7 +1,15 @@
 import React, { memo, useRef, useEffect, useState, useCallback } from 'react';
 import { ShaderRenderer } from '../core/shader-renderer.js';
 
-function PreviewCanvas({ lesson, compileStatus, rendererRef, onCompile }) {
+function PreviewCanvas({
+  lesson,
+  shaderCode,
+  shaderKey,
+  compileStatus,
+  rendererRef,
+  onCompile,
+  autoCompileOnSourceChange = true,
+}) {
   const canvasRef = useRef(null);
   const [fps, setFps] = useState(0);
   const fpsRef = useRef({ frames: 0, lastT: performance.now() });
@@ -12,6 +20,9 @@ function PreviewCanvas({ lesson, compileStatus, rendererRef, onCompile }) {
     if (!canvas) return;
 
     const renderer = new ShaderRenderer(canvas);
+    if (shaderCode) {
+      renderer.setShader(shaderCode);
+    }
     renderer.start();
     rendererRef.current = renderer;
 
@@ -36,12 +47,15 @@ function PreviewCanvas({ lesson, compileStatus, rendererRef, onCompile }) {
     };
   }, []);
 
-  // Compile when lesson changes
+  const initialCode = shaderCode ?? lesson?.code;
+
+  // Compile when source changes (lesson workspace)
   useEffect(() => {
-    if (rendererRef.current) {
-      onCompile(lesson.code);
+    if (!autoCompileOnSourceChange || !onCompile) return;
+    if (rendererRef.current && initialCode) {
+      onCompile(initialCode);
     }
-  }, [lesson.id]);
+  }, [lesson?.id, shaderKey, initialCode, onCompile, rendererRef, autoCompileOnSourceChange]);
 
   return (
     <div className="preview" id="preview-area">

@@ -10,6 +10,7 @@ import {
   loadProgressSyncMetadata,
   saveProgressSyncMetadata,
 } from './progress-sync-metadata.js';
+import { loadPracticeSketches, savePracticeSketches } from '../practice/practice-sketches.js';
 
 export const ProgressSyncStatus = {
   idle: 'idle',
@@ -22,6 +23,8 @@ export const ProgressSyncStatus = {
 export function createProgressSyncController({
   getCompletedLessons,
   replaceCompletedLessons,
+  getPracticeSketches = loadPracticeSketches,
+  replacePracticeSketches = savePracticeSketches,
   fetchRemote = fetchRemoteProgress,
   replaceRemote = replaceRemoteProgress,
   loadMetadata = loadProgressSyncMetadata,
@@ -75,15 +78,26 @@ export function createProgressSyncController({
     });
   }
 
-  async function upload(completedLessons, localJson) {
-    const response = await replaceRemote(toProgressPayload(completedLessons));
+  function getLocalSnapshot() {
+    const completedLessons = getCompletedLessons();
+    const practiceSketches = getPracticeSketches();
+    return {
+      completedLessons,
+      practiceSketches,
+      json: encodeProgressPayload(completedLessons, practiceSketches),
+    };
+  }
+
+  async function upload(completedLessons, practiceSketches, localJson) {
+    const response = await replaceRemote(toProgressPayload(completedLessons, practiceSketches));
     await saveSyncedMetadata(response.updatedAt, localJson);
     setStatus(ProgressSyncStatus.synced, '已同步');
   }
 
-  async function download(completedLessons, remoteUpdatedAt, remoteJson) {
+  async function download(completedLessons, practiceSketches, remoteUpdatedAt, remoteJson) {
     replaceCompletedLessons(completedLessons);
     saveCompletedLessons(completedLessons);
+    replacePracticeSketches(practiceSketches);
     await saveSyncedMetadata(remoteUpdatedAt, remoteJson);
     setStatus(ProgressSyncStatus.synced, '已同步');
   }
@@ -101,8 +115,9 @@ export function createProgressSyncController({
       lastSyncedRemoteUpdatedAt = metadata.lastRemoteUpdatedAt;
 
       const localLessons = overrideLessons ?? getCompletedLessons();
-      const localJson = encodeProgressPayload(localLessons);
-      const localIsEmpty = isEmptyProgress(localLessons);
+      const localSketches = getPracticeSketches();
+      const localJson = encodeProgressPayload(localLessons, localSketches);
+      const localIsEmpty = isEmptyProgress(localLessons, localSketches);
 
       const remote = await fetchRemote();
       const remoteHasChanged = remoteChanged(remote, metadata);
@@ -117,17 +132,22 @@ export function createProgressSyncController({
           setStatus(ProgressSyncStatus.synced, '已同步');
           return;
         }
-        await upload(localLessons, localJson);
+        await upload(localLessons, localSketches, localJson);
         return;
       }
 
       const remotePayload = validRemotePayload(remote);
-      const remoteLessons = fromProgressPayload(remotePayload);
-      const remoteJson = encodeProgressPayload(remoteLessons);
+      const remoteData = fromProgressPayload(remotePayload);
+      const remoteJson = encodeProgressPayload(remoteData.completedLessons, remoteData.practiceSketches);
 
       if (metadata.lastSyncedPayloadJson == null) {
         if (localIsEmpty) {
-          await download(remoteLessons, remote.updatedAt, remoteJson);
+          await download(
+            remoteData.completedLessons,
+            remoteData.practiceSketches,
+            remote.updatedAt,
+            remoteJson,
+          );
         } else {
           setConflict(remotePayload, remote.updatedAt);
         }
@@ -137,9 +157,14 @@ export function createProgressSyncController({
       if (localHasChanged && remoteHasChanged) {
         setConflict(remotePayload, remote.updatedAt);
       } else if (localHasChanged) {
-        await upload(localLessons, localJson);
+        await upload(localLessons, localSketches, localJson);
       } else if (remoteHasChanged) {
-        await download(remoteLessons, remote.updatedAt, remoteJson);
+        await download(
+          remoteData.completedLessons,
+          remoteData.practiceSketches,
+          remote.updatedAt,
+          remoteJson,
+        );
       } else {
         setStatus(ProgressSyncStatus.synced, '已同步');
       }
@@ -179,8 +204,9 @@ export function createProgressSyncController({
     setStatus(ProgressSyncStatus.syncing, '正在上传本机进度...');
     try {
       const localLessons = getCompletedLessons();
-      const localJson = encodeProgressPayload(localLessons);
-      const response = await replaceRemote(toProgressPayload(localLessons));
+      const localSketches = getPracticeSketches();
+      const localJson = encodeProgressPayload(localLessons, localSketches);
+      const response = await replaceRemote(toProgressPayload(localLessons, localSketches));
       await saveSyncedMetadata(response.updatedAt, localJson);
       clearConflict();
       setStatus(ProgressSyncStatus.synced, '已同步');
@@ -194,9 +220,14 @@ export function createProgressSyncController({
 
     setStatus(ProgressSyncStatus.syncing, '正在使用服务器进度...');
     try {
-      const remoteLessons = fromProgressPayload(conflictRemotePayload);
-      const remoteJson = encodeProgressPayload(remoteLessons);
-      await download(remoteLessons, conflictRemoteUpdatedAt, remoteJson);
+      const remoteData = fromProgressPayload(conflictRemotePayload);
+      const remoteJson = encodeProgressPayload(remoteData.completedLessons, remoteData.practiceSketches);
+      await download(
+        remoteData.completedLessons,
+        remoteData.practiceSketches,
+        conflictRemoteUpdatedAt,
+        remoteJson,
+      );
       clearConflict();
       setStatus(ProgressSyncStatus.synced, '已同步');
     } catch (error) {

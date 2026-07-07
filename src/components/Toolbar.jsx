@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
-import { RotateCcw, ChevronLeft, ChevronRight, CheckCircle, Circle } from 'lucide-react';
+import { RotateCcw, ChevronLeft, ChevronRight, CheckCircle, Circle, FlaskConical } from 'lucide-react';
 
-function Toolbar({ title, badge, isCompleted, onToggleComplete, onReset, onPrev, onNext, hasPrev, hasNext }) {
+function Toolbar({ title, badge, isCompleted, onToggleComplete, onOpenPractice, onReset, onPrev, onNext, hasPrev, hasNext }) {
   return (
     <div className="toolbar">
       <div className="toolbar-left">
@@ -16,6 +16,10 @@ function Toolbar({ title, badge, isCompleted, onToggleComplete, onReset, onPrev,
         >
           {isCompleted ? <CheckCircle size={16} /> : <Circle size={16} />}
           <span>{isCompleted ? '已完成' : '标记完成'}</span>
+        </button>
+        <button className="btn practice-toolbar-btn" onClick={onOpenPractice} title="打开练习场">
+          <FlaskConical size={15} />
+          <span>练习场</span>
         </button>
         <div style={{ width: '1px', height: '20px', background: 'var(--border)', margin: '0 4px' }} />
         <button className="btn" onClick={onReset} title="重置代码">

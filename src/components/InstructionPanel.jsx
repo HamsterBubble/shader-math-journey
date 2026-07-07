@@ -9,7 +9,7 @@ import { ShaderRenderer } from '../core/shader-renderer.js';
  *   <a class="knowledge-link" data-page="/learn-uv-remap.html" data-title="UV 坐标变换">📖 知识点</a>
  * Clicking opens a modal with the corresponding page.
  */
-function InstructionPanel({ lesson, onOpenKnowledge }) {
+function InstructionPanel({ lesson, onOpenKnowledge, onOpenPracticeArena }) {
   const containerRef = useRef(null);
   const goalRendererRef = useRef(null);
 
@@ -47,8 +47,31 @@ function InstructionPanel({ lesson, onOpenKnowledge }) {
     };
   }, [lesson.id, lesson.goalCode]);
 
+  // Inject "进入练习场" button on goal preview blocks
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container || !lesson.goalCode) return;
+
+    const previews = container.querySelectorAll('.goal-preview');
+    previews.forEach((preview) => {
+      if (preview.querySelector('.practice-arena-entry')) return;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'practice-arena-entry';
+      btn.textContent = '进入练习场';
+      preview.appendChild(btn);
+    });
+  }, [lesson.id, lesson.instructions, lesson.goalCode]);
+
   // Handle clicks on knowledge-link elements (event delegation)
   const handleClick = useCallback((e) => {
+    const practiceBtn = e.target.closest('.practice-arena-entry');
+    if (practiceBtn) {
+      e.preventDefault();
+      onOpenPracticeArena?.('demo', lesson.goalCode, 'enter');
+      return;
+    }
+
     const link = e.target.closest('.knowledge-link');
     if (link) {
       e.preventDefault();
@@ -58,7 +81,7 @@ function InstructionPanel({ lesson, onOpenKnowledge }) {
         onOpenKnowledge({ src: page, title });
       }
     }
-  }, [onOpenKnowledge]);
+  }, [onOpenKnowledge, onOpenPracticeArena]);
 
   return (
     <div
