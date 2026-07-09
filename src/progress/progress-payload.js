@@ -54,8 +54,12 @@ export function encodeProgressPayload(
 export function isEmptyProgress(
   completedLessons,
   practiceSketches = loadPracticeSketches(),
-  graphBoards = loadGraphBoards(),
+  _graphBoards = loadGraphBoards(),
 ) {
-  return encodeProgressPayload(completedLessons, practiceSketches, graphBoards)
-    === encodeProgressPayload([], [], []);
+  // Graph boards alone must not count as "local progress" — a fresh install
+  // used to auto-seed a default board and then refuse to download remote lessons.
+  return (
+    (!completedLessons || completedLessons.length === 0)
+    && (!practiceSketches || practiceSketches.length === 0)
+  );
 }

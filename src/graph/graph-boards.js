@@ -77,14 +77,17 @@ export function validateGraphBoards(raw) {
 export function loadGraphBoards() {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
-    return ensureGraphBoards(stored ? JSON.parse(stored) : []);
+    if (!stored) return [];
+    return validateGraphBoards(JSON.parse(stored));
   } catch {
-    return [createGraphBoard()];
+    return [];
   }
 }
 
 export function saveGraphBoards(boards) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(ensureGraphBoards(boards)));
+  // Persist exactly what sync/UI provide — do not auto-seed a default board,
+  // or a fresh machine looks "non-empty" and blocks first-time download.
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(validateGraphBoards(boards)));
 }
 
 export function ensureGraphBoards(boards) {

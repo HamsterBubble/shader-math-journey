@@ -152,7 +152,10 @@ export function createProgressSyncController({
       );
 
       if (metadata.lastSyncedPayloadJson == null) {
-        if (localIsEmpty) {
+        // No sync history on this browser: if there are no local completed lessons,
+        // prefer remote. Default Graph Lab boards / blank practice sketches must not
+        // block restoring completedLessons on a new machine.
+        if (localIsEmpty || localLessons.length === 0) {
           await download(
             remoteData.completedLessons,
             remoteData.practiceSketches,
