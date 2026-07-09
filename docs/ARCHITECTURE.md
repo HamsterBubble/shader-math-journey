@@ -15,7 +15,9 @@ main.jsx
         ├── InstructionPanel.jsx  instructions.html + goal 预览
         ├── PreviewCanvas.jsx ──→ ShaderRenderer  主预览
         ├── CodeEditor.jsx       Monaco GLSL 编辑器
-        └── KnowledgePanel.jsx   知识点列表 + iframe 详情
+        ├── KnowledgePanel.jsx   知识点列表 + iframe 详情
+        ├── PracticeArena.jsx    练习场弹窗
+        └── GraphLab.jsx         函数图像弹窗
 ```
 
 ### Case 轨（规划）

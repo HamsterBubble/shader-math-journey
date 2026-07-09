@@ -44,6 +44,10 @@ _Avoid_: 输出区, canvas（无上下文时）
 用户标记为已完成的 Lesson/Challenge 列表，持久化于浏览器 `localStorage` 键 `completedLessons`。
 _Avoid_: 分数, 成就
 
+**Graph Lab（函数图像）**:
+类似 GeoGebra 的函数图像工具弹窗：左侧输入多条 `y = f(x)` 表达式，右侧 Canvas 绘制；自动同步到进度服务器（`graphBoards`，单板）。
+_Avoid_: 绘图板, 计算器
+
 **Case Progress（案例进度）**:
 用户标记为已完成的 Case Step 列表，持久化于 `localStorage` 键 `completedCaseSteps`；与 **Progress** 分离存储。
 _Avoid_: 分数, 成就

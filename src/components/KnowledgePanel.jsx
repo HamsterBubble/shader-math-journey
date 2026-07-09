@@ -2,7 +2,7 @@ import React, { memo, useState, useCallback, useRef, useEffect } from 'react';
 import { BookOpen, ArrowLeft } from 'lucide-react';
 import { KNOWLEDGE_POINTS } from '../config/knowledge.js';
 
-function KnowledgePanel({ selectedKnowledge, onSelect, onBack, highlightIds = null }) {
+function KnowledgePanel({ open = true, selectedKnowledge, onSelect, onBack, highlightIds = null }) {
   const [width, setWidth] = useState(() => {
     const w = localStorage.getItem('knowledgePanelWidth');
     return w ? parseInt(w, 10) : 320;
@@ -48,8 +48,8 @@ function KnowledgePanel({ selectedKnowledge, onSelect, onBack, highlightIds = nu
   }, []);
 
   const containerStyle = {
-    width: width,
-    minWidth: width,
+    width: open ? width : 0,
+    minWidth: open ? width : 0,
   };
 
   const contentStyle = {
@@ -65,9 +65,15 @@ function KnowledgePanel({ selectedKnowledge, onSelect, onBack, highlightIds = nu
     : KNOWLEDGE_POINTS;
 
   return (
-    <div className="knowledge-panel" style={containerStyle}>
-      <div className="knowledge-panel-drag" onMouseDown={startDrag} title="拖动调整宽度" />
-      
+    <div
+      className={`knowledge-panel${open ? '' : ' is-collapsed'}`}
+      style={containerStyle}
+      aria-hidden={!open}
+    >
+      {open && (
+        <div className="knowledge-panel-drag" onMouseDown={startDrag} title="拖动调整宽度" />
+      )}
+
       <div className="knowledge-panel-content" style={contentStyle}>
         {selectedKnowledge ? (
           <div className="kp-detail">
@@ -77,8 +83,8 @@ function KnowledgePanel({ selectedKnowledge, onSelect, onBack, highlightIds = nu
               </button>
               <span className="kp-title">{selectedKnowledge.title}</span>
             </div>
-            <iframe 
-              src={selectedKnowledge.src} 
+            <iframe
+              src={selectedKnowledge.src}
               className="kp-iframe"
               title={selectedKnowledge.title}
             />
@@ -111,9 +117,9 @@ function KnowledgePanel({ selectedKnowledge, onSelect, onBack, highlightIds = nu
             )}
             <div className="kp-list">
               {(highlightIds ? otherPoints : KNOWLEDGE_POINTS).map(kp => (
-                <div 
-                  key={kp.id} 
-                  className="kp-list-item" 
+                <div
+                  key={kp.id}
+                  className="kp-list-item"
                   onClick={() => onSelect({ src: kp.page, title: kp.title })}
                 >
                   <span className="kp-item-icon">{kp.icon}</span>

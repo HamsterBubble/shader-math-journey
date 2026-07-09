@@ -1,25 +1,25 @@
 import { fetchRemoteProgress, replaceRemoteProgress, ProgressSyncException } from '../progress/progress-sync-client.js';
 import { encodeProgressPayload, fromProgressPayload, toProgressPayload } from '../progress/progress-payload.js';
-import { savePracticeSketches, validatePracticeSketches } from './practice-sketches.js';
-import { loadGraphBoards } from '../graph/graph-boards.js';
+import { loadPracticeSketches } from '../practice/practice-sketches.js';
+import { saveGraphBoards, validateGraphBoards } from './graph-boards.js';
 import { saveProgressSyncMetadata } from '../progress/progress-sync-metadata.js';
 
 export { ProgressSyncException };
 
-export async function fetchRemotePracticeSketches() {
-  const remote = await fetchRemoteProgress();
-  if (!remote.exists || !remote.payload) return [];
-  const parsed = fromProgressPayload(remote.payload);
-  return validatePracticeSketches(parsed.practiceSketches);
-}
-
-export async function savePracticeSketchesToServer(practiceSketches, completedLessons, graphBoards = loadGraphBoards()) {
+export async function saveGraphBoardsToServer(graphBoards, completedLessons, practiceSketches = loadPracticeSketches()) {
   const payload = toProgressPayload(completedLessons, practiceSketches, graphBoards);
   const response = await replaceRemoteProgress(payload);
-  savePracticeSketches(practiceSketches);
+  saveGraphBoards(graphBoards);
   saveProgressSyncMetadata({
     lastRemoteUpdatedAt: response.updatedAt,
     lastSyncedPayloadJson: encodeProgressPayload(completedLessons, practiceSketches, graphBoards),
   });
   return response;
+}
+
+export async function fetchRemoteGraphBoards() {
+  const remote = await fetchRemoteProgress();
+  if (!remote.exists || !remote.payload) return [];
+  const parsed = fromProgressPayload(remote.payload);
+  return validateGraphBoards(parsed.graphBoards);
 }

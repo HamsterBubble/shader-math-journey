@@ -1,4 +1,5 @@
 import { loadPracticeSketches, validatePracticeSketches } from '../practice/practice-sketches.js';
+import { loadGraphBoards, validateGraphBoards } from '../graph/graph-boards.js';
 
 const STORAGE_KEY = 'completedLessons';
 
@@ -15,10 +16,15 @@ export function saveCompletedLessons(lessons) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(lessons));
 }
 
-export function toProgressPayload(completedLessons, practiceSketches = loadPracticeSketches()) {
+export function toProgressPayload(
+  completedLessons,
+  practiceSketches = loadPracticeSketches(),
+  graphBoards = loadGraphBoards(),
+) {
   return {
     completedLessons,
     practiceSketches: validatePracticeSketches(practiceSketches),
+    graphBoards: validateGraphBoards(graphBoards),
   };
 }
 
@@ -33,14 +39,23 @@ export function fromProgressPayload(payload) {
   return {
     completedLessons: lessons.filter((id) => typeof id === 'string'),
     practiceSketches: validatePracticeSketches(payload.practiceSketches),
+    graphBoards: validateGraphBoards(payload.graphBoards),
   };
 }
 
-export function encodeProgressPayload(completedLessons, practiceSketches = loadPracticeSketches()) {
-  return JSON.stringify(toProgressPayload(completedLessons, practiceSketches));
+export function encodeProgressPayload(
+  completedLessons,
+  practiceSketches = loadPracticeSketches(),
+  graphBoards = loadGraphBoards(),
+) {
+  return JSON.stringify(toProgressPayload(completedLessons, practiceSketches, graphBoards));
 }
 
-export function isEmptyProgress(completedLessons, practiceSketches = loadPracticeSketches()) {
-  return encodeProgressPayload(completedLessons, practiceSketches)
-    === encodeProgressPayload([], []);
+export function isEmptyProgress(
+  completedLessons,
+  practiceSketches = loadPracticeSketches(),
+  graphBoards = loadGraphBoards(),
+) {
+  return encodeProgressPayload(completedLessons, practiceSketches, graphBoards)
+    === encodeProgressPayload([], [], []);
 }

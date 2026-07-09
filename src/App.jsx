@@ -16,6 +16,8 @@ import KnowledgePanel from './components/KnowledgePanel.jsx';
 
 import PracticeArena from './components/PracticeArena.jsx';
 
+import GraphLab from './components/GraphLab.jsx';
+
 import { useProgressSync } from './hooks/useProgressSync.js';
 
 import { loadCompletedLessons, saveCompletedLessons } from './progress/progress-payload.js';
@@ -88,7 +90,14 @@ export default function App() {
 
   const [selectedKnowledge, setSelectedKnowledge] = useState(null);
 
+  const [knowledgeOpen, setKnowledgeOpen] = useState(() => {
+    const stored = localStorage.getItem('knowledgePanelOpen');
+    return stored === null ? true : stored === 'true';
+  });
+
   const [practiceArena, setPracticeArena] = useState(loadPracticeArenaSession);
+
+  const [graphLabOpen, setGraphLabOpen] = useState(false);
 
 
 
@@ -168,32 +177,21 @@ export default function App() {
 
 
 
-  const handlePrev = useCallback(() => {
-
-    if (currentIndex > 0) handleLessonChange(currentIndex - 1);
-
-  }, [currentIndex, handleLessonChange]);
-
-
-
-  const handleNext = useCallback(() => {
-
-    if (currentIndex < lessons.length - 1) handleLessonChange(currentIndex + 1);
-
-  }, [currentIndex, handleLessonChange]);
-
-
-
   const handleOpenKnowledge = useCallback((kp) => {
-
+    setKnowledgeOpen(true);
+    localStorage.setItem('knowledgePanelOpen', 'true');
     setSelectedKnowledge({
-
       ...kp,
-
       src: resolvePublicPath(kp.src),
-
     });
+  }, []);
 
+  const handleToggleKnowledge = useCallback(() => {
+    setKnowledgeOpen((prev) => {
+      const next = !prev;
+      localStorage.setItem('knowledgePanelOpen', String(next));
+      return next;
+    });
   }, []);
 
 
@@ -222,6 +220,14 @@ export default function App() {
     clearPracticeArenaSession();
     setPracticeArena(null);
 
+  }, []);
+
+  const handleOpenGraphLab = useCallback(() => {
+    setGraphLabOpen(true);
+  }, []);
+
+  const handleCloseGraphLab = useCallback(() => {
+    setGraphLabOpen(false);
   }, []);
 
   const handlePracticeArenaSessionChange = useCallback((session) => {
@@ -253,27 +259,15 @@ export default function App() {
       <div className="main">
 
         <Toolbar
-
           title={lesson.title}
-
           badge={lesson.badge}
-
           isCompleted={completedLessons.includes(lesson.id)}
-
           onToggleComplete={() => toggleLessonComplete(lesson.id)}
-
           onOpenPractice={() => handleOpenPracticeArena('blank', null, 'enter')}
-
+          onOpenGraphLab={handleOpenGraphLab}
           onReset={handleReset}
-
-          onPrev={handlePrev}
-
-          onNext={handleNext}
-
-          hasPrev={currentIndex > 0}
-
-          hasNext={currentIndex < lessons.length - 1}
-
+          knowledgeOpen={knowledgeOpen}
+          onToggleKnowledge={handleToggleKnowledge}
         />
 
         <div className="workspace">
@@ -337,34 +331,30 @@ export default function App() {
       </div>
 
       <KnowledgePanel
-
+        open={knowledgeOpen}
         selectedKnowledge={selectedKnowledge}
-
         onSelect={handleOpenKnowledge}
-
         onBack={() => setSelectedKnowledge(null)}
-
       />
 
       <PracticeArena
-
         open={!!practiceArena}
-
         onClose={handleClosePracticeArena}
-
         mode={practiceArena?.mode ?? 'blank'}
         entry={practiceArena?.entry ?? 'enter'}
         sessionId={practiceArena?.sessionId}
         initialActiveId={practiceArena?.initialActiveId}
-
         title={practiceArena?.title ?? null}
         lessonId={practiceArena?.lessonId ?? null}
-
         demoCode={practiceArena?.demoCode ?? null}
-
         completedLessons={completedLessons}
         onSessionChange={handlePracticeArenaSessionChange}
+      />
 
+      <GraphLab
+        open={graphLabOpen}
+        onClose={handleCloseGraphLab}
+        completedLessons={completedLessons}
       />
 
     </div>

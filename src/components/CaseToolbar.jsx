@@ -39,7 +39,6 @@ function CaseToolbar({
           {isCompleted ? <CheckCircle size={16} /> : <Circle size={16} />}
           <span>{isCompleted ? '已完成' : '标记完成'}</span>
         </button>
-        <div style={{ width: '1px', height: '20px', background: 'var(--border)', margin: '0 4px' }} />
         <button className="btn" onClick={onReset} title="重置代码">
           <RotateCcw size={14} />
           <span>重置</span>

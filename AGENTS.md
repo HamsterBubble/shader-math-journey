@@ -30,7 +30,8 @@
 | 改编辑器 / GLSL 高亮 | `src/components/CodeEditor.jsx` + `src/core/glsl-docs.js` |
 | 改侧边栏 / 进度 | `src/components/Sidebar.jsx` + `src/App.jsx` |
 | 改知识点面板 | `src/components/KnowledgePanel.jsx` + `public/learn-*.html` |
-| 改案例 / 新增 Case Step | `src/cases/` + [case-schema](./docs/specs/case-schema.md) + [ADR-0004](./docs/adr/0004-case-practice-bundle.md)；案例知识点课分散在 Stage 1–7，`learningPath` 见 case `meta.js` |
+| 改练习场 | `src/components/PracticeArena.jsx` + `src/practice/` |
+| 改函数图像 | `src/components/GraphLab.jsx` + `src/graph/` |
 | 构建 Full Case Preview | `threejs-case/01-dracarys` build → `public/cases/dracarys/` |
 | 架构决策背景 | `docs/adr/` |
 

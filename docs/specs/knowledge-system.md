@@ -57,3 +57,4 @@
 
 - `explain-lesson*.html` 不在 `KNOWLEDGE_POINTS` 中，需手动链入 instructions
 - Knowledge Panel 宽度存于 `localStorage.knowledgePanelWidth`
+- Knowledge Panel 展开状态存于 `localStorage.knowledgePanelOpen`；工具栏「知识库」按钮切换显隐（带宽度过渡动画）；点击知识点链接时若已折叠会自动展开
