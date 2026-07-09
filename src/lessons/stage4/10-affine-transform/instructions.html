@@ -7,6 +7,8 @@
 
 
 
+
+
 <h3>mat2 不能平移</h3>
 <p>mat2 只做线性变换（旋转/缩放/剪切）。平移需要<strong>齐次坐标</strong>：把 (x,y) 升维为 (x,y,1)，用 mat3 同时编码旋转+缩放+平移。</p>
 <div class="formula-block">

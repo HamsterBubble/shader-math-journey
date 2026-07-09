@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📐 隐式直线距离：y − mx 为什么能表示「有多远」</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0d1117;color:#e6edf3;font-family:'Inter',-apple-system,sans-serif;line-height:1.7;padding:40px 24px;padding-bottom:80px}
+.container{max-width:820px;margin:0 auto}
+h1{font-size:1.8rem;margin-bottom:0.5rem;color:#58a6ff}
+h2{font-size:1.3rem;color:#58a6ff;margin:2.5rem 0 1rem;padding-left:12px;border-left:3px solid #58a6ff}
+p,li{color:#8b949e;margin-bottom:.8rem;font-size:0.95rem}
+strong{color:#e6edf3}
+code{font-family:'JetBrains Mono',monospace;background:rgba(255,255,255,.06);padding:2px 6px;border-radius:4px;color:#58a6ff;font-size:0.9rem}
+canvas{width:100%;border-radius:8px;display:block;margin:1rem 0;background:#000;border:1px solid rgba(255,255,255,0.1);cursor:crosshair;touch-action:none}
+.card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:24px;margin-bottom:20px}
+.card h4{color:#39d2c0;margin-bottom:12px;font-size:1.05rem}
+.tip-box{background:rgba(88,166,255,0.08);border:1px solid rgba(88,166,255,0.2);padding:16px 20px;border-radius:8px;font-size:0.9rem;margin:15px 0}
+hr{border:0;border-top:1px solid rgba(255,255,255,0.1);margin:30px 0}
+table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:0.9rem}
+th{background:rgba(255,255,255,.04);color:#58a6ff;padding:8px 12px;text-align:center;border:1px solid rgba(255,255,255,0.06)}
+td{padding:8px 12px;text-align:center;color:#8b949e;border:1px solid rgba(255,255,255,0.06)}
+.live{display:grid;gap:0.45rem;margin:0.8rem 0 0;font-size:0.9rem}
+.row{display:flex;justify-content:space-between;gap:0.75rem;flex-wrap:wrap}
+.row .label{color:#8b949e}
+.row .val{font-family:'JetBrains Mono',monospace;font-weight:600;color:#e6edf3}
+.val.pos{color:#3fb950}
+.val.neg{color:#f85149}
+.val.zero{color:#c9d1d9}
+.val.dist{color:#f0a050}
+.bar{height:12px;background:#010409;border-radius:4px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);margin-top:6px}
+.bar-fill{height:100%;width:0%;background:linear-gradient(90deg,#f0a050,#f85149)}
+.legend{display:flex;flex-wrap:wrap;gap:0.6rem 1.1rem;margin:0.6rem 0 0;font-size:0.8rem;color:#8b949e}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.lg-line::before{background:#58a6ff}
+.lg-point::before{background:#f0a050}
+.lg-drop::before{background:#c9a227}
+.hint{text-align:center;font-size:0.85rem;color:#8b949e;margin-top:-0.4rem}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:640px){.grid-2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>📐 隐式直线距离：为什么 <code>y − 0.8x</code> 能表示「有多远」</h1>
+  <p style="font-size:1.05rem;">Shader 里画斜线、坐标轴、波形曲线时，常见写法是 <code>abs(y - m*x)</code> 再配 <code>smoothstep</code>。它算的不是几何课里的「最短垂直距离」，而是<strong>同一横坐标下，你的 y 和直线上的 y 差了多少</strong>——对画线已经够用。</p>
+
+  <hr>
+
+  <h2>一、先记住这一句</h2>
+  <div class="tip-box">
+    直线上的点满足 <code>y = 0.8 × x</code>，所以改写成 <code>y − 0.8 × x = 0</code>。<br>
+    点偏离直线时，这个差值变大；取 <code>abs</code> 后，就得到「有多远」。
+  </div>
+
+  <hr>
+
+  <h2>二、互动实验：拖动橙色点</h2>
+  <p>金色虚线就是 <code>|y − 0.8x|</code>：从你的点<strong>竖直</strong>落到直线上（同一 x）。拖到蓝线上时，差值应接近 0。</p>
+
+  <div class="card" style="border-color:rgba(88,166,255,0.35);padding:16px">
+    <canvas id="line-canvas" height="360"></canvas>
+    <p class="hint">拖动橙色点 · 或点击空白处移动</p>
+    <div class="live">
+      <div class="row"><span class="label">点坐标 (x, y)</span><span class="val" id="xy">—</span></div>
+      <div class="row"><span class="label">线上同 x 的 y（= 0.8x）</span><span class="val" id="yOnLine">—</span></div>
+      <div class="row"><span class="label">差值 y − 0.8x</span><span class="val" id="signed">—</span></div>
+      <div class="row"><span class="label">abs(差值)「有多远」</span><span class="val dist" id="abs">—</span></div>
+    </div>
+    <div class="bar"><div class="bar-fill" id="bar"></div></div>
+    <p id="verdict" style="margin-top:0.7rem;color:#e6edf3;font-size:0.9rem"></p>
+    <div class="legend">
+      <span class="lg-line">直线 y = 0.8x</span>
+      <span class="lg-point">你的点</span>
+      <span class="lg-drop">竖直差 = |y − 0.8x|</span>
+    </div>
+  </div>
+
+  <hr>
+
+  <h2>三、用数字走一遍</h2>
+  <p>直线过 <code>(1, 0.8)</code>。看三个点：</p>
+  <table>
+    <tr><th>点</th><th>y − 0.8x</th><th>abs(...)</th><th>含义</th></tr>
+    <tr><td>(1, 0.8) 在线上</td><td style="color:#c9d1d9"><strong>0</strong></td><td>0</td><td>距离为 0</td></tr>
+    <tr><td>(1, 1.0) 上方</td><td style="color:#3fb950"><strong>+0.2</strong></td><td>0.2</td><td>偏上 0.2</td></tr>
+    <tr><td>(1, 0.5) 下方</td><td style="color:#f85149"><strong>−0.2</strong></td><td>0.2</td><td>偏下同样远</td></tr>
+  </table>
+  <p>正负只告诉你在上还是在下；画线时通常只要远近，所以加 <code>abs</code>。</p>
+
+  <hr>
+
+  <h2>四、对应到完整画线公式</h2>
+  <div class="tip-box">
+    <code>float v = smoothstep(0.02, 0.0, abs(y - x * 0.8) - 0.01);</code>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h4>① abs(y − 0.8x)</h4>
+      <p>竖直方向离直线有多远。线上为 0，越远越大。</p>
+    </div>
+    <div class="card">
+      <h4>② − 0.01</h4>
+      <p>给线加粗：减完 ≤ 0 的区域算「线芯」。</p>
+    </div>
+    <div class="card">
+      <h4>③ smoothstep(0.02, 0.0, …)</h4>
+      <p>远 → 0，近 → 1；边缘柔化抗锯齿。注意 edge 从大到小，是反向过渡。</p>
+    </div>
+    <div class="card">
+      <h4>④ 改参数</h4>
+      <p><code>0.8</code> 斜率；<code>0.01</code> 粗细；<code>0.02</code> 羽化宽度。</p>
+    </div>
+  </div>
+
+  <hr>
+
+  <h2>五、同一技巧的亲戚</h2>
+  <ul>
+    <li>水平线 / 波形：<code>abs(uv.y - wave)</code> — 仍是「竖直偏差」</li>
+    <li>竖直线：<code>abs(uv.x - 0.5)</code> — 变成「水平偏差」</li>
+    <li>镜像后画 V：先 <code>mirror = abs(uv)</code>，再对 <code>mirror</code> 用斜线公式（见 abs/mod 课）</li>
+  </ul>
+  <p>若需要真正的几何垂直距离，要用归一化法线（如 <code>abs(dot(...))</code>）。日常画线、描边、示波器曲线，竖直/水平偏差通常就够。</p>
+
+  <hr>
+
+  <h2>六、一句话小结</h2>
+  <p><strong>先算每个点到直线 <code>y = mx</code> 的竖直偏差，取绝对值得到远近，再减线宽、用 smoothstep 做成软边遮罩。</strong></p>
+</div>
+
+<script>
+(function () {
+  const canvas = document.getElementById('line-canvas');
+  const ctx = canvas.getContext('2d');
+  const SLOPE = 0.8;
+  const WORLD = { x0: -0.2, x1: 2.2, y0: -0.4, y1: 2.0 };
+  let point = { x: 1.0, y: 1.2 };
+  let dragging = false;
+  let dpr = 1;
+
+  function resize() {
+    const cssW = canvas.clientWidth;
+    const cssH = 360;
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.floor(cssW * dpr);
+    canvas.height = Math.floor(cssH * dpr);
+    draw();
+  }
+
+  function toScreen(x, y) {
+    const W = canvas.width / dpr;
+    const H = canvas.height / dpr;
+    return {
+      x: ((x - WORLD.x0) / (WORLD.x1 - WORLD.x0)) * W,
+      y: (1 - (y - WORLD.y0) / (WORLD.y1 - WORLD.y0)) * H,
+    };
+  }
+
+  function toWorld(sx, sy) {
+    const W = canvas.width / dpr;
+    const H = canvas.height / dpr;
+    return {
+      x: WORLD.x0 + (sx / W) * (WORLD.x1 - WORLD.x0),
+      y: WORLD.y0 + (1 - sy / H) * (WORLD.y1 - WORLD.y0),
+    };
+  }
+
+  function fmt(n, digits = 2) {
+    return (Math.round(n * 10 ** digits) / 10 ** digits).toFixed(digits);
+  }
+
+  function updatePanel() {
+    const signed = point.y - SLOPE * point.x;
+    const abs = Math.abs(signed);
+    const yOn = SLOPE * point.x;
+    document.getElementById('xy').textContent = `(${fmt(point.x)}, ${fmt(point.y)})`;
+    document.getElementById('yOnLine').textContent = fmt(yOn);
+    const signedEl = document.getElementById('signed');
+    signedEl.textContent = fmt(signed, 3);
+    signedEl.className = 'val ' + (Math.abs(signed) < 0.02 ? 'zero' : signed > 0 ? 'pos' : 'neg');
+    document.getElementById('abs').textContent = fmt(abs, 3);
+    document.getElementById('bar').style.width = Math.min(100, (abs / 1.2) * 100) + '%';
+    const verdict = document.getElementById('verdict');
+    if (Math.abs(signed) < 0.02) {
+      verdict.textContent = '✓ 点几乎在线上：差值 ≈ 0，所以「距离」≈ 0。';
+    } else if (signed > 0) {
+      verdict.innerHTML = `点在线<strong style="color:#3fb950">上方</strong>：差值为正。竖直偏差 = ${fmt(abs, 3)}。`;
+    } else {
+      verdict.innerHTML = `点在线<strong style="color:#f85149">下方</strong>：差值为负。取 abs 后距离仍是 ${fmt(abs, 3)}。`;
+    }
+  }
+
+  function draw() {
+    const W = canvas.width / dpr;
+    const H = canvas.height / dpr;
+    ctx.save();
+    ctx.scale(dpr, dpr);
+    ctx.fillStyle = '#010409';
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.strokeStyle = '#161b22';
+    ctx.lineWidth = 1;
+    for (let x = 0; x <= 2.0; x += 0.2) {
+      const a = toScreen(x, WORLD.y0), b = toScreen(x, WORLD.y1);
+      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+    }
+    for (let y = 0; y <= 1.8; y += 0.2) {
+      const a = toScreen(WORLD.x0, y), b = toScreen(WORLD.x1, y);
+      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+    }
+
+    ctx.strokeStyle = '#30363d';
+    ctx.lineWidth = 1.5;
+    const ox0 = toScreen(WORLD.x0, 0), ox1 = toScreen(WORLD.x1, 0);
+    const oy0 = toScreen(0, WORLD.y0), oy1 = toScreen(0, WORLD.y1);
+    ctx.beginPath();
+    ctx.moveTo(ox0.x, ox0.y); ctx.lineTo(ox1.x, ox1.y);
+    ctx.moveTo(oy0.x, oy0.y); ctx.lineTo(oy1.x, oy1.y);
+    ctx.stroke();
+
+    ctx.fillStyle = '#8b949e';
+    ctx.font = '12px Inter, sans-serif';
+    ctx.fillText('x →', W - 36, toScreen(0, 0).y + 16);
+    ctx.fillText('y ↑', toScreen(0, 0).x + 8, 18);
+
+    const a = toScreen(WORLD.x0, SLOPE * WORLD.x0);
+    const b = toScreen(WORLD.x1, SLOPE * WORLD.x1);
+    ctx.strokeStyle = 'rgba(88,166,255,0.18)';
+    ctx.lineWidth = 26;
+    ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+    ctx.strokeStyle = '#58a6ff';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+
+    const mid = toScreen(1.35, SLOPE * 1.35);
+    ctx.fillStyle = '#58a6ff';
+    ctx.font = '600 13px Inter, sans-serif';
+    ctx.fillText('y = 0.8 × x', mid.x + 10, mid.y - 12);
+
+    [[0, 0], [1, 0.8], [2, 1.6]].forEach(([x, y]) => {
+      const p = toScreen(x, y);
+      ctx.fillStyle = '#58a6ff';
+      ctx.beginPath(); ctx.arc(p.x, p.y, 3.5, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#8b949e';
+      ctx.font = '11px JetBrains Mono, monospace';
+      ctx.fillText(`(${x}, ${y})`, p.x + 8, p.y - 8);
+    });
+
+    const yOn = SLOPE * point.x;
+    const signed = point.y - yOn;
+    const p = toScreen(point.x, point.y);
+    const foot = toScreen(point.x, yOn);
+
+    ctx.setLineDash([5, 4]);
+    ctx.strokeStyle = '#c9a227';
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(foot.x, foot.y); ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.fillStyle = '#c9a227';
+    ctx.font = '600 12px JetBrains Mono, monospace';
+    ctx.fillText(`|y − 0.8x| = ${fmt(Math.abs(signed), 3)}`, p.x + 14, (p.y + foot.y) / 2 + 4);
+
+    ctx.fillStyle = '#58a6ff';
+    ctx.beginPath(); ctx.arc(foot.x, foot.y, 4.5, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#8b949e';
+    ctx.font = '11px JetBrains Mono, monospace';
+    ctx.fillText(`线上 (${fmt(point.x)}, ${fmt(yOn)})`, foot.x + 10, foot.y + (signed >= 0 ? 16 : -10));
+
+    ctx.fillStyle = '#f0a050';
+    ctx.beginPath(); ctx.arc(p.x, p.y, 8, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.restore();
+    updatePanel();
+  }
+
+  function eventToLocal(e) {
+    const rect = canvas.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    return { x: clientX - rect.left, y: clientY - rect.top };
+  }
+
+  function setPointFromEvent(e) {
+    const local = eventToLocal(e);
+    const w = toWorld(local.x, local.y);
+    point.x = Math.min(WORLD.x1 - 0.05, Math.max(WORLD.x0 + 0.05, w.x));
+    point.y = Math.min(WORLD.y1 - 0.05, Math.max(WORLD.y0 + 0.05, w.y));
+    draw();
+  }
+
+  canvas.addEventListener('pointerdown', (e) => {
+    dragging = true;
+    canvas.setPointerCapture(e.pointerId);
+    setPointFromEvent(e);
+  });
+  canvas.addEventListener('pointermove', (e) => { if (dragging) setPointFromEvent(e); });
+  canvas.addEventListener('pointerup', () => { dragging = false; });
+  canvas.addEventListener('pointercancel', () => { dragging = false; });
+  window.addEventListener('resize', resize);
+  resize();
+})();
+</script>
+</body>
+</html>

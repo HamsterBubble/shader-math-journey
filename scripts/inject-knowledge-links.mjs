@@ -28,6 +28,7 @@ const SKIP_MAP = {
   'uv-remap':        ['stage1/01-hello-gradient', 'stage1/09-clamp-remap'],
   'smoothstep':      ['stage1/04-smoothstep-compare'],
   'sdf-basics':      ['stage1/06-circle-sdf'],
+
   'sin-cos':         ['stage2/01-sin-wave', 'stage2/02-sin-cos-circle'],
   'mix-blend':       ['stage1/02-mix-colors'],
   'dot-product':     ['stage3/03-dot-product'],

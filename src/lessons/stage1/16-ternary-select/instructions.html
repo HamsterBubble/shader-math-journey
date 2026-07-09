@@ -8,6 +8,8 @@
 
 
 
+
+
 <h3>GPU 不喜欢 if-else</h3>
 <p>在 CPU 上我们习惯用 <code>if (x > 0) { A } else { B }</code>。但在 GPU 上，分支（branching）会<strong>严重影响性能</strong>——因为同一 Warp/Quad 的线程必须走相同的路径。</p>
 

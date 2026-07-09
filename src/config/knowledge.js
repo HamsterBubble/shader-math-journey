@@ -40,6 +40,21 @@ export const KNOWLEDGE_POINTS = [
     patterns: ['smoothstep('],
   },
   {
+    id: 'implicit-line',
+    page: '/learn-implicit-line.html',
+    title: '隐式直线距离：y − mx',
+    label: '为什么 y−mx 能表示距离',
+    icon: '📐',
+    patterns: [
+      'abs(mirror.y - mirror.x',
+      'abs(uv.y -',
+      'abs(p.y -',
+      'abs(uv.x -',
+      'abs(gl_FragCoord.x / u_resolution.x -',
+    ],
+  },
+
+  {
     id: 'sdf-basics',
     page: '/learn-sdf-basics.html',
     title: 'SDF 有符号距离函数',
